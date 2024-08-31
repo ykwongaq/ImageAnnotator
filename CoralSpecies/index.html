@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>File Uploader</title>
+        <link rel="stylesheet" href="style/style.css" />
+        <link rel="stylesheet" href="style/button.css" />
+        <link rel="stylesheet" href="style/file_uploader.css" />
+        <link rel="stylesheet" href="style/search.css" />
+        <link rel="stylesheet" href="style/category_button.css" />
+    </head>
+    <body>
+        <div id="uploader" class="uploader">
+            <label for="fileInput">Upload your file</label>
+            <input type="file" id="fileInput" />
+        </div>
+        <div class="scene-info hidden">Scenen info</div>
+        <div class="annotator-view hidden">
+            <div class="image-view"></div>
+            <div class="category-view">
+                <input
+                    type="text"
+                    id="searchBox"
+                    class="searchTerm"
+                    placeholder="Search category"
+                />
+                <div class="buttonContainer">
+                    <button class="button-2">Apple</button>
+                    <button class="button-2">Banana</button>
+                    <button class="button-2">Cherry</button>
+                    <button class="button-2">Date</button>
+                    <button class="button-2">Elderberry</button>
+                    <button class="button-2">Fig</button>
+                    <button class="button-2">Grape</button>
+                    <button class="button-2">Honeydew</button>
+                    <button class="button-2">Indian Fig</button>
+                    <button class="button-2">Jackfruit</button>
+                    <button class="button-2">Kiwi</button>
+                    <button class="button-2">Lemon</button>
+                    <button class="button-2">Mango</button>
+                </div>
+            </div>
+        </div>
+        <div class="button_row hidden">
+            <button id="prev" class="button-28">Prev</button>
+            <button id="show_mask" class="button-28">Show Mask</button>
+            <button id="next" class="button-28">Next</button>
+        </div>
+        <script src="js/main.js"></script>
+    </body>
+</html>

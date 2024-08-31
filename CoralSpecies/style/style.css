@@ -1,0 +1,58 @@
+.annotator-view {
+    width: 90%;
+    max-width: 90%;
+    background-color: blue;
+    height: 500px;
+    align-items: center; /* Vertically center items */
+    justify-content: center; /* Horizontally center items */
+    display: flex;
+    margin: auto; /* Center within the viewport */
+    flex-direction: row;
+}
+
+.image-view {
+    width: 60%;
+    max-width: 60%;
+    height: 100%;
+    max-height: 100%;
+    background-color: red;
+    margin-right: 5px;
+}
+
+.category-view {
+    width: 40%;
+    max-width: 40%;
+    height: 100%;
+    max-height: 100%;
+    background-color: green;
+    display: flex;
+    flex-direction: column;
+}
+
+.scene-info {
+    font-size: 20px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
+}
+
+.button_row {
+    width: 90%;
+    height: 70px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* padding: 0 10px; */
+    box-sizing: border-box;
+}
+
+.button {
+    padding: 10px 20px;
+}
+
+.hidden {
+    display: none;
+}

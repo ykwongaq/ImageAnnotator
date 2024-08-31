@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Searchable Buttons with Scroll</title>
+        <style>
+            .hidden {
+                display: none;
+            }
+
+            #buttonContainer {
+                max-height: 200px; /* Set the height of the scrollable area */
+                overflow-y: scroll; /* Enable vertical scrolling */
+                border: 1px solid #ccc; /* Optional: Add a border for better visibility */
+                padding: 10px; /* Optional: Add some padding */
+                width: 30%;
+            }
+
+            #buttonContainer button {
+                margin: 5px 0; /* Add some space between buttons */
+            }
+        </style>
+    </head>
+    <body>
+        <input
+            type="text"
+            id="searchBox"
+            placeholder="Search buttons..."
+            onkeyup="filterButtons()"
+        />
+        <div id="buttonContainer">
+            <button>Apple</button>
+            <button>Banana</button>
+            <button>Cherry</button>
+            <button>Date</button>
+            <button>Elderberry</button>
+            <button>Fig</button>
+            <button>Grape</button>
+            <button>Honeydew</button>
+            <button>Indian Fig</button>
+            <button>Jackfruit</button>
+            <button>Kiwi</button>
+            <button>Lemon</button>
+            <button>Mango</button>
+        </div>
+
+        <script>
+            function filterButtons() {
+                // Get the value from the search box
+                const searchValue = document
+                    .getElementById("searchBox")
+                    .value.toLowerCase();
+                // Get all the button elements
+                const buttons = document.querySelectorAll(
+                    "#buttonContainer button"
+                );
+
+                // Loop through the buttons and hide those that don't match the search term
+                buttons.forEach((button) => {
+                    const buttonText = button.textContent.toLowerCase();
+                    console.log(
+                        buttonText + " " + buttonText.includes(searchValue)
+                    );
+                    if (buttonText.includes(searchValue)) {
+                        button.classList.remove("hidden");
+                    } else {
+                        button.classList.add("hidden");
+                    }
+                });
+            }
+        </script>
+    </body>
+</html>

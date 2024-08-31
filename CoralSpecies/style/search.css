@@ -1,0 +1,25 @@
+.searchTerm {
+    width: 100%;
+    max-width: 100%;
+    border: 1px solid black;
+    height: 10%;
+    border-radius: 5px 0 0 5px;
+    outline: none;
+    background-color: white;
+    margin: 0 auto;
+    padding: 0px 0px;
+    margin-bottom: 5px;
+    font-size: 20px;
+}
+
+.searchTerm:focus {
+    color: black;
+}
+
+.buttonContainer {
+    max-height: 100%; /* Set the height of the scrollable area */
+    height: 90%;
+    overflow-y: scroll; /* Enable vertical scrolling */
+    padding: 10px; /* Optional: Add some padding */
+    width: 100%;
+}
