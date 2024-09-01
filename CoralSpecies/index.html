@@ -9,21 +9,20 @@
         <link rel="stylesheet" href="style/file_uploader.css" />
         <link rel="stylesheet" href="style/search.css" />
         <link rel="stylesheet" href="style/category_button.css" />
+        <link rel="stylesheet" href="style/canvas.css" />
     </head>
     <body>
-        <div id="uploader" class="uploader">
-            <label for="fileInput">Upload your file</label>
-            <input type="file" id="fileInput" />
-        </div>
-        <div class="scene-info hidden">Scenen info</div>
-        <div class="annotator-view hidden">
-            <div class="image-view"></div>
+        <div class="scene-info">Scenen info</div>
+        <div class="annotator-view">
+            <div id="image-view" class="image-view">
+                <canvas id="canvas" class="canvas"></canvas>
+            </div>
             <div class="category-view">
                 <input
                     type="text"
                     id="searchBox"
                     class="searchTerm"
-                    placeholder="Search category"
+                    placeholder="Search  category"
                 />
                 <div class="buttonContainer">
                     <button class="button-2">Apple</button>
@@ -42,11 +41,14 @@
                 </div>
             </div>
         </div>
-        <div class="button_row hidden">
+        <div class="button_row">
             <button id="prev" class="button-28">Prev</button>
             <button id="show_mask" class="button-28">Show Mask</button>
             <button id="next" class="button-28">Next</button>
         </div>
+        <script src="js/maskdrawer.js"></script>
+        <script src="js/data.js"></script>
+        <script src="js/dataset.js"></script>
         <script src="js/main.js"></script>
     </body>
 </html>

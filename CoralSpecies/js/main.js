@@ -1,15 +1,15 @@
-FILE_INPUT = document.getElementById("uploader");
+async function main() {
+    let path = require("path");
+    const data_folder = "data";
+    let dataset = new Dataset(data_folder);
+    await dataset.initialize();
+    const data_list = dataset.get_data_list();
 
-FILE_INPUT.addEventListener("change", function (e) {
-    const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.onload = function (e) {
-        let elements = document.querySelectorAll(".hidden");
-        elements.forEach((element) => {
-            element.classList.remove("hidden");
-        });
-    };
-    reader.readAsText(file);
-    // Hide the upload file container after loading the json file
-    FILE_INPUT.style.display = "none";
-});
+    const mask_drawer = new MaskDrawer();
+    for (let data of data_list) {
+        mask_drawer.show_data(data);
+        break;
+    }
+}
+
+main();
