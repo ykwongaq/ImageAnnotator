@@ -26,12 +26,12 @@ class Data {
         return this.rle_masks;
     }
 
-    get_masks() {
-        const masks = [];
-        for (let rle_mask of this.rle_masks) {
-            masks.push(this.decode_rle_mask(rle_mask));
-        }
-        return masks;
+    get_mask(idx) {
+        return this.decode_rle_mask(this.rle_masks[idx]);
+    }
+
+    get_mask_count() {
+        return this.rle_masks.length;
     }
 
     decode_rle_mask(rle_mask) {
