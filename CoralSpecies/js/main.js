@@ -19,6 +19,8 @@ const MESSAGE_BOX = document.getElementById("messageBox");
 const SEARCH_BOX = document.getElementById("searchBox");
 const CATEGORY_TEXT = document.getElementById("category-text");
 
+const SCENE_INFO = document.getElementById("scene-info");
+
 var current_image_index = 0;
 var current_mask_index = 0;
 var total_image_count = 0;
@@ -74,6 +76,10 @@ function load_label_buttons(labels) {
     }
 }
 
+function set_scene_info(scene_info) {
+    SCENE_INFO.innerHTML = scene_info;
+}
+
 function mark_label(id, name) {
     const mask =
         DATASET.get_data_list()[current_image_index].get_mask(
@@ -119,6 +125,8 @@ function display_data(image, mask, show_annotations = true) {
 
     MASK_DRAWER.show_data(image, mask, show_annotations);
     set_category_text(mask.get_label_name());
+
+    set_scene_info(image.get_image_filename());
 }
 
 function enable_buttons() {
@@ -216,6 +224,10 @@ function save_image() {
     const path = require("path");
 
     const output_folder = path.join(...OUTPUT_PATH_LIST);
+
+    // Create output folder if it does not exist
+    fs.mkdirSync(output_folder, { recursive: true });
+
     const data = DATASET.get_data_list()[current_image_index];
     const output_filename = data.get_image_filename() + ".json";
     const output_file = path.join(output_folder, output_filename);
