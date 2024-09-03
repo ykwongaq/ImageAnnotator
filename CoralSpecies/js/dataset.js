@@ -1,10 +1,10 @@
 class Dataset {
-    constructor(folder) {
-        this.data_list = [];
-        this.folder = folder; // Save the folder path for later use
-    }
+    constructor() {}
 
-    async initialize() {
+    async initialize(folder) {
+        this.data_list = [];
+        this.folder = folder;
+
         const path = require("path");
         try {
             const image_folder = path.join(this.folder, "images");
@@ -20,7 +20,7 @@ class Dataset {
                 const image_path = image_files[idx];
                 const json_path = json_files[idx];
 
-                const data = new Data(image_path, json_path);
+                const data = new CoralImage(image_path, json_path, idx);
                 this.data_list.push(data);
             }
         } catch (error) {
@@ -31,6 +31,10 @@ class Dataset {
 
     get_data_list() {
         return this.data_list;
+    }
+
+    get_data_count() {
+        return this.data_list.length;
     }
 
     async list_file(directory) {

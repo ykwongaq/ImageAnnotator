@@ -6,13 +6,38 @@
         <title>File Uploader</title>
         <link rel="stylesheet" href="style/style.css" />
         <link rel="stylesheet" href="style/button.css" />
-        <link rel="stylesheet" href="style/file_uploader.css" />
+        <!-- <link rel="stylesheet" href="style/file_uploader.css" /> -->
         <link rel="stylesheet" href="style/search.css" />
         <link rel="stylesheet" href="style/category_button.css" />
+        <link rel="stylesheet" href="style/progress_bar.css" />
         <link rel="stylesheet" href="style/canvas.css" />
     </head>
     <body>
         <div class="scene-info">Scenen info</div>
+        <div class="progressbar-view">
+            <div id="image-progress-text" class="progress-text">
+                Image: (10 / 100)
+            </div>
+            <div class="progress-container round-xlarge">
+                <div
+                    id="image-progress-bar"
+                    class="progressbar round-xlarge"
+                    style="width: 50%"
+                ></div>
+            </div>
+        </div>
+        <div class="progressbar-view">
+            <div id="mask-progress-text" class="progress-text">
+                Mask: (10 / 100)
+            </div>
+            <div class="progress-container round-xlarge">
+                <div
+                    id="mask-progress-bar"
+                    class="progressbar round-xlarge"
+                    style="width: 50%"
+                ></div>
+            </div>
+        </div>
         <div class="annotator-view">
             <div id="image-view" class="image-view">
                 <canvas id="canvas" class="canvas"></canvas>
@@ -22,32 +47,28 @@
                     type="text"
                     id="searchBox"
                     class="searchTerm"
-                    placeholder="Search  category"
+                    placeholder="Search category"
                 />
-                <div class="buttonContainer">
-                    <button class="button-2">Apple</button>
-                    <button class="button-2">Banana</button>
-                    <button class="button-2">Cherry</button>
-                    <button class="button-2">Date</button>
-                    <button class="button-2">Elderberry</button>
-                    <button class="button-2">Fig</button>
-                    <button class="button-2">Grape</button>
-                    <button class="button-2">Honeydew</button>
-                    <button class="button-2">Indian Fig</button>
-                    <button class="button-2">Jackfruit</button>
-                    <button class="button-2">Kiwi</button>
-                    <button class="button-2">Lemon</button>
-                    <button class="button-2">Mango</button>
-                </div>
+                <div id="buttonContainer" class="buttonContainer"></div>
             </div>
         </div>
         <div class="button_row">
-            <button id="prev" class="button-28">Prev</button>
-            <button id="show_mask" class="button-28">Show Mask</button>
-            <button id="next" class="button-28">Next</button>
+            <button id="prev_image_button" class="button-28">Prev Image</button>
+            <button id="prev_mask_button" class="button-28">
+                Prev Mask (A)
+            </button>
+            <button id="show_mask_button" class="button-28">
+                Show Mask (S)
+            </button>
+            <button id="next_mask_button" class="button-28">
+                Next Mask (D)
+            </button>
+            <button id="next_image_button" class="button-28">Next Image</button>
         </div>
+        <script src="js/mask.js"></script>
+        <script src="js/label.js"></script>
         <script src="js/maskdrawer.js"></script>
-        <script src="js/data.js"></script>
+        <script src="js/coral_image.js"></script>
         <script src="js/dataset.js"></script>
         <script src="js/main.js"></script>
     </body>
