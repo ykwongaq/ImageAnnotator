@@ -11,7 +11,13 @@ const NEXT_MASK_BUTTON = document.getElementById("next_mask_button");
 const PREV_MASK_BUTTON = document.getElementById("prev_mask_button");
 const SHOW_MASK_BUTTON = document.getElementById("show_mask_button");
 
+// Message Box
+const MESSAGE_BOX = document.getElementById("messageBox");
+// const OVERLAY = document.getElementById("overlay");
+
+// Category View
 const SEARCH_BOX = document.getElementById("searchBox");
+const CATEGORY_TEXT = document.getElementById("category-text");
 
 var current_image_index = 0;
 var current_mask_index = 0;
@@ -21,6 +27,7 @@ var total_mask_count = 0;
 const DATASET = new Dataset();
 const MASK_DRAWER = new MaskDrawer();
 
+const OUTPUT_PATH_LIST = ["data", "outputs"];
 var showMask = true;
 
 function set_image_progress(current_image_index, total_image_count) {
@@ -63,13 +70,18 @@ function load_label_buttons(labels) {
         button.onclick = () => {
             mark_label(label.id, label.name);
         };
-
         buttonContainer.appendChild(button);
     }
 }
 
 function mark_label(id, name) {
-    console.log("Marking label:", id, name);
+    const mask =
+        DATASET.get_data_list()[current_image_index].get_mask(
+            current_mask_index
+        );
+    mask.set_label_id(id);
+    mask.set_label_name(name);
+    set_category_text(name);
 }
 
 function enable_search_bar() {
@@ -89,21 +101,24 @@ function enable_search_bar() {
     });
 }
 
+function set_category_text(category) {
+    if (category === null) {
+        category = "None";
+    }
+    CATEGORY_TEXT.innerHTML = "Label: " + category;
+}
+
 function display_data(image, mask, show_annotations = true) {
     total_image_count = DATASET.get_data_count();
     total_mask_count = image.get_masks_count();
     current_image_index = image.get_image_idx();
     current_mask_index = mask.get_mask_idx();
 
-    console.log("current_image_index: ", current_image_index);
-    console.log("total_image_count: ", total_image_count);
-    console.log("current_mask_index: ", current_mask_index);
-    console.log("total_mask_count: ", total_mask_count);
-
     set_image_progress(current_image_index, total_image_count);
     set_mask_progress(current_mask_index, total_mask_count);
 
     MASK_DRAWER.show_data(image, mask, show_annotations);
+    set_category_text(mask.get_label_name());
 }
 
 function enable_buttons() {
@@ -119,6 +134,7 @@ function enable_buttons() {
     };
 
     NEXT_IMAGE_BUTTON.onclick = function () {
+        save_image();
         const data_list = DATASET.get_data_list();
         if (current_image_index < total_image_count - 1) {
             current_image_index++;
@@ -136,6 +152,15 @@ function enable_buttons() {
             current_mask_index -= 1;
             const mask = image.get_mask(current_mask_index);
             display_data(image, mask, showMask);
+        } else {
+            // Move to last mask of the previous image
+            if (current_image_index > 0) {
+                current_image_index--;
+                const image = data_list[current_image_index];
+                current_mask_index = image.get_masks_count() - 1;
+                const mask = image.get_mask(current_mask_index);
+                display_data(image, mask, showMask);
+            }
         }
     };
 
@@ -144,9 +169,18 @@ function enable_buttons() {
         const image = data_list[current_image_index];
         if (current_mask_index < total_mask_count - 1) {
             current_mask_index += 1;
-            console.log("check current_mask_index: ", current_mask_index);
             const mask = image.get_mask(current_mask_index);
             display_data(image, mask, showMask);
+        } else {
+            save_image();
+            // Move to first mask of the next image
+            if (current_image_index < total_image_count - 1) {
+                current_image_index++;
+                current_mask_index = 0;
+                const image = data_list[current_image_index];
+                const mask = image.get_mask(current_mask_index);
+                display_data(image, mask, showMask);
+            }
         }
     };
 
@@ -176,6 +210,37 @@ function enable_shortcuts() {
     });
 }
 
+function save_image() {
+    show_message("Image saved.");
+    const fs = require("fs");
+    const path = require("path");
+
+    const output_folder = path.join(...OUTPUT_PATH_LIST);
+    const data = DATASET.get_data_list()[current_image_index];
+    const output_filename = data.get_image_filename() + ".json";
+    const output_file = path.join(output_folder, output_filename);
+
+    const json_data = data.export_json();
+    const json = JSON.stringify(json_data, null, 2);
+    console.log("Saveing to: ", output_file);
+    fs.writeFileSync(output_file, json, "utf-8", (err) => {
+        if (err) {
+            console.log("An error ocurred writing file: " + err.message);
+        }
+        console.log("The file has been succesfully saved to " + output_file);
+    });
+}
+
+function show_message(message, second = 2) {
+    MESSAGE_BOX.innerHTML = message;
+    MESSAGE_BOX.style.display = "block";
+    // OVERLAY.style.display = "block";
+
+    setTimeout(() => {
+        MESSAGE_BOX.style.display = "none";
+    }, second * 1000);
+}
+
 async function main() {
     const path = require("path");
 
@@ -183,7 +248,6 @@ async function main() {
     await DATASET.initialize(data_folder);
 
     const label_path = path.join(__dirname, "data", "labels.json");
-    console.log("label_path: ", label_path);
     const labels = collect_labels(label_path);
 
     // Load the buttons

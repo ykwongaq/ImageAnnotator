@@ -11,6 +11,7 @@
         <link rel="stylesheet" href="style/category_button.css" />
         <link rel="stylesheet" href="style/progress_bar.css" />
         <link rel="stylesheet" href="style/canvas.css" />
+        <link rel="stylesheet" href="style/message_box.css" />
     </head>
     <body>
         <div class="scene-info">Scenen info</div>
@@ -50,6 +51,7 @@
                     placeholder="Search category"
                 />
                 <div id="buttonContainer" class="buttonContainer"></div>
+                <div id="category-text" class="category-text"></div>
             </div>
         </div>
         <div class="button_row">
@@ -63,7 +65,12 @@
             <button id="next_mask_button" class="button-28">
                 Next Mask (D)
             </button>
-            <button id="next_image_button" class="button-28">Next Image</button>
+            <button id="next_image_button" class="button-28">
+                Next Image & Save
+            </button>
+        </div>
+        <div id="messageBox" class="messageBox" style="display: none">
+            Image have been saved.
         </div>
         <script src="js/mask.js"></script>
         <script src="js/label.js"></script>

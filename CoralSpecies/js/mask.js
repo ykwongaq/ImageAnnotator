@@ -1,5 +1,11 @@
 class Mask {
-    constructor(mask_idx, image_idx, rle_mask, label_id = -1, label_name = "") {
+    constructor(
+        mask_idx,
+        image_idx,
+        rle_mask,
+        label_id = null,
+        label_name = null
+    ) {
         this.mask_id = mask_idx;
         this.image_idx = image_idx;
         this.rle_mask = rle_mask;

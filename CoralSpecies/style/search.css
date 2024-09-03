@@ -18,7 +18,7 @@
 
 .buttonContainer {
     max-height: 100%; /* Set the height of the scrollable area */
-    height: 90%;
+    height: 80%;
     overflow-y: scroll; /* Enable vertical scrolling */
     padding: 10px; /* Optional: Add some padding */
     width: 100%;

@@ -8,19 +8,32 @@ class Dataset {
         const path = require("path");
         try {
             const image_folder = path.join(this.folder, "images");
-            const json_folder = path.join(this.folder, "annotations_processed");
+            const processed_json_folder = path.join(
+                this.folder,
+                "annotations_processed"
+            );
+            const json_folder = path.join(this.folder, "annotations");
 
             const image_files = await this.list_file(image_folder);
+            const processed_json_files = await this.list_file(
+                processed_json_folder
+            );
             const json_files = await this.list_file(json_folder);
 
             image_files.sort();
-            json_files.sort();
+            processed_json_files.sort();
 
             for (let idx = 0; idx < image_files.length; idx++) {
                 const image_path = image_files[idx];
+                const processed_json_path = processed_json_files[idx];
                 const json_path = json_files[idx];
 
-                const data = new CoralImage(image_path, json_path, idx);
+                const data = new CoralImage(
+                    image_path,
+                    json_path,
+                    processed_json_path,
+                    idx
+                );
                 this.data_list.push(data);
             }
         } catch (error) {

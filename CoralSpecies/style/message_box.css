@@ -1,0 +1,9 @@
+.messageBox {
+    width: 50%;
+    font-size: 20px;
+    align-content: center;
+    justify-content: center;
+    background-color: gray;
+    text-align: center;
+    margin: auto;
+}

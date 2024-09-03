@@ -1,7 +1,7 @@
 .annotator-view {
     width: 90%;
     max-width: 90%;
-    height: 800px;
+    height: 700px;
     align-items: center; /* Vertically center items */
     justify-content: center; /* Horizontally center items */
     display: flex;
@@ -25,6 +25,12 @@
     max-height: 100%;
     display: flex;
     flex-direction: column;
+}
+
+.category-text {
+    width: 100%;
+    height: 10%;
+    font-size: 25px;
 }
 
 .scene-info {
