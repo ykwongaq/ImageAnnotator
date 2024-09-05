@@ -11,16 +11,7 @@ class CoralImage {
         this.masks = [];
         let mask_id = 0;
         for (let annotation of this.processed_json_data["annotations"]) {
-            const rle_mask = annotation["segmentation"]["counts"];
-            const label_id = annotation["label_id"];
-            const label_name = annotation["label_name"];
-            const mask = new Mask(
-                mask_id,
-                this.image_idx,
-                rle_mask,
-                label_id,
-                label_name
-            );
+            const mask = new Mask(annotation, mask_id, image_idx);
             this.masks.push(mask);
             mask_id += 1;
         }

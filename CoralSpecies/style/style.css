@@ -1,5 +1,5 @@
 .annotator-view {
-    width: 90%;
+    width: 70%;
     max-width: 90%;
     height: 700px;
     align-items: center; /* Vertically center items */
@@ -43,7 +43,7 @@
 }
 
 .button_row {
-    width: 90%;
+    width: 70%;
     height: 70px;
     margin: 0 auto;
     display: flex;
