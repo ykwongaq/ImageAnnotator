@@ -55,6 +55,7 @@ def main(args):
     os.makedirs(output_dir, exist_ok=True)
 
     area_limit = args.area_limit
+    iou_limit = args.iou_limit
 
     for annotation_filename in tqdm(os.listdir(annotation_dir)):
         annotation_path = os.path.join(annotation_dir, annotation_filename)
@@ -70,7 +71,7 @@ def main(args):
             skip = False
             for processed_mask in processed_masks:
                 iou = cal_iou(mask, processed_mask)
-                if iou > 0.5:
+                if iou > iou_limit:
                     skip = True
                     break
             processed_masks.append(mask)
@@ -101,17 +102,6 @@ if __name__ == "__main__":
         "--output_dir", type=str, default="../data/annotations_processed"
     )
     parser.add_argument("--area_limit", type=int, default=5000)
+    parser.add_argument("--iou_limit", type=float, default=0.5)
     args = parser.parse_args()
     main(args)
-
-
-def rle_decode(rle):
-    flattened_array = []
-    value = False
-    for length in rle:
-        flattened_array.extend([value] * length)
-        value = not value
-
-    # Convert boolean to int
-    flattened_array = [int(i) for i in flattened_array]
-    return flattened_array
