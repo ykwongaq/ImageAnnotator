@@ -20,6 +20,8 @@ const SEARCH_BOX = document.getElementById("searchBox");
 const CANVAS = document.getElementById("canvas");
 const CANVAS_DRAWER = new CanvasDrawer(CANVAS);
 
+const BUTTON_CONTAINER = document.getElementById("buttonContainer");
+
 const SCENE_INFO = document.getElementById("scene-info");
 
 var current_image = null;
@@ -61,7 +63,7 @@ function load_label_buttons(labels) {
     let idx = 0;
     for (const label of labels) {
         const button = document.createElement("button");
-        button.innerHTML = label.get_label_name();
+        button.innerHTML = `${label.get_label_id()}: ${label.get_label_name()}`;
         button.classList.add("button-2");
         button.onclick = () => {
             mark_label(label.get_label_id(), label.get_label_name());
@@ -107,6 +109,12 @@ function enable_search_bar() {
     });
 }
 
+function enable_button_container() {
+    BUTTON_CONTAINER.addEventListener("wheel", function (event) {
+        event.preventDefault();
+        BUTTON_CONTAINER.scrollLeft += event.deltaY;
+    });
+}
 function display_data(image, show_annotations = true) {
     set_image_progress(image);
     CANVAS_DRAWER.setData(image);
@@ -279,6 +287,8 @@ async function main() {
 
     // Enable canvas
     enable_canvas();
+
+    enable_button_container();
 
     const data_list = DATASET.get_data_list();
     current_image = data_list[0];
