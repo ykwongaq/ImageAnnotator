@@ -237,11 +237,19 @@ function enable_canvas() {
         y = Math.floor(y);
 
         const image = current_image;
+        let count = 0;
         for (const mask of image.get_masks()) {
             if (mask.contain_pixel(x, y)) {
                 select_mask(mask);
+                count++;
             }
         }
+        console.log(
+            "Selected mask count: ",
+            count,
+            " total mask count: ",
+            image.get_masks().length
+        );
 
         CANVAS_DRAWER.updateMasks();
         display_data(image, showMask);

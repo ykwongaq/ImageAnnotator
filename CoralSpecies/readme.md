@@ -2,11 +2,15 @@
 
 Please process the data first before giving the data to the annotator.
 
+### Environment Setup
+
 In python, please install `pycocotools` by the following command:
 
 ```bash
 pip install pycocotools
 ```
+
+### Prepare Data
 
 Create a data folder and place the data to that folder with the following format:
 
@@ -22,6 +26,8 @@ data
 |- labels.json
 ```
 
+### Processing Data
+
 Then run the following code:
 
 ```bash
@@ -29,7 +35,14 @@ cd python
 python process.py
 ```
 
-It will generate a `annotations_processed` folder in the `data` folder
+It will generate a `annotations_processed` folder in the `data` folder. 
+
+Also, it will filter out the mask if
+
+1. The area of the mask is less than 5000
+2. The mask has `IoU > 0.5` with other masks
+
+### Defining Labels
 
 Please also include a `labels.json` file, which provide the label information. It should store a `dictionary` where the key is the label id, and the value be the label name.
 
@@ -40,6 +53,8 @@ Please also include a `labels.json` file, which provide the label information. I
     "2": "C"
 }
 ```
+
+**Please note that current this tool only support at most 30 categories. If you need more, please contact me.**
 
 Then please give the `data` folder to the annotator.
 
@@ -57,12 +72,29 @@ For the coral, please select the corresponding name of the target coral, by clic
 
 `Prev Image` button will show the previous image.
 
-`Prev Mask` button will show the previous coral mask of the same image.
+`Reset Viewpoint` It will reset the original viewpoint if you zoom in or zoom out the image.
 
 `Show Mask` button allow you to show/hide the mask
-
-`Next Mask` button will show the next coral mask of the same image.
 
 `Next Image & Save` button will show the next image and save the data.
 
 All the annotated data will be saved in the `data/outputs` folder.
+
+## Output Structure
+
+The output structure following the original `coco` format with two additional attribution: `label_id` and `label_name`
+
+```json
+{
+	"image": ...
+    "annotations": [
+    	"segmentation": ...
+		"label_id": 0,
+    	"label_name": "A"
+    ] 
+}
+```
+
+`label_id` is the id annotated by the user.
+
+`label_name` is the name of the label.
