@@ -21,7 +21,8 @@ const SCENE_INFO = document.getElementById("scene-info");
 var current_image = null;
 
 const DATASET = new Dataset();
-const MASK_DRAWER = new MaskDrawer();
+// const MASK_DRAWER = new MaskDrawer();
+const CANVAS_DRAWER = new CanvasDrawer(CANVAS);
 
 const OUTPUT_PATH_LIST = ["data", "outputs"];
 var showMask = true;
@@ -108,8 +109,8 @@ function enable_search_bar() {
 function display_data(image, show_annotations = true) {
     set_image_progress(image);
 
-    MASK_DRAWER.show_data(image, show_annotations);
-
+    // MASK_DRAWER.show_data(image, show_annotations);
+    CANVAS_DRAWER.showData(image, show_annotations);
     set_scene_info(image.get_image_filename());
 }
 
@@ -234,9 +235,7 @@ function enable_canvas() {
         const input_x = Math.floor(event.clientX - rect.left);
         const input_y = Math.floor(event.clientY - rect.top);
 
-        const [x, y] = canvas_pixel_to_image_pixel(input_x, input_y);
-        console.log("Click at: ", x, y);
-        console.log("Canvas: ", input_x, input_y);
+        const [x, y] = CANVAS_DRAWER.canvasPixelToImagePixel(input_x, input_y);
         const image = current_image;
         for (const mask of image.get_masks()) {
             if (mask.contain_pixel(x, y)) {
@@ -251,7 +250,7 @@ function enable_canvas() {
         const input_x = Math.floor(event.clientX - rect.left);
         const input_y = Math.floor(event.clientY - rect.top);
 
-        const [x, y] = canvas_pixel_to_image_pixel(input_x, input_y);
+        const [x, y] = CANVAS_DRAWER.canvasPixelToImagePixel(input_x, input_y);
 
         const image = current_image;
         for (const mask of image.get_masks()) {
