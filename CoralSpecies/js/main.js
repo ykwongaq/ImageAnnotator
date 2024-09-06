@@ -6,6 +6,9 @@ const IMAGE_PROGRESS_BAR = document.getElementById("image-progress-bar");
 const NEXT_IMAGE_BUTTON = document.getElementById("next_image_button");
 const PREV_IMAGE_BUTTON = document.getElementById("prev_image_button");
 const SHOW_MASK_BUTTON = document.getElementById("show_mask_button");
+const RESET_VIEWPOINT_BUTTON = document.getElementById(
+    "reset_viewpoint_button"
+);
 
 // Message Box
 const MESSAGE_BOX = document.getElementById("messageBox");
@@ -15,6 +18,8 @@ const MESSAGE_BOX = document.getElementById("messageBox");
 const SEARCH_BOX = document.getElementById("searchBox");
 
 const CANVAS = document.getElementById("canvas");
+console.log("CANVAS: ", CANVAS);
+const CANVAS_DRAWER = new CanvasDrawer(CANVAS);
 
 const SCENE_INFO = document.getElementById("scene-info");
 
@@ -22,7 +27,6 @@ var current_image = null;
 
 const DATASET = new Dataset();
 // const MASK_DRAWER = new MaskDrawer();
-const CANVAS_DRAWER = new CanvasDrawer(CANVAS);
 
 const OUTPUT_PATH_LIST = ["data", "outputs"];
 var showMask = true;
@@ -110,7 +114,10 @@ function display_data(image, show_annotations = true) {
     set_image_progress(image);
 
     // MASK_DRAWER.show_data(image, show_annotations);
-    CANVAS_DRAWER.showData(image, show_annotations);
+    // CANVAS_DRAWER.showData(image, show_annotations);
+    CANVAS_DRAWER.setData(image);
+    CANVAS_DRAWER.setShowAnnotation(show_annotations);
+    CANVAS_DRAWER.draw();
     set_scene_info(image.get_image_filename());
 }
 
@@ -146,6 +153,10 @@ function enable_buttons() {
         showMask = !showMask;
         display_data(current_image, showMask);
     };
+
+    RESET_VIEWPOINT_BUTTON.onclick = function () {
+        CANVAS_DRAWER.resetViewpoint();
+    };
 }
 
 function select_mask(mask) {
@@ -177,6 +188,8 @@ function enable_shortcuts() {
             NEXT_IMAGE_BUTTON.click();
         } else if (inputKey === "s") {
             SHOW_MASK_BUTTON.click();
+        } else if (inputKey === "w") {
+            RESET_VIEWPOINT_BUTTON.click();
         }
     });
 }
@@ -213,20 +226,6 @@ function show_message(message, second = 2) {
     setTimeout(() => {
         MESSAGE_BOX.style.display = "none";
     }, second * 1000);
-}
-
-function canvas_pixel_to_image_pixel(x, y) {
-    const image = current_image;
-    const mask = image.get_mask(0);
-    const image_width = mask.width;
-    const image_height = mask.height;
-    const canvas_width = CANVAS.clientWidth;
-    const canvas_height = CANVAS.clientHeight;
-
-    const image_x = Math.floor((x / canvas_width) * image_width);
-    const image_y = Math.floor((y / canvas_height) * image_height);
-
-    return [image_x, image_y];
 }
 
 function enable_canvas() {
@@ -285,7 +284,7 @@ async function main() {
     enable_shortcuts();
 
     // Enable canvas
-    enable_canvas();
+    // enable_canvas();
 
     const data_list = DATASET.get_data_list();
     current_image = data_list[0];

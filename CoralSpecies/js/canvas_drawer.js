@@ -2,174 +2,133 @@ class CanvasDrawer {
     constructor(canvas) {
         this.canvas = canvas;
         this.ctx = this.canvas.getContext("2d");
+        console.log("ctx", this.ctx);
 
-        this.scaleFactor = 1.0;
         this.image = null;
-        this.maskCache = null;
 
-        this.translatePos = { x: 0, y: 0 };
-        this.lastMousePos = { x: 0, y: 0 };
+        this.imageCache = new Image();
+        this.maskCache = new Image();
 
-        this.image_top_left_on_canvas = { x: 0, y: 0 };
-        this.image_bottom_right_on_canvas = { x: 0, y: 0 };
+        this.scale = 1.0;
+        this.origin = { x: 0, y: 0 };
 
-        this.initEvents();
+        this.imageWidth = 0;
+        this.imageHeight = 0;
+
+        self.zoomIntensity = 0.2;
+
+        this.showAnnotation = true;
+        this.enableWheel();
     }
 
-    redrawCanvas() {
-        // Clear the canvas
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); // Clear canvas before drawing
-
-        // Apply transformation: scale and translate
-        this.ctx.save();
-        this.ctx.translate(this.translatePos.x, this.translatePos.y);
-        this.ctx.scale(this.scaleFactor, this.scaleFactor);
-
-        if (this.image) {
-            this.ctx.drawImage(this.image, 0, 0);
-        }
-
-        if (this.maskCache) {
-            this.ctx.drawImage(this.maskCache, 0, 0);
-        }
-
-        this.ctx.restore();
+    setShowAnnotation(showAnnotation) {
+        this.showAnnotation = showAnnotation;
     }
 
-    initEvents() {
-        this.canvas.addEventListener("wheel", (event) =>
-            this.handleZoom(event)
-        );
-        this.canvas.addEventListener("mousemove", (event) =>
-            this.handleMouseMove(event)
-        );
+    setData(image) {
+        this.image = image;
+        const sizeOf = require("image-size");
+        let dimension = sizeOf(this.image.get_image_path());
+        this.imageWidth = dimension.width;
+        this.imageHeight = dimension.height;
+        this.canvas.width = this.imageWidth;
+        this.canvas.height = this.imageHeight;
+        this.updateMasks();
     }
 
-    handleMouseMove(event) {
-        // Get mouse position relative to canvas
-        const rect = this.canvas.getBoundingClientRect();
-        this.lastMousePos = {
-            x: event.clientX - rect.left,
-            y: event.clientY - rect.top,
-        };
-    }
+    updateMasks() {
+        const maskCanvas = document.createElement("canvas");
+        const maskCtx = maskCanvas.getContext("2d");
+        maskCanvas.width = this.imageWidth;
+        maskCanvas.height = this.imageHeight;
 
-    handleZoom(event) {
-        const zoomSpeed = 0.1;
-        const delta = Math.sign(event.deltaY); // Scroll direction
-        const zoomFactor = 1 - delta * zoomSpeed;
+        const masks = this.image.get_masks();
 
-        // Update the scale factor
-        const newScaleFactor = this.scaleFactor * zoomFactor;
+        maskCtx.globalAlpha = 0.5;
+        for (const mask of masks) {
+            maskCtx.fillStyle = mask.get_color();
+            const maskData = mask.get_mask();
+            for (let i = 0; i < maskData.length; i++) {
+                const x = i % this.imageWidth;
+                const y = Math.floor(i / this.imageHeight);
 
-        // Calculate new translation to keep zoom focused at the mouse
-        this.translatePos.x -=
-            (this.lastMousePos.x - this.translatePos.x) * (zoomFactor - 1);
-        this.translatePos.y -=
-            (this.lastMousePos.y - this.translatePos.y) * (zoomFactor - 1);
-
-        this.scaleFactor = newScaleFactor;
-
-        // Adjust the image corner positions
-        this.image_top_left_on_canvas = {
-            x: this.translatePos.x,
-            y: this.translatePos.y,
-        };
-        this.image_bottom_right_on_canvas = {
-            x: this.canvas.width * this.scaleFactor + this.translatePos.x,
-            y: this.canvas.height * this.scaleFactor + this.translatePos.y,
-        };
-
-        console.log(
-            "image_top_left_on_canvas: ",
-            this.image_top_left_on_canvas,
-            " image_bottom_right_on_canvas: ",
-            this.image_bottom_right_on_canvas
-        );
-
-        // Redraw the canvas after zooming
-        this.redrawCanvas();
-    }
-    showData(image_, showAnnotations = true) {
-        const imagePath = image_.get_image_path();
-        this.image = new Image();
-
-        this.image.onload = () => {
-            this.canvas.width = this.image.width;
-            this.canvas.height = this.image.height;
-
-            this.image_bottom_right_on_canvas = {
-                x: this.canvas.width,
-                y: this.canvas.height,
-            };
-            this.image_top_left_on_canvas = { x: 0, y: 0 };
-            this.redrawCanvas();
-
-            if (showAnnotations) {
-                // Create a separate canvas to store mask rendering (cache)
-                const maskCanvas = document.createElement("canvas");
-                const maskCtx = maskCanvas.getContext("2d");
-                maskCanvas.width = this.image.width;
-                maskCanvas.height = this.image.height;
-
-                const masks = image_.get_masks();
-
-                maskCtx.globalAlpha = 0.5;
-                for (const mask_ of masks) {
-                    maskCtx.fillStyle = mask_.get_color();
-                    const mask = mask_.get_mask();
-                    for (let i = 0; i < mask.length; i++) {
-                        const x = i % this.image.width;
-                        const y = Math.floor(i / this.image.height);
-
-                        if (mask[i] === 1) {
-                            maskCtx.fillRect(x, y, 1, 1);
-                        }
-                    }
+                if (maskData[i] === 1) {
+                    maskCtx.fillRect(x, y, 1, 1);
                 }
-
-                // Store the rendered mask as an image
-                this.maskCache = new Image();
-                this.maskCache.src = maskCanvas.toDataURL();
-                this.redrawCanvas(); // Redraw with mask
             }
-        };
+        }
 
-        this.image.src = imagePath;
+        this.maskCache = new Image();
+        this.maskCache.src = maskCanvas.toDataURL();
     }
 
-    canvasPixelToImagePixel(x, y) {
-        let output_x = (x - this.translatePos.x) / this.scaleFactor;
-        let output_y = (y - this.translatePos.y) / this.scaleFactor;
+    draw = () => {
+        this.imageCache.onload = () => {
+            this.ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset the transform matrix
+            this.ctx.clearRect(
+                this.origin.x,
+                this.origin.y,
+                this.canvas.width / this.scale,
+                this.canvas.height / this.scale
+            );
+            this.ctx.scale(this.scale, this.scale);
+            this.ctx.translate(-this.origin.x, -this.origin.y);
 
-        const image_width = this.image.width;
-        const image_height = this.image.height;
-        const canvas_width = this.canvas.clientWidth;
-        const canvas_height = this.canvas.clientHeight;
+            this.ctx.drawImage(this.imageCache, 0, 0);
+            if (this.showAnnotation) {
+                this.ctx.drawImage(this.maskCache, 0, 0);
+            }
+            window.requestAnimationFrame(this.draw);
+        };
+        this.imageCache.src = this.image.get_image_path();
+    };
 
-        output_x = (output_x / canvas_width) * image_width;
-        output_y = (output_y / canvas_height) * image_height;
+    getMousePos(event) {
+        const rect = this.canvas.getBoundingClientRect();
+        return {
+            x: (event.clientX - rect.left) * (this.canvas.width / rect.width),
+            y: (event.clientY - rect.top) * (this.canvas.height / rect.height),
+        };
+    }
 
-        console.log(
-            "input: ",
-            x,
-            y,
-            "translate: ",
-            this.translatePos.x,
-            this.translatePos.y,
-            "scale: ",
-            this.scaleFactor,
-            "image: ",
-            image_width,
-            image_height,
-            "canvas: ",
-            canvas_width,
-            canvas_height,
-            "output: ",
-            output_x,
-            output_y
-        );
+    enableWheel() {
+        this.canvas.onwheel = (event) => {
+            event.preventDefault();
 
-        return [Math.floor(output_x), Math.floor(output_y)];
+            // Get mouse offset.
+            const { x: mouseX, y: mouseY } = this.getMousePos(event);
+
+            // Normalize mouse wheel movement to +1 or -1 to avoid unusual jumps.
+            const wheel = event.deltaY < 0 ? 1 : -1;
+
+            // Compute zoom factor.
+            const zoom = Math.exp(wheel * self.zoomIntensity);
+
+            // Translate so the visible origin is at the context's origin.
+            this.ctx.translate(this.origin.x, this.origin.y);
+
+            this.origin.x -= mouseX / (this.scale * zoom) - mouseX / this.scale;
+            this.origin.y -= mouseY / (this.scale * zoom) - mouseY / this.scale;
+
+            // Scale it (centered around the mouse offset).
+            this.ctx.scale(zoom, zoom);
+
+            // Offset the visible origin to it's correct position.
+            this.ctx.translate(-this.origin.x, -this.origin.y);
+
+            this.scale *= zoom;
+        };
+    }
+
+    canvasPixelToImagePixel(canvasX, canvasY) {
+        const unscaledX = canvasX / this.scale - this.origin.x;
+        const unscaledY = canvasY / this.scale - this.origin.y;
+        console.log("unscaledX: ", unscaledX, "unscaledY: ", unscaledY);
+        return [unscaledX, unscaledY];
+    }
+
+    resetViewpoint() {
+        this.scale = 1.0;
+        this.origin = { x: 0, y: 0 };
     }
 }
