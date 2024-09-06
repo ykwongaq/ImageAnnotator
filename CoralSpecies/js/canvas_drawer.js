@@ -43,24 +43,85 @@ class CanvasDrawer {
         maskCanvas.height = this.imageHeight;
 
         const masks = this.image.get_masks();
+        const imageData = maskCtx.getImageData(
+            0,
+            0,
+            this.imageWidth,
+            this.imageHeight
+        );
+        const data = imageData.data; // This is a flat array of [r, g, b, a, r, g, b, a, ...]
 
-        maskCtx.globalAlpha = 0.5;
         for (const mask of masks) {
-            maskCtx.fillStyle = mask.get_color();
+            const color = mask.get_color();
             const maskData = mask.get_mask();
-            for (let i = 0; i < maskData.length; i++) {
-                const x = i % this.imageWidth;
-                const y = Math.floor(i / this.imageHeight);
+            const [r, g, b] = this.hexToRGB(color);
 
+            for (let i = 0; i < maskData.length; i++) {
                 if (maskData[i] === 1) {
-                    maskCtx.fillRect(x, y, 1, 1);
+                    const x = i % this.imageWidth;
+                    const y = Math.floor(i / this.imageWidth);
+                    const index = (y * this.imageWidth + x) * 4;
+
+                    // Set pixel color with alpha transparency
+                    data[index] = r; // Red
+                    data[index + 1] = g; // Green
+                    data[index + 2] = b; // Blue
+                    data[index + 3] = 128; // Alpha (0.5 transparency -> 128)
                 }
             }
         }
 
+        // Put the modified image data back to the canvas
+        maskCtx.putImageData(imageData, 0, 0);
+
+        // Draw the text labels after the masks are applied
+        for (const mask of masks) {
+            const middle_pixel = mask.get_middle_pixel();
+            const label_id = mask.get_label_id();
+            if (label_id !== null) {
+                const fontSize = Math.floor(
+                    Math.max(this.imageWidth, this.imageHeight) * 0.05
+                );
+                maskCtx.font = `${fontSize}px Arial`;
+                maskCtx.fillStyle = "red";
+                maskCtx.fillText(label_id, middle_pixel[0], middle_pixel[1]);
+            }
+        }
         this.maskCache = new Image();
         this.maskCache.src = maskCanvas.toDataURL();
     }
+
+    // Helper function to convert hex color to RGB
+    hexToRGB(hex) {
+        const bigint = parseInt(hex.slice(1), 16);
+        return [(bigint >> 16) & 255, (bigint >> 8) & 255, bigint & 255];
+    }
+
+    // updateMasks() {
+    //     const maskCanvas = document.createElement("canvas");
+    //     const maskCtx = maskCanvas.getContext("2d");
+    //     maskCanvas.width = this.imageWidth;
+    //     maskCanvas.height = this.imageHeight;
+
+    //     const masks = this.image.get_masks();
+
+    //     maskCtx.globalAlpha = 0.5;
+    //     for (const mask of masks) {
+    //         maskCtx.fillStyle = mask.get_color();
+    //         const maskData = mask.get_mask();
+    //         for (let i = 0; i < maskData.length; i++) {
+    //             const x = i % this.imageWidth;
+    //             const y = Math.floor(i / this.imageHeight);
+
+    //             if (maskData[i] === 1) {
+    //                 maskCtx.fillRect(x, y, 1, 1);
+    //             }
+    //         }
+    //     }
+
+    //     this.maskCache = new Image();
+    //     this.maskCache.src = maskCanvas.toDataURL();
+    // }
 
     draw = () => {
         this.imageCache.onload = () => {
@@ -123,7 +184,6 @@ class CanvasDrawer {
     canvasPixelToImagePixel(canvasX, canvasY) {
         const unscaledX = canvasX / this.scale - this.origin.x;
         const unscaledY = canvasY / this.scale - this.origin.y;
-        console.log("unscaledX: ", unscaledX, "unscaledY: ", unscaledY);
         return [unscaledX, unscaledY];
     }
 

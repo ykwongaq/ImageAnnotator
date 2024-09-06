@@ -18,7 +18,6 @@ const MESSAGE_BOX = document.getElementById("messageBox");
 const SEARCH_BOX = document.getElementById("searchBox");
 
 const CANVAS = document.getElementById("canvas");
-console.log("CANVAS: ", CANVAS);
 const CANVAS_DRAWER = new CanvasDrawer(CANVAS);
 
 const SCENE_INFO = document.getElementById("scene-info");
@@ -81,14 +80,12 @@ function set_scene_info(scene_info) {
 }
 
 function mark_label(id, name) {
-    console.log("marking the label: ", id, name);
     for (const mask of selected_masks) {
         mask.set_label_id(id);
         mask.set_label_name(name);
         mask.set_color_by_id();
-        // set_category_text(name);
-        console.log("Marked id: ", mask.get_label_id());
     }
+    CANVAS_DRAWER.updateMasks();
     display_data(current_image, showMask);
     clear_selected_masks();
 }
@@ -112,9 +109,6 @@ function enable_search_bar() {
 
 function display_data(image, show_annotations = true) {
     set_image_progress(image);
-
-    // MASK_DRAWER.show_data(image, show_annotations);
-    // CANVAS_DRAWER.showData(image, show_annotations);
     CANVAS_DRAWER.setData(image);
     CANVAS_DRAWER.setShowAnnotation(show_annotations);
     CANVAS_DRAWER.draw();
@@ -230,26 +224,25 @@ function show_message(message, second = 2) {
 
 function enable_canvas() {
     CANVAS.addEventListener("click", function (event) {
-        const rect = CANVAS.getBoundingClientRect();
-        const input_x = Math.floor(event.clientX - rect.left);
-        const input_y = Math.floor(event.clientY - rect.top);
+        let { x: x, y: y } = CANVAS_DRAWER.getMousePos(event);
+        x = Math.floor(x);
+        y = Math.floor(y);
 
-        const [x, y] = CANVAS_DRAWER.canvasPixelToImagePixel(input_x, input_y);
         const image = current_image;
         for (const mask of image.get_masks()) {
             if (mask.contain_pixel(x, y)) {
                 select_mask(mask);
             }
         }
+
+        CANVAS_DRAWER.updateMasks();
         display_data(image, showMask);
     });
 
     CANVAS.addEventListener("contextmenu", function (event) {
-        const rect = CANVAS.getBoundingClientRect();
-        const input_x = Math.floor(event.clientX - rect.left);
-        const input_y = Math.floor(event.clientY - rect.top);
-
-        const [x, y] = CANVAS_DRAWER.canvasPixelToImagePixel(input_x, input_y);
+        let { x: x, y: y } = CANVAS_DRAWER.getMousePos(event);
+        x = Math.floor(x);
+        y = Math.floor(y);
 
         const image = current_image;
         for (const mask of image.get_masks()) {
@@ -258,6 +251,7 @@ function enable_canvas() {
             }
         }
 
+        CANVAS_DRAWER.updateMasks();
         display_data(image, showMask);
     });
 }
@@ -284,7 +278,7 @@ async function main() {
     enable_shortcuts();
 
     // Enable canvas
-    // enable_canvas();
+    enable_canvas();
 
     const data_list = DATASET.get_data_list();
     current_image = data_list[0];

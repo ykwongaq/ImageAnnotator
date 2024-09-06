@@ -1,6 +1,6 @@
 class Label {
-    static selected_color = "blue";
-    static default_color = "red";
+    static selected_color = "#0000FF";
+    static default_color = "#FF0000";
 
     static color_list = [
         "#00FF00",
