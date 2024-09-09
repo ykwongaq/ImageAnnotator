@@ -19,6 +19,23 @@ class CanvasDrawer {
 
         this.showAnnotation = true;
         this.enableWheel();
+
+        this.image_top_left = { x: 0, y: 0 };
+        this.image_bottom_right = { x: 0, y: 0 };
+    }
+
+    transition_pos(point, x, y) {
+        point.x += x;
+        point.y += y;
+
+        return { x: point.x, y: point.y };
+    }
+
+    scale_pos(point, scale) {
+        point.x *= scale;
+        point.y *= scale;
+
+        return { x: point.x, y: point.y };
     }
 
     setShowAnnotation(showAnnotation) {
@@ -34,6 +51,8 @@ class CanvasDrawer {
         this.canvas.width = this.imageWidth;
         this.canvas.height = this.imageHeight;
         this.updateMasks();
+        this.image_top_left = { x: 0, y: 0 };
+        this.image_bottom_right = { x: this.imageWidth, y: this.imageHeight };
     }
 
     updateMasks() {
@@ -97,59 +116,54 @@ class CanvasDrawer {
         return [(bigint >> 16) & 255, (bigint >> 8) & 255, bigint & 255];
     }
 
-    // updateMasks() {
-    //     const maskCanvas = document.createElement("canvas");
-    //     const maskCtx = maskCanvas.getContext("2d");
-    //     maskCanvas.width = this.imageWidth;
-    //     maskCanvas.height = this.imageHeight;
-
-    //     const masks = this.image.get_masks();
-
-    //     maskCtx.globalAlpha = 0.5;
-    //     for (const mask of masks) {
-    //         maskCtx.fillStyle = mask.get_color();
-    //         const maskData = mask.get_mask();
-    //         for (let i = 0; i < maskData.length; i++) {
-    //             const x = i % this.imageWidth;
-    //             const y = Math.floor(i / this.imageHeight);
-
-    //             if (maskData[i] === 1) {
-    //                 maskCtx.fillRect(x, y, 1, 1);
-    //             }
-    //         }
-    //     }
-
-    //     this.maskCache = new Image();
-    //     this.maskCache.src = maskCanvas.toDataURL();
-    // }
-
     draw = () => {
         this.imageCache.onload = () => {
-            this.ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset the transform matrix
             this.ctx.clearRect(
                 this.origin.x,
                 this.origin.y,
                 this.canvas.width / this.scale,
                 this.canvas.height / this.scale
             );
+            this.ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset the transform matrix
             this.ctx.scale(this.scale, this.scale);
             this.ctx.translate(-this.origin.x, -this.origin.y);
+
+            this.resetImageBoundary();
+            this.image_top_left = {
+                x: Math.floor(-this.origin.x * this.scale),
+                y: Math.floor(-this.origin.y * this.scale),
+            };
+            this.image_bottom_right = {
+                x: Math.floor(
+                    -this.origin.x * this.scale + this.imageWidth * this.scale
+                ),
+                y: Math.floor(
+                    -this.origin.y * this.scale + this.imageHeight * this.scale
+                ),
+            };
 
             this.ctx.drawImage(this.imageCache, 0, 0);
             if (this.showAnnotation) {
                 this.ctx.drawImage(this.maskCache, 0, 0);
             }
+            this.ctx.fillStyle = "red";
+            this.ctx.fillRect(this.origin.x, this.origin.y, 20, 20);
             window.requestAnimationFrame(this.draw);
         };
         this.imageCache.src = this.image.get_image_path();
     };
 
+    resetImageBoundary() {
+        this.image_top_left = { x: 0, y: 0 };
+        this.image_bottom_right = { x: this.imageWidth, y: this.imageHeight };
+    }
+
     getMousePos(event) {
         const rect = this.canvas.getBoundingClientRect();
-        return {
-            x: (event.clientX - rect.left) * (this.canvas.width / rect.width),
-            y: (event.clientY - rect.top) * (this.canvas.height / rect.height),
-        };
+        return [
+            (event.clientX - rect.left) * (this.canvas.width / rect.width),
+            (event.clientY - rect.top) * (this.canvas.height / rect.height),
+        ];
     }
 
     enableWheel() {
@@ -157,7 +171,7 @@ class CanvasDrawer {
             event.preventDefault();
 
             // Get mouse offset.
-            const { x: mouseX, y: mouseY } = this.getMousePos(event);
+            const [mouseX, mouseY] = this.getMousePos(event);
 
             // Normalize mouse wheel movement to +1 or -1 to avoid unusual jumps.
             const wheel = event.deltaY < 0 ? 1 : -1;
@@ -165,26 +179,33 @@ class CanvasDrawer {
             // Compute zoom factor.
             const zoom = Math.exp(wheel * self.zoomIntensity);
 
-            // Translate so the visible origin is at the context's origin.
-            this.ctx.translate(this.origin.x, this.origin.y);
-
             this.origin.x -= mouseX / (this.scale * zoom) - mouseX / this.scale;
             this.origin.y -= mouseY / (this.scale * zoom) - mouseY / this.scale;
-
-            // Scale it (centered around the mouse offset).
-            this.ctx.scale(zoom, zoom);
-
-            // Offset the visible origin to it's correct position.
-            this.ctx.translate(-this.origin.x, -this.origin.y);
 
             this.scale *= zoom;
         };
     }
 
     canvasPixelToImagePixel(canvasX, canvasY) {
-        const unscaledX = canvasX / this.scale - this.origin.x;
-        const unscaledY = canvasY / this.scale - this.origin.y;
-        return [unscaledX, unscaledY];
+        const width = this.image_bottom_right.x - this.image_top_left.x;
+        const height = this.image_bottom_right.y - this.image_top_left.y;
+
+        const imageX = Math.floor(
+            ((canvasX - this.image_top_left.x) / width) * this.imageWidth
+        );
+        const imageY = Math.floor(
+            ((canvasY - this.image_top_left.y) / height) * this.imageHeight
+        );
+        return [imageX, imageY];
+    }
+
+    isInsideImageBoundary(x, y) {
+        return (
+            x >= this.image_top_left.x &&
+            x <= this.image_bottom_right.x &&
+            y >= this.image_top_left.y &&
+            y <= this.image_bottom_right.y
+        );
     }
 
     resetViewpoint() {

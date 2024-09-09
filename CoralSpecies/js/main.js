@@ -88,7 +88,7 @@ function mark_label(id, name) {
         mask.set_color_by_id();
     }
     CANVAS_DRAWER.updateMasks();
-    display_data(current_image, showMask);
+    display_data();
     clear_selected_masks();
 }
 
@@ -115,12 +115,10 @@ function enable_button_container() {
         BUTTON_CONTAINER.scrollLeft += event.deltaY;
     });
 }
-function display_data(image, show_annotations = true) {
-    set_image_progress(image);
-    CANVAS_DRAWER.setData(image);
-    CANVAS_DRAWER.setShowAnnotation(show_annotations);
+function display_data() {
+    set_image_progress(current_image);
     CANVAS_DRAWER.draw();
-    set_scene_info(image.get_image_filename());
+    set_scene_info(current_image.get_image_filename());
 }
 
 function enable_buttons() {
@@ -131,7 +129,8 @@ function enable_buttons() {
             current_image_index--;
             const image = data_list[current_image_index];
             current_image = image;
-            display_data(current_image, showMask);
+            CANVAS_DRAWER.setData(image);
+            display_data();
             clear_selected_masks();
         }
     };
@@ -145,7 +144,8 @@ function enable_buttons() {
             current_image_idx++;
             const image = data_list[current_image_idx];
             current_image = image;
-            display_data(image, showMask);
+            CANVAS_DRAWER.setData(image);
+            display_data();
             clear_selected_masks();
         }
     };
@@ -153,7 +153,8 @@ function enable_buttons() {
     SHOW_MASK_BUTTON.onclick = function () {
         const data_list = DATASET.get_data_list();
         showMask = !showMask;
-        display_data(current_image, showMask);
+        CANVAS_DRAWER.setShowAnnotation(showMask);
+        display_data();
     };
 
     RESET_VIEWPOINT_BUTTON.onclick = function () {
@@ -232,43 +233,53 @@ function show_message(message, second = 2) {
 
 function enable_canvas() {
     CANVAS.addEventListener("click", function (event) {
-        let { x: x, y: y } = CANVAS_DRAWER.getMousePos(event);
-        x = Math.floor(x);
-        y = Math.floor(y);
+        let [canvasX, canvasY] = CANVAS_DRAWER.getMousePos(event);
+        canvasX = Math.floor(canvasX);
+        canvasY = Math.floor(canvasY);
 
-        const image = current_image;
-        let count = 0;
-        for (const mask of image.get_masks()) {
-            if (mask.contain_pixel(x, y)) {
-                select_mask(mask);
-                count++;
-            }
-        }
-        console.log(
-            "Selected mask count: ",
-            count,
-            " total mask count: ",
-            image.get_masks().length
+        let [imageX, imageY] = CANVAS_DRAWER.canvasPixelToImagePixel(
+            canvasX,
+            canvasY
         );
 
-        CANVAS_DRAWER.updateMasks();
-        display_data(image, showMask);
+        if (CANVAS_DRAWER.isInsideImageBoundary(canvasX, canvasY)) {
+            const image = current_image;
+            let count = 0;
+            for (const mask of image.get_masks()) {
+                if (mask.contain_pixel(imageX, imageY)) {
+                    select_mask(mask);
+                    count++;
+                }
+            }
+
+            CANVAS_DRAWER.updateMasks();
+            display_data();
+        }
     });
 
     CANVAS.addEventListener("contextmenu", function (event) {
-        let { x: x, y: y } = CANVAS_DRAWER.getMousePos(event);
-        x = Math.floor(x);
-        y = Math.floor(y);
+        let [canvasX, canvasY] = CANVAS_DRAWER.getMousePos(event);
+        canvasX = Math.floor(canvasX);
+        canvasY = Math.floor(canvasY);
 
-        const image = current_image;
-        for (const mask of image.get_masks()) {
-            if (mask.contain_pixel(x, y)) {
-                unselect_mask(mask);
+        let [imageX, imageY] = CANVAS_DRAWER.canvasPixelToImagePixel(
+            canvasX,
+            canvasY
+        );
+
+        if (CANVAS_DRAWER.isInsideImageBoundary(canvasX, canvasY)) {
+            const image = current_image;
+            let count = 0;
+            for (const mask of image.get_masks()) {
+                if (mask.contain_pixel(imageX, imageY)) {
+                    unselect_mask(mask);
+                    count++;
+                }
             }
-        }
 
-        CANVAS_DRAWER.updateMasks();
-        display_data(image, showMask);
+            CANVAS_DRAWER.updateMasks();
+            display_data();
+        }
     });
 }
 
@@ -300,7 +311,8 @@ async function main() {
 
     const data_list = DATASET.get_data_list();
     current_image = data_list[0];
-    display_data(current_image, showMask);
+    CANVAS_DRAWER.setData(current_image);
+    display_data();
 }
 
 main();
