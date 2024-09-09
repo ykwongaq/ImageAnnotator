@@ -22,6 +22,10 @@ class CanvasDrawer {
 
         this.image_top_left = { x: 0, y: 0 };
         this.image_bottom_right = { x: 0, y: 0 };
+
+        this.isDragging = false;
+        this.lastRightMousePos = { x: 0, y: 0 };
+        this.enableDrag();
     }
 
     transition_pos(point, x, y) {
@@ -211,5 +215,36 @@ class CanvasDrawer {
     resetViewpoint() {
         this.scale = 1.0;
         this.origin = { x: 0, y: 0 };
+    }
+
+    enableDrag() {
+        const rightMouseKey = 2;
+        this.canvas.addEventListener("mousedown", (event) => {
+            if (event.button === rightMouseKey) {
+                this.isDragging = true;
+                const [mouseX, mouseY] = this.getMousePos(event);
+                this.lastRightMousePos = {
+                    x: mouseX,
+                    y: mouseY,
+                };
+            }
+        });
+
+        this.canvas.addEventListener("mousemove", (event) => {
+            if (this.isDragging) {
+                const [mouseX, mouseY] = this.getMousePos(event);
+                const dx = (mouseX - this.lastRightMousePos.x) / this.scale;
+                const dy = (mouseY - this.lastRightMousePos.y) / this.scale;
+                this.origin.x -= dx;
+                this.origin.y -= dy;
+                this.lastRightMousePos = { x: mouseX, y: mouseY };
+            }
+        });
+
+        this.canvas.addEventListener("mouseup", (event) => {
+            if (event.button === rightMouseKey) {
+                this.isDragging = false;
+            }
+        });
     }
 }

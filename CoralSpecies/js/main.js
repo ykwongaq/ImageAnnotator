@@ -243,37 +243,19 @@ function enable_canvas() {
         );
 
         if (CANVAS_DRAWER.isInsideImageBoundary(canvasX, canvasY)) {
+            const clicked_masks = [];
             const image = current_image;
-            let count = 0;
             for (const mask of image.get_masks()) {
                 if (mask.contain_pixel(imageX, imageY)) {
-                    select_mask(mask);
-                    count++;
+                    clicked_masks.push(mask);
                 }
             }
 
-            CANVAS_DRAWER.updateMasks();
-            display_data();
-        }
-    });
-
-    CANVAS.addEventListener("contextmenu", function (event) {
-        let [canvasX, canvasY] = CANVAS_DRAWER.getMousePos(event);
-        canvasX = Math.floor(canvasX);
-        canvasY = Math.floor(canvasY);
-
-        let [imageX, imageY] = CANVAS_DRAWER.canvasPixelToImagePixel(
-            canvasX,
-            canvasY
-        );
-
-        if (CANVAS_DRAWER.isInsideImageBoundary(canvasX, canvasY)) {
-            const image = current_image;
-            let count = 0;
-            for (const mask of image.get_masks()) {
-                if (mask.contain_pixel(imageX, imageY)) {
-                    unselect_mask(mask);
-                    count++;
+            for (const clicked_mask of clicked_masks) {
+                if (selected_masks.has(clicked_mask)) {
+                    unselect_mask(clicked_mask);
+                } else {
+                    select_mask(clicked_mask);
                 }
             }
 
