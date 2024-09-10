@@ -17,12 +17,31 @@ const MESSAGE_BOX = document.getElementById("messageBox");
 // Category View
 const SEARCH_BOX = document.getElementById("searchBox");
 
+// Canvas
 const CANVAS = document.getElementById("canvas");
 const CANVAS_DRAWER = new CanvasDrawer(CANVAS);
 
+// Button Container
 const BUTTON_CONTAINER = document.getElementById("buttonContainer");
 
+// Scene Info
 const SCENE_INFO = document.getElementById("scene-info");
+
+// Mask Opacity Slider
+const MASK_OPACITY_SLIDER = document.getElementById("mask-opacity-silder");
+
+// Statistic View
+const STATISTIC_REPORT = new StatisticReport();
+const STATSITIC_BOX_TEMPLATE = document.getElementById(
+    "statistic-box-template"
+);
+const STATISTIC_BOX_CONTAINER = document.getElementById(
+    "statistic-box-container"
+);
+const STATISTIC_BOX_MANAGER = new StatisticBoxManager(
+    STATISTIC_BOX_CONTAINER,
+    STATSITIC_BOX_TEMPLATE
+);
 
 var current_image = null;
 
@@ -31,7 +50,6 @@ const DATASET = new Dataset();
 
 const OUTPUT_PATH_LIST = ["data", "outputs"];
 var showMask = true;
-
 var selected_masks = new Set();
 
 function set_image_progress(current_image) {
@@ -58,22 +76,22 @@ function collect_labels(label_path) {
     return labels;
 }
 
-function load_label_buttons(labels) {
+function update_label_buttons() {
     const buttonContainer = document.getElementById("buttonContainer");
-    let idx = 0;
-    for (const label of labels) {
+    for (const label_id in Label.labels) {
+        const label_name = Label.labels[label_id];
+
         const button = document.createElement("button");
-        button.innerHTML = `${label.get_label_id()}: ${label.get_label_name()}`;
+        button.innerHTML = `${label_id}: ${label_name}`;
         button.classList.add("button-2");
         button.onclick = () => {
-            mark_label(label.get_label_id(), label.get_label_name());
+            mark_label(label_id, label_name);
         };
 
-        const color = Label.color_list[idx];
+        const color = Label.color_list[label_id];
         button.style.borderColor = color;
 
         buttonContainer.appendChild(button);
-        idx += 1;
     }
 }
 
@@ -90,6 +108,9 @@ function mark_label(id, name) {
     CANVAS_DRAWER.updateMasks();
     display_data();
     clear_selected_masks();
+
+    STATISTIC_REPORT.updateStatistic();
+    STATISTIC_BOX_MANAGER.updateStatistic(STATISTIC_REPORT);
 }
 
 function enable_search_bar() {
@@ -128,7 +149,7 @@ function enable_buttons() {
         if (current_image_index > 0) {
             current_image_index--;
             const image = data_list[current_image_index];
-            current_image = image;
+            setCurrentImage(image);
             CANVAS_DRAWER.setData(image);
             display_data();
             clear_selected_masks();
@@ -143,7 +164,7 @@ function enable_buttons() {
         if (current_image_idx < total_image_count - 1) {
             current_image_idx++;
             const image = data_list[current_image_idx];
-            current_image = image;
+            setCurrentImage(image);
             CANVAS_DRAWER.setData(image);
             display_data();
             clear_selected_masks();
@@ -265,17 +286,32 @@ function enable_canvas() {
     });
 }
 
+function enable_mask_silder() {
+    MASK_OPACITY_SLIDER.oninput = function () {
+        const opacity = this.value / 100;
+        CANVAS_DRAWER.setMaskOpacity(opacity);
+        CANVAS_DRAWER.draw();
+    };
+}
+
+function setCurrentImage(image) {
+    current_image = image;
+    CANVAS_DRAWER.setData(image);
+    STATISTIC_REPORT.setImage(image);
+    STATISTIC_REPORT.updateStatistic();
+    STATISTIC_BOX_MANAGER.updateStatistic(STATISTIC_REPORT);
+}
+
+function load_statistic_box() {}
+
 async function main() {
     const path = require("path");
 
     const data_folder = "data";
     await DATASET.initialize(data_folder);
 
-    const label_path = path.join(__dirname, "data", "labels.json");
-    const labels = collect_labels(label_path);
-
     // Load the buttons
-    load_label_buttons(labels);
+    update_label_buttons();
 
     // Enable search bar
     enable_search_bar();
@@ -289,11 +325,17 @@ async function main() {
     // Enable canvas
     enable_canvas();
 
+    // Enable button container
     enable_button_container();
 
+    // Enable mask slider
+    enable_mask_silder();
+
+    // Load statistic box
+    load_statistic_box();
+
     const data_list = DATASET.get_data_list();
-    current_image = data_list[0];
-    CANVAS_DRAWER.setData(current_image);
+    setCurrentImage(data_list[0]);
     display_data();
 }
 

@@ -9,8 +9,9 @@
         <!-- <link rel="stylesheet" href="style/file_uploader.css" /> -->
         <link rel="stylesheet" href="style/search.css" />
         <link rel="stylesheet" href="style/category_button.css" />
-        <link rel="stylesheet" href="style/progress_bar.css" />
-        <link rel="stylesheet" href="style/message_box.css" />
+        <!-- <link rel="stylesheet" href="style/range.css" /> -->
+        <!-- <link rel="stylesheet" href="style/progress_bar.css" />
+        <link rel="stylesheet" href="style/message_box.css" /> -->
     </head>
     <body>
         <div id="scene-info" class="scene-info">Scenen info</div>
@@ -35,10 +36,24 @@
                     placeholder="Search category"
                 />
                 <div id="buttonContainer" class="buttonContainer"></div>
-                <!-- <div id="category-text" class="category-text"></div> -->
             </div>
-            <div id="image-view" class="image-view">
+            <div id="image-view" class="annotator-subview">
+                <div class="mask-opacity-view">
+                    <div class="text">Mask</div>
+                    <div class="text">Solid</div>
+                    <div class="mask-silder">
+                        <input id="mask-opacity-silder" type="range" />
+                    </div>
+                    <div class="text">Transparent</div>
+                </div>
                 <canvas id="canvas" class="canvas"></canvas>
+                <div class="statistic-view">
+                    <div class="statistic-title">Statistic Report</div>
+                    <div
+                        id="statistic-box-container"
+                        class="statistic-box-container"
+                    ></div>
+                </div>
             </div>
         </div>
         <div class="button_row">
@@ -49,21 +64,40 @@
                 Reset Viewpoint (W)
             </button>
             <button id="show_mask_button" class="button-28">
-                Show Mask (S)
+                Add Mask (S)
             </button>
             <button id="next_image_button" class="button-28">
                 Next Image & Save (D)
             </button>
         </div>
-        <div id="messageBox" class="messageBox" style="display: none">
-            Image have been saved.
+        <div class="messageBoxContainer">
+            <div id="messageBox" class="messageBox" style="display: none">
+                Image have been saved.
+            </div>
         </div>
+
+        <!-- Define the template -->
+        <template id="statistic-box-template">
+            <div class="statistic-box">
+                <div class="info">Something (1/2) 50%</div>
+                <div class="statistic-process-bar-container">
+                    <div class="progress-container round-xlarge">
+                        <div
+                            class="progressbar round-xlarge"
+                            style="width: 50%"
+                        ></div>
+                    </div>
+                </div>
+            </div>
+        </template>
+
         <script src="js/canvas_drawer.js"></script>
         <script src="js/mask.js"></script>
         <script src="js/label.js"></script>
-        <script src="js/maskdrawer.js"></script>
         <script src="js/coral_image.js"></script>
         <script src="js/dataset.js"></script>
+        <script src="js/statistic_report.js"></script>
+        <script src="js/statistic_box_manager.js"></script>
         <script src="js/main.js"></script>
     </body>
 </html>

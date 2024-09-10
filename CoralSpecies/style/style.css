@@ -1,13 +1,210 @@
+/* Apply 100% height to html and body to ensure full-screen layout */
+html,
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Main container to take 95% of the screen height */
+body {
+    height: 98%;
+    display: flex;
+    flex-direction: column;
+}
+
+.scene-info {
+    font-size: 20px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
+    height: 3%;
+    max-height: 3%;
+}
+
+.progressbar-view {
+    width: 50%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin: auto;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    height: 3%;
+    max-height: 3%;
+}
+
+.progress-text {
+    width: 10%;
+    font-size: 15px;
+    align-items: center;
+    margin-right: 10px;
+}
+
+.progress-container {
+    width: 100%;
+    height: 1em;
+    position: relative;
+    background-color: #f1f1f1;
+}
+
+.progressbar {
+    background-color: #757575;
+    height: 100%;
+    position: absolute;
+    line-height: inherit;
+}
+
+.round-xlarge {
+    border-radius: 16px !important;
+}
+
 .annotator-view {
     width: 50%;
     max-width: 50%;
-    height: 700px;
+    height: 80%;
+    max-height: 80%;
     align-items: center; /* Vertically center items */
     justify-content: center; /* Horizontally center items */
     display: flex;
     margin: auto; /* Center within the viewport */
     flex-direction: column;
     margin-top: 10px;
+}
+
+.annotator-subview {
+    width: 100%;
+    max-width: 100%;
+    height: 90%;
+    max-height: 90%;
+    margin-top: 30px;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    position: relative;
+}
+
+.mask-opacity-view {
+    height: 100%;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    width: 10%;
+    max-width: 10%;
+}
+
+.mask-opacity-view .text {
+    height: 5%;
+    max-height: 5%;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    font-family: DejaVu Sans Mono, monospace;
+}
+
+.mask-silder {
+    width: 100%;
+    max-width: 100%;
+    height: 85%;
+    max-height: 85%;
+}
+
+.mask-silder input[type="range"] {
+    vertical-align: baseline;
+    writing-mode: vertical-lr;
+    direction: rtl;
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    max-height: 100%;
+}
+
+.canvas {
+    max-width: 60%;
+    max-height: 100%;
+    border: 1px solid black;
+    margin: 0 auto;
+}
+
+.statistic-view {
+    height: 100%;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    width: 25%;
+    max-width: 25%;
+    border: 1px solid black;
+}
+
+.statistic-title {
+    width: 100%;
+    max-width: 100%;
+    height: 5%;
+    max-height: 5%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 25px;
+    font-weight: bold;
+    font-family: DejaVu Sans Mono, monospace;
+    border-bottom: 1px solid gray;
+}
+
+.statistic-box-container {
+    width: 100%;
+    max-width: 100%;
+    height: 95%;
+    max-height: 95%;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.statistic-box {
+    width: 100%;
+    max-width: 100%;
+    height: 10%;
+    max-height: 10%;
+    display: flex;
+    flex-direction: column;
+    border-bottom: 1px solid gray;
+}
+
+.statistic-box .info {
+    width: 100%;
+    max-width: 100%;
+    height: 50%;
+    max-height: 50%;
+    margin-left: 5px;
+    font-size: 20px;
+    font-weight: bold;
+    font-family: DejaVu Sans Mono, monospace;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.statistic-box .statistic-process-bar-container {
+    width: 95%;
+    max-width: 95%;
+    height: 50%;
+    max-height: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: auto;
+}
+
+.statistic-box .counting {
+    width: 10%;
+    max-width: 10%;
+    text-align: right;
+    font-size: 20px;
+    font-weight: bold;
+    font-family: DejaVu Sans Mono, monospace;
 }
 
 .image-view {
@@ -20,7 +217,6 @@
     align-items: center;
     justify-content: center;
     display: flex;
-    /* margin: auto; */
 }
 
 .category-view {
@@ -39,18 +235,10 @@
     font-size: 25px;
 }
 
-.scene-info {
-    font-size: 20px;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: auto;
-}
-
 .button_row {
     width: 50%;
-    height: 70px;
+    height: 7%;
+    max-height: 7%;
     margin: auto;
     display: flex;
     justify-content: space-between;
@@ -68,8 +256,20 @@
     display: none;
 }
 
-.canvas {
-    max-width: 100%;
-    max-height: 100%;
-    border: 1px solid black;
+.messageBoxContainer {
+    width: 50%;
+    height: 3%;
+    max-height: 3%;
+    margin: auto;
+    margin-top: 5px;
+}
+
+.messageBox {
+    width: 100%;
+    height: 100%;
+    font-size: 20px;
+    align-content: center;
+    justify-content: center;
+    background-color: gray;
+    text-align: center;
 }

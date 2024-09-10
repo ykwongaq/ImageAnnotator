@@ -2,7 +2,6 @@ class CanvasDrawer {
     constructor(canvas) {
         this.canvas = canvas;
         this.ctx = this.canvas.getContext("2d");
-        console.log("ctx", this.ctx);
 
         this.image = null;
 
@@ -26,6 +25,12 @@ class CanvasDrawer {
         this.isDragging = false;
         this.lastRightMousePos = { x: 0, y: 0 };
         this.enableDrag();
+
+        this.maskOpacity = 0.5;
+    }
+
+    setMaskOpacity(opacity) {
+        this.maskOpacity = opacity;
     }
 
     transition_pos(point, x, y) {
@@ -89,7 +94,8 @@ class CanvasDrawer {
                     data[index] = r; // Red
                     data[index + 1] = g; // Green
                     data[index + 2] = b; // Blue
-                    data[index + 3] = 128; // Alpha (0.5 transparency -> 128)
+                    // data[index + 3] = Math.floor(this.maskOpacity * 255); // Alpha (0.5 transparency -> 128)
+                    data[index + 3] = 255; // Alpha (0.5 transparency -> 128)
                 }
             }
         }
@@ -106,6 +112,7 @@ class CanvasDrawer {
                     Math.max(this.imageWidth, this.imageHeight) * 0.05
                 );
                 maskCtx.font = `${fontSize}px Arial`;
+                // maskCtx.fillStyle = `rgba(255, 0, 0, ${this.maskOpacity})`;
                 maskCtx.fillStyle = "red";
                 maskCtx.fillText(label_id, middle_pixel[0], middle_pixel[1]);
             }
@@ -148,10 +155,10 @@ class CanvasDrawer {
 
             this.ctx.drawImage(this.imageCache, 0, 0);
             if (this.showAnnotation) {
+                this.ctx.globalAlpha = this.maskOpacity;
                 this.ctx.drawImage(this.maskCache, 0, 0);
+                this.ctx.globalAlpha = 1.0;
             }
-            this.ctx.fillStyle = "red";
-            this.ctx.fillRect(this.origin.x, this.origin.y, 20, 20);
             window.requestAnimationFrame(this.draw);
         };
         this.imageCache.src = this.image.get_image_path();
