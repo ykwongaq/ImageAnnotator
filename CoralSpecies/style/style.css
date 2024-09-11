@@ -27,7 +27,7 @@ body {
 }
 
 .progressbar-view {
-    width: 50%;
+    width: 70%;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -64,8 +64,8 @@ body {
 }
 
 .annotator-view {
-    width: 50%;
-    max-width: 50%;
+    width: 70%;
+    max-width: 70%;
     height: 80%;
     max-height: 80%;
     align-items: center; /* Vertically center items */
@@ -236,7 +236,7 @@ body {
 }
 
 .button_row {
-    width: 50%;
+    width: 70%;
     height: 7%;
     max-height: 7%;
     margin: auto;
