@@ -22,7 +22,10 @@ const CANVAS = document.getElementById("canvas");
 const CANVAS_DRAWER = new CanvasDrawer(CANVAS);
 
 // Button Container
-const BUTTON_CONTAINER = document.getElementById("buttonContainer");
+const CATEGORY_BUTTON_CONTAINER = document.getElementById("buttonContainer");
+const CONTEXT_MENU = document.getElementById("contextMenu");
+const DELETE_ACTION = document.getElementById("deleteAction");
+var CONTEXT_MENU_SELECTED_LABEL_ID = null;
 
 // Scene Info
 const SCENE_INFO = document.getElementById("scene-info");
@@ -42,6 +45,10 @@ const STATISTIC_BOX_MANAGER = new StatisticBoxManager(
     STATISTIC_BOX_CONTAINER,
     STATSITIC_BOX_TEMPLATE
 );
+
+// Add Category
+const ADD_CATEGORY_BUTTON = document.getElementById("add-category-button");
+const ADD_CATEGORY_INPUT = document.getElementById("add-category-input");
 
 var current_image = null;
 
@@ -78,6 +85,7 @@ function collect_labels(label_path) {
 
 function update_label_buttons() {
     const buttonContainer = document.getElementById("buttonContainer");
+    buttonContainer.innerHTML = "";
     for (const label_id in Label.labels) {
         const label_name = Label.labels[label_id];
 
@@ -88,11 +96,28 @@ function update_label_buttons() {
             mark_label(label_id, label_name);
         };
 
-        const color = Label.color_list[label_id];
+        const color = Label.getLabelColor(label_id);
         button.style.borderColor = color;
+
+        button.addEventListener("contextmenu", function (event) {
+            event.preventDefault();
+            CONTEXT_MENU.style.display = "block";
+            CONTEXT_MENU.style.left = event.pageX + "px";
+            CONTEXT_MENU.style.top = event.pageY + "px";
+            CONTEXT_MENU_SELECTED_LABEL_ID = label_id;
+        });
 
         buttonContainer.appendChild(button);
     }
+
+    DELETE_ACTION.onclick = function () {
+        delete Label.labels[CONTEXT_MENU_SELECTED_LABEL_ID];
+        update_label_buttons();
+    };
+
+    document.addEventListener("click", function () {
+        contextMenu.style.display = "none"; // Hide context menu on click elsewhere
+    });
 }
 
 function set_scene_info(scene_info) {
@@ -131,11 +156,12 @@ function enable_search_bar() {
 }
 
 function enable_button_container() {
-    BUTTON_CONTAINER.addEventListener("wheel", function (event) {
+    CATEGORY_BUTTON_CONTAINER.addEventListener("wheel", function (event) {
         event.preventDefault();
-        BUTTON_CONTAINER.scrollLeft += event.deltaY;
+        CATEGORY_BUTTON_CONTAINER.scrollLeft += event.deltaY;
     });
 }
+
 function display_data() {
     set_image_progress(current_image);
     CANVAS_DRAWER.draw();
@@ -201,7 +227,10 @@ function clear_selected_masks() {
 
 function enable_shortcuts() {
     document.addEventListener("keydown", function (event) {
-        if (document.activeElement === SEARCH_BOX) {
+        if (
+            document.activeElement === SEARCH_BOX ||
+            document.activeElement === ADD_CATEGORY_INPUT
+        ) {
             return;
         }
 
@@ -302,6 +331,23 @@ function setCurrentImage(image) {
     STATISTIC_BOX_MANAGER.updateStatistic(STATISTIC_REPORT);
 }
 
+function enable_add_category() {
+    ADD_CATEGORY_BUTTON.onclick = function () {
+        const new_category = ADD_CATEGORY_INPUT.value;
+
+        let largestLabelId = -1;
+        for (const labelId in Label.labels) {
+            if (parseInt(labelId) > largestLabelId) {
+                largestLabelId = labelId;
+            }
+        }
+
+        const newLabelId = parseInt(largestLabelId) + 1;
+        Label.labels[newLabelId] = new_category;
+        update_label_buttons();
+    };
+}
+
 function load_statistic_box() {}
 
 async function main() {
@@ -334,8 +380,12 @@ async function main() {
     // Load statistic box
     load_statistic_box();
 
+    // Enable add category
+    enable_add_category();
+
     const data_list = DATASET.get_data_list();
     setCurrentImage(data_list[0]);
+
     display_data();
 }
 

@@ -9,6 +9,7 @@
         <link rel="stylesheet" href="style/annotator_view.css" />
         <link rel=":stylesheet" href="style/progressbar.css" />
         <link rel="stylesheet" href="style/search.css" />
+        <link rel="stylesheet" href="style/context_menu.css" />
         <link rel="stylesheet" href="style/category_button.css" />
     </head>
     <body>
@@ -34,6 +35,17 @@
                     placeholder="Search category"
                 />
                 <div id="buttonContainer" class="buttonContainer"></div>
+                <div class="add-category-view">
+                    <input
+                        id="add-category-input"
+                        type="text"
+                        class="add-category-input"
+                        placeholder="Add Category"
+                    />
+                    <button id="add-category-button" class="button-28">
+                        Add
+                    </button>
+                </div>
             </div>
             <div id="image-view" class="annotator-subview">
                 <div class="mask-opacity-view">
@@ -88,6 +100,12 @@
                 </div>
             </div>
         </template>
+
+        <div id="contextMenu" class="contextMenu">
+            <ul>
+                <li id="deleteAction">Delete Category</li>
+            </ul>
+        </div>
 
         <script src="js/canvas_drawer.js"></script>
         <script src="js/mask.js"></script>
