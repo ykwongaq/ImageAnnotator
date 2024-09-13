@@ -7,6 +7,7 @@ class CanvasDrawer {
 
         this.imageCache = new Image();
         this.maskCache = new Image();
+        this.edittingMaskCache = new Image();
 
         this.scale = 1.0;
         this.origin = { x: 0, y: 0 };
@@ -27,6 +28,79 @@ class CanvasDrawer {
         this.enableDrag();
 
         this.maskOpacity = 0.5;
+
+        this.edittingMask = null;
+        this.edittingMaskColor = `rgba (${30 / 255}, ${144 / 255}, ${
+            255 / 255
+        }, 0.6)`;
+    }
+
+    get_editting_mask() {
+        return this.edittingMask;
+    }
+
+    updateEditingResult(edittingMask, selected_points, labels) {
+        if (edittingMask === null) {
+            this.edittingMask = null;
+            this.selected_points = [];
+            this.labels = [];
+            return;
+        }
+
+        this.edittingMask = edittingMask;
+
+        const maskCanvas = document.createElement("canvas");
+        const maskCtx = maskCanvas.getContext("2d");
+        maskCanvas.width = this.imageWidth;
+        maskCanvas.height = this.imageHeight;
+
+        const imageData = maskCtx.getImageData(
+            0,
+            0,
+            this.imageWidth,
+            this.imageHeight
+        );
+        const data = imageData.data; // This is a flat array of [r, g, b, a, r, g, b, a, ...]
+
+        const maskData = mask.get_mask();
+
+        for (let i = 0; i < maskData.length; i++) {
+            if (maskData[i] === 1) {
+                const x = i % this.imageWidth;
+                const y = Math.floor(i / this.imageWidth);
+                const index = (y * this.imageWidth + x) * 4;
+
+                // Set pixel color with alpha transparency
+                data[index] = 30; // Red
+                data[index + 1] = 144; // Green
+                data[index + 2] = 255; // Blue
+                // data[index + 3] = Math.floor(this.maskOpacity * 255); // Alpha (0.5 transparency -> 128)
+                data[index + 3] = 255; // Alpha (0.5 transparency -> 128)
+            }
+        }
+
+        // Put the modified image data back to the canvas
+        maskCtx.putImageData(imageData, 0, 0);
+
+        for (let i = 0; i < selected_points.length; i++) {
+            const [imageX, imageY] = selected_points[i];
+            const label = labels[i];
+
+            let color = "red";
+            if (label == 1) {
+                color = "green";
+            }
+
+            // Draw a circle at the selected point
+            maskCtx.beginPath();
+            maskCtx.arc(imageX, imageY, 5, 0, 2 * Math.PI);
+
+            maskCtx.fillStyle = color;
+            maskCtx.fill();
+        }
+
+        this.edittingMaskCache = new Image();
+        this.edittingMaskCache.src = maskCanvas.toDataURL();
     }
 
     setMaskOpacity(opacity) {
@@ -157,6 +231,12 @@ class CanvasDrawer {
             if (this.showAnnotation) {
                 this.ctx.globalAlpha = this.maskOpacity;
                 this.ctx.drawImage(this.maskCache, 0, 0);
+                this.ctx.globalAlpha = 1.0;
+            }
+
+            if (this.edittingMask !== null) {
+                this.ctx.globalAlpha = 0.6;
+                this.ctx.drawImage(this.edittingMaskCache, 0, 0);
                 this.ctx.globalAlpha = 1.0;
             }
             window.requestAnimationFrame(this.draw);

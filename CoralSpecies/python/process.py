@@ -2,10 +2,11 @@ import json
 from pycocotools import mask as coco_mask
 import numpy as np
 import os
+import cv2
 
 import argparse
 from tqdm import tqdm
-
+from segment_anything import sam_model_registry, SamPredictor
 
 def read_json(file):
     with open(file) as f:
@@ -48,10 +49,11 @@ def cal_iou(mask_1, mask_2):
     iou = intersection / union
     return iou
 
+def process_json(args):
+    data_dir = args.data_dir
 
-def main(args):
-    annotation_dir = args.annotation_dir
-    output_dir = args.output_dir
+    annotation_dir = os.path.join(data_dir, "annotations")
+    output_dir = annotation_dir
     os.makedirs(output_dir, exist_ok=True)
 
     area_limit = args.area_limit
@@ -87,21 +89,61 @@ def main(args):
             mask = mask.flatten()
             mask = list(mask)
 
-            annotation["segmentation"]["counts"] = rle_encode(mask)
+            annotation["segmentation"]["counts_number"] = rle_encode(mask)
             output_annotations.append(annotation)
 
         data["annotations"] = output_annotations
         output_path = os.path.join(output_dir, annotation_filename)
         write_json(data, output_path)
 
+from segment_anything import sam_model_registry, SamPredictor
+
+
+def gen_embeddings(args):
+    data_dir = args.data_dir
+    image_dir = os.path.join(data_dir, "images")
+    embeddings_dir = os.path.join(data_dir, "embeddings")
+    os.makedirs(embeddings_dir, exist_ok=True)
+
+    sam = sam_model_registry[args.model_type](checkpoint=args.checkpoint)
+    sam = sam.to("cuda")
+    predictor = SamPredictor(sam)
+
+    for image_name in tqdm(os.listdir(image_dir)):
+        image_path = os.path.join(image_dir, image_name)
+        image = cv2.imread(image_path)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+        predictor.set_image(image)
+        image_embedding = predictor.get_image_embedding().cpu().numpy()
+
+        image_name_without_ext = os.path.splitext(image_name)[0]
+        embeddings_path = os.path.join(embeddings_dir, f"{image_name_without_ext}.npy")
+        with open(embeddings_path, "wb") as f:
+            np.save(f, image_embedding)
+
+def main(args):
+    process_json(args)
+    gen_embeddings(args)
+
 
 if __name__ == "__main__":
+    DEFAULT_DATA_FOLDER = "../data"
     parser = argparse.ArgumentParser()
-    parser.add_argument("--annotation_dir", type=str, default="../data/annotations")
-    parser.add_argument(
-        "--output_dir", type=str, default="../data/annotations_processed"
-    )
+    parser.add_argument("--data_dir", type=str, default=DEFAULT_DATA_FOLDER)
     parser.add_argument("--area_limit", type=int, default=5000)
     parser.add_argument("--iou_limit", type=float, default=0.5)
+    parser.add_argument(
+        "--checkpoint",
+        type=str,
+        default="models/sam_vit_h_4b8939.pth",
+        help="The path to the SAM model checkpoint."
+    )
+    parser.add_argument(
+        "--model-type",
+        type=str,
+        default="vit_h",
+        help="In ['default', 'vit_h', 'vit_l', 'vit_b']. Which type of SAM model to export."
+    )
     args = parser.parse_args()
     main(args)

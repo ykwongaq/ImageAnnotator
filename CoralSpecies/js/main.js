@@ -1,3 +1,5 @@
+const { clear } = require("console");
+
 // Progress bar
 const IMAGE_PROGRESS_TEXT = document.getElementById("image-progress-text");
 const IMAGE_PROGRESS_BAR = document.getElementById("image-progress-bar");
@@ -5,7 +7,7 @@ const IMAGE_PROGRESS_BAR = document.getElementById("image-progress-bar");
 // Buttons
 const NEXT_IMAGE_BUTTON = document.getElementById("next_image_button");
 const PREV_IMAGE_BUTTON = document.getElementById("prev_image_button");
-const SHOW_MASK_BUTTON = document.getElementById("show_mask_button");
+// const SHOW_MASK_BUTTON = document.getElementById("show_mask_button");
 const RESET_VIEWPOINT_BUTTON = document.getElementById(
     "reset_viewpoint_button"
 );
@@ -58,6 +60,35 @@ const DATASET = new Dataset();
 const OUTPUT_PATH_LIST = ["data", "outputs"];
 var showMask = true;
 var selected_masks = new Set();
+var selected_masks_to_remove = new Set();
+
+// Mask Mode
+const LABEL_MASK = 0;
+const ADD_MASK = 1;
+const REMOVE_MASK = 2;
+var currentMaskMode = LABEL_MASK;
+
+const EDIT_MASK_UNDO_BUTTON = document.getElementById("edit-mask-undo-button");
+const EDIT_MASK_RESET_BUTTON = document.getElementById(
+    "edit-mask-reset-button"
+);
+const EDIT_MASK_CONFIRM_BUTTON = document.getElementById(
+    "edit-mask-confirm-button"
+);
+
+const PYTHON_UTIL = new PythonUtil();
+
+function show_edit_mask_buttons() {
+    EDIT_MASK_UNDO_BUTTON.style.display = "block";
+    EDIT_MASK_RESET_BUTTON.style.display = "block";
+    EDIT_MASK_CONFIRM_BUTTON.style.display = "block";
+}
+
+function hide_edit_mask_buttons() {
+    EDIT_MASK_UNDO_BUTTON.style.display = "none";
+    EDIT_MASK_RESET_BUTTON.style.display = "none";
+    EDIT_MASK_CONFIRM_BUTTON.style.display = "none";
+}
 
 function set_image_progress(current_image) {
     let current_image_idx = current_image.get_image_idx();
@@ -197,12 +228,15 @@ function enable_buttons() {
         }
     };
 
-    SHOW_MASK_BUTTON.onclick = function () {
-        const data_list = DATASET.get_data_list();
-        showMask = !showMask;
-        CANVAS_DRAWER.setShowAnnotation(showMask);
-        display_data();
-    };
+    // SHOW_MASK_BUTTON.onclick = function () {
+    //     const { ipcRenderer } = require("electron");
+    //     const message = "show mask";
+    //     ipcRenderer.send("send-message", message);
+
+    //     ipcRenderer.on("python-response", (event, response) => {
+    //         console.log(response);
+    //     });
+    // };
 
     RESET_VIEWPOINT_BUTTON.onclick = function () {
         CANVAS_DRAWER.resetViewpoint();
@@ -216,6 +250,16 @@ function select_mask(mask) {
 
 function unselect_mask(mask) {
     selected_masks.delete(mask);
+    mask.set_color_by_id();
+}
+
+function select_mask_to_remove(mask) {
+    selected_masks_to_remove.add(mask);
+    mask.set_color(Label.remove_color);
+}
+
+function unselect_mask_to_remove(mask) {
+    selected_masks_to_remove.delete(mask);
     mask.set_color_by_id();
 }
 
@@ -239,8 +283,8 @@ function enable_shortcuts() {
             PREV_IMAGE_BUTTON.click();
         } else if (inputKey === "d") {
             NEXT_IMAGE_BUTTON.click();
-        } else if (inputKey === "s") {
-            SHOW_MASK_BUTTON.click();
+            // } else if (inputKey === "s") {
+            //     SHOW_MASK_BUTTON.click();
         } else if (inputKey === "w") {
             RESET_VIEWPOINT_BUTTON.click();
         }
@@ -281,6 +325,28 @@ function show_message(message, second = 2) {
     }, second * 1000);
 }
 
+function extract_mask_from_response(response) {
+    annotation = {};
+    annotation["label_id"] = response["label_id"];
+    annotation["label_name"] = response["label_name"];
+    annotation["area"] = response["area"];
+    annotation["bbox"] = response["bbox"];
+    annotation["segmentation"] = response["segmentation"];
+
+    mask = new Mask(annotation, -1, -1);
+    return mask;
+}
+
+function extract_selected_points_from_response(response) {
+    const selected_points = response["selected_points"];
+    return selected_points;
+}
+
+function extract_labels_from_response(response) {
+    const labels = response["labels"];
+    return labels;
+}
+
 function enable_canvas() {
     CANVAS.addEventListener("click", function (event) {
         let [canvasX, canvasY] = CANVAS_DRAWER.getMousePos(event);
@@ -292,27 +358,146 @@ function enable_canvas() {
             canvasY
         );
 
-        if (CANVAS_DRAWER.isInsideImageBoundary(canvasX, canvasY)) {
-            const clicked_masks = [];
-            const image = current_image;
-            for (const mask of image.get_masks()) {
-                if (mask.contain_pixel(imageX, imageY)) {
-                    clicked_masks.push(mask);
+        if (currentMaskMode == LABEL_MASK) {
+            if (CANVAS_DRAWER.isInsideImageBoundary(canvasX, canvasY)) {
+                const clicked_masks = [];
+                const image = current_image;
+                for (const mask of image.get_masks()) {
+                    if (mask.contain_pixel(imageX, imageY)) {
+                        clicked_masks.push(mask);
+                    }
                 }
-            }
 
-            for (const clicked_mask of clicked_masks) {
-                if (selected_masks.has(clicked_mask)) {
-                    unselect_mask(clicked_mask);
-                } else {
-                    select_mask(clicked_mask);
+                for (const clicked_mask of clicked_masks) {
+                    if (selected_masks.has(clicked_mask)) {
+                        unselect_mask(clicked_mask);
+                    } else {
+                        select_mask(clicked_mask);
+                    }
                 }
-            }
 
-            CANVAS_DRAWER.updateMasks();
-            display_data();
+                CANVAS_DRAWER.updateMasks();
+                display_data();
+            }
+        } else if (currentMaskMode == ADD_MASK) {
+            if (CANVAS_DRAWER.isInsideImageBoundary(canvasX, canvasY)) {
+                const message = {
+                    imageX: imageX,
+                    imageY: imageY,
+                    label: 1,
+                };
+
+                PYTHON_UTIL.sendMessage(
+                    message,
+                    PythonUtil.TASK_EDIT_MASK,
+                    PythonUtil.OPT_EDIT_MASK_ADD_INPUT_POINT
+                );
+
+                PYTHON_UTIL.recieveMessage().then((response) => {
+                    const mask = extract_mask_from_response(response);
+                    const selectedPoints =
+                        extract_selected_points_from_response(response);
+                    const labels = extract_labels_from_response(response);
+
+                    CANVAS_DRAWER.updateEditingResult(
+                        mask,
+                        selectedPoints,
+                        labels
+                    );
+                });
+            }
+        } else if (currentMaskMode == REMOVE_MASK) {
+            if (CANVAS_DRAWER.isInsideImageBoundary(canvasX, canvasY)) {
+                const clicked_masks = [];
+                const image = current_image;
+                for (const mask of image.get_masks()) {
+                    if (mask.contain_pixel(imageX, imageY)) {
+                        clicked_masks.push(mask);
+                    }
+                }
+
+                for (const clicked_mask of clicked_masks) {
+                    if (selected_masks_to_remove.has(clicked_mask)) {
+                        unselect_mask_to_remove(clicked_mask);
+                    } else {
+                        select_mask_to_remove(clicked_mask);
+                    }
+                }
+
+                CANVAS_DRAWER.updateMasks();
+                display_data();
+            }
+        } else {
+            console.error("Invalid Mask Mode: ", currentMaskMode);
         }
     });
+
+    CANVAS.addEventListener("contextmenu", function (event) {
+        event.preventDefault();
+        let [canvasX, canvasY] = CANVAS_DRAWER.getMousePos(event);
+        canvasX = Math.floor(canvasX);
+        canvasY = Math.floor(canvasY);
+
+        let [imageX, imageY] = CANVAS_DRAWER.canvasPixelToImagePixel(
+            canvasX,
+            canvasY
+        );
+
+        if (currentMaskMode == ADD_MASK) {
+            if (CANVAS_DRAWER.isInsideImageBoundary(canvasX, canvasY)) {
+                const message = {
+                    imageX: imageX,
+                    imageY: imageY,
+                    label: 0,
+                };
+
+                PYTHON_UTIL.sendMessage(
+                    message,
+                    PythonUtil.TASK_EDIT_MASK,
+                    PythonUtil.OPT_EDIT_MASK_ADD_INPUT_POINT
+                );
+
+                PYTHON_UTIL.recieveMessage().then((response) => {
+                    const mask = extract_mask_from_response(response);
+                    const selectedPoints =
+                        extract_selected_points_from_response(response);
+                    const labels = extract_labels_from_response(response);
+
+                    CANVAS_DRAWER.updateEditingResult(
+                        mask,
+                        selectedPoints,
+                        labels
+                    );
+                });
+            }
+        } else if (currentMaskMode == REMOVE_MASK) {
+            if (CANVAS_DRAWER.isInsideImageBoundary(canvasX, canvasY)) {
+                const clicked_masks = [];
+                const image = current_image;
+                for (const mask of image.get_masks()) {
+                    if (mask.contain_pixel(imageX, imageY)) {
+                        clicked_masks.push(mask);
+                    }
+                }
+
+                for (const clicked_mask of clicked_masks) {
+                    if (selected_masks_to_remove.has(clicked_mask)) {
+                        remove_mask(clicked_mask);
+                    }
+                }
+
+                CANVAS_DRAWER.updateMasks();
+                // display_data();
+            }
+        } else {
+        }
+    });
+}
+
+function remove_mask(mask) {
+    current_image.remove_mask(mask);
+    STATISTIC_REPORT.updateStatistic();
+    STATISTIC_BOX_MANAGER.updateStatistic(STATISTIC_REPORT);
 }
 
 function enable_mask_silder() {
@@ -329,6 +514,26 @@ function setCurrentImage(image) {
     STATISTIC_REPORT.setImage(image);
     STATISTIC_REPORT.updateStatistic();
     STATISTIC_BOX_MANAGER.updateStatistic(STATISTIC_REPORT);
+
+    const image_path = current_image.get_image_path();
+    const image_embedding_path = current_image.get_image_embedding_path();
+
+    clear_editted_mask();
+
+    const message = {
+        image_path: image_path,
+        image_embedding_path: image_embedding_path,
+    };
+
+    PYTHON_UTIL.sendMessage(
+        message,
+        PythonUtil.TASK_EDIT_MASK,
+        PythonUtil.OPT_EDIT_MASK_SET_IMAGE
+    );
+
+    PYTHON_UTIL.recieveMessage().then((response) => {
+        // console.log(response);
+    });
 }
 
 function enable_add_category() {
@@ -349,6 +554,97 @@ function enable_add_category() {
 }
 
 function load_statistic_box() {}
+
+function updateMaskMode(event) {
+    const mode = parseInt(event.target.value);
+    currentMaskMode = mode;
+    console.log("Mask Mode: ", currentMaskMode);
+    clear_editted_mask();
+    if (mode == ADD_MASK) {
+        show_edit_mask_buttons();
+    } else {
+        hide_edit_mask_buttons();
+    }
+}
+
+function enable_radio_buttons() {
+    const maskModeRadios = document.querySelectorAll('input[name="mask-mode"]');
+    maskModeRadios.forEach((radio) => {
+        radio.addEventListener("change", updateMaskMode);
+    });
+}
+
+function enable_edit_action_buttons() {
+    EDIT_MASK_CONFIRM_BUTTON.onclick = function () {
+        const mask = CANVAS_DRAWER.get_editting_mask();
+        if (mask == null) {
+            return;
+        }
+
+        const message = {
+            dummpy: "dummy",
+        };
+
+        current_image.add_mask(mask);
+
+        PYTHON_UTIL.sendMessage(
+            message,
+            PythonUtil.TASK_EDIT_MASK,
+            PythonUtil.OPT_EDIT_MASK_CONFIRM_INPUT
+        );
+
+        PYTHON_UTIL.recieveMessage().then((response) => {});
+        clear_editted_mask();
+        CANVAS_DRAWER.updateMasks();
+
+        STATISTIC_REPORT.updateStatistic();
+        STATISTIC_BOX_MANAGER.updateStatistic(STATISTIC_REPORT);
+    };
+
+    EDIT_MASK_UNDO_BUTTON.onclick = function () {
+        const message = {
+            dummpy: "dummy",
+        };
+
+        PYTHON_UTIL.sendMessage(
+            message,
+            PythonUtil.TASK_EDIT_MASK,
+            PythonUtil.OPT_EDIT_MASK_UNDO_INPUT_POINT
+        );
+
+        PYTHON_UTIL.recieveMessage().then((response) => {
+            const selectedPoints =
+                extract_selected_points_from_response(response);
+            const labels = extract_labels_from_response(response);
+
+            let mask = null;
+            if (selectedPoints.length != 0) {
+                mask = extract_mask_from_response(response);
+            }
+            CANVAS_DRAWER.updateEditingResult(mask, selectedPoints, labels);
+        });
+    };
+
+    EDIT_MASK_RESET_BUTTON.onclick = function () {
+        clear_editted_mask();
+    };
+}
+
+function clear_editted_mask() {
+    CANVAS_DRAWER.updateEditingResult(null, [], []);
+
+    const message = {
+        dummpy: "dummy",
+    };
+
+    PYTHON_UTIL.sendMessage(
+        message,
+        PythonUtil.TASK_EDIT_MASK,
+        PythonUtil.OPT_EDIT_MASK_CLEAR_INPUT_POINTS
+    );
+
+    PYTHON_UTIL.recieveMessage().then((response) => {});
+}
 
 async function main() {
     const path = require("path");
@@ -382,6 +678,11 @@ async function main() {
 
     // Enable add category
     enable_add_category();
+
+    // Enable radio buttons
+    enable_radio_buttons();
+
+    enable_edit_action_buttons();
 
     const data_list = DATASET.get_data_list();
     setCurrentImage(data_list[0]);

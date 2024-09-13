@@ -1,7 +1,8 @@
 class Mask {
     constructor(annotation, mask_id, image_idx) {
         this.mask_id = mask_id;
-        this.rle_mask = annotation["segmentation"]["counts"];
+        this.annotation = annotation;
+        this.rle_mask = annotation["segmentation"]["counts_number"];
         this.height = annotation["segmentation"]["size"][0];
         this.width = annotation["segmentation"]["size"][1];
         this.image_idx = image_idx;
@@ -30,6 +31,10 @@ class Mask {
 
     get_mask_idx() {
         return this.mask_id;
+    }
+
+    get_annotation() {
+        return this.annotation;
     }
 
     get_image_idx() {
