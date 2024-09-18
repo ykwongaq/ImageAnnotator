@@ -93,6 +93,10 @@
     display: none;
 }
 
+.selected-as-add-mask {
+    background-color: gray;
+}
+
 .delete-context-menu {
     display: none;
     position: absolute;

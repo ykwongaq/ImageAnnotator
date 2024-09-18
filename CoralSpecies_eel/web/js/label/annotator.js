@@ -7,41 +7,6 @@ class Annotator {
 
     static selectedMasks = [];
 
-    // static selectedMasksToBeDeleted = [];
-
-    // static selectMaskToBeDeleted(mask) {
-    //     mask.setColor(LabelManager.removeColor);
-    //     this.selectedMasksToBeDeleted.push(mask);
-    //     const canvas = new Canvas(null);
-    //     canvas.updateMasks();
-    // }
-
-    // static deselectMaskToBeDeleted(mask) {
-    //     const color = LabelManager.getColorById(mask.getCategoryId());
-    //     mask.setColor(color);
-    //     this.selectedMasksToBeDeleted = this.selectedMasksToBeDeleted.filter(
-    //         (m) => m !== mask
-    //     );
-    //     const canvas = new Canvas(null);
-    //     canvas.updateMasks();
-    // }
-
-    // static clearSelectionToBeDeleted() {
-    //     for (const mask of this.selectedMasksToBeDeleted) {
-    //         const color = LabelManager.getColorById(mask.getCategoryId());
-    //         mask.setColor(color);
-    //     }
-    //     this.selectedMasksToBeDeleted = [];
-    // }
-
-    // static getSelectedMasksToBeDeleted() {
-    //     return this.selectedMasksToBeDeleted;
-    // }
-
-    // static isMaskSelectedToBeDeleted(mask) {
-    //     return this.selectedMasksToBeDeleted.includes(mask);
-    // }
-
     static selectMask(mask) {
         mask.setColor(LabelManager.selectedColor);
         this.selectedMasks.push(mask);

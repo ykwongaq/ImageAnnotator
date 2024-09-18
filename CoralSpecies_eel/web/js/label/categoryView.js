@@ -83,9 +83,13 @@ class CategoryView {
             button.innerHTML = labelName;
             button.classList.add("button-2");
             button.onclick = () => {
-                this.markLabel(labelId, labelName);
-                const canvas = new Canvas(null);
-                canvas.updateMasks();
+                if (Annotator.getCurrentMode() === Annotator.LABEL_MASK) {
+                    this.markLabel(labelId, labelName);
+                    const canvas = new Canvas(null);
+                    canvas.updateMasks();
+                } else if (Annotator.getCurrentMode() === Annotator.ADD_MASK) {
+                    this.setEdittingLabel(labelId, labelName, button);
+                }
             };
 
             const color = LabelManager.getColorById(labelId);
@@ -115,5 +119,26 @@ class CategoryView {
         statisticReport.updateStatistic();
         const statisticBoxManager = new StatisticBoxManager();
         statisticBoxManager.updateStatistic(statisticReport);
+    }
+
+    setEdittingLabel(labelId, labelName, button) {
+        this.removeSelectedColor();
+
+        // For the button with labelId, add the selected-as-add-mask class
+        button.classList.add("selected-as-add-mask");
+
+        const label = new Label(labelId, labelName);
+        const canvas = new Canvas(null);
+        canvas.setEdittingLabel(label);
+    }
+
+    removeSelectedColor() {
+        // Get all the buttons
+        const buttons = this.buttonContainer.getElementsByClassName("button-2");
+
+        // Remove the selected-as-add-mask class from all the button if it exists
+        for (const button of buttons) {
+            button.classList.remove("selected-as-add-mask");
+        }
     }
 }

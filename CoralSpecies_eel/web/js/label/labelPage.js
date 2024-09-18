@@ -140,6 +140,9 @@ class LabelPage {
         eel.clear_edit_mask_input_points()(() => {
             const canvas = new Canvas(null);
             canvas.updateEditingResult(null, [], []);
+            canvas.setEdittingLabel(null);
+
+            this.categoryView.removeSelectedColor();
         });
     }
 

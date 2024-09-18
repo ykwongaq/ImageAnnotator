@@ -38,6 +38,7 @@ class Canvas {
         this.edittingMaskColor = `rgba (${30 / 255}, ${144 / 255}, ${
             255 / 255
         }, 0.6)`;
+        this.edittingLabel = null;
 
         return this;
     }
@@ -71,6 +72,17 @@ class Canvas {
 
         const maskData = edittingMask.getDecodedMask();
 
+        let r = 30;
+        let g = 144;
+        let b = 255;
+
+        if (edittingMask.getCategoryId) {
+            const color = LabelManager.getColorById(
+                edittingMask.getCategoryId()
+            );
+            [r, g, b] = this.hexToRGB(color);
+        }
+
         for (let i = 0; i < maskData.length; i++) {
             if (maskData[i] === 1) {
                 const x = i % this.imageWidth;
@@ -78,9 +90,9 @@ class Canvas {
                 const index = (y * this.imageWidth + x) * 4;
 
                 // Set pixel color with alpha transparency
-                data[index] = 30; // Red
-                data[index + 1] = 144; // Green
-                data[index + 2] = 255; // Blue
+                data[index] = r; // Red
+                data[index + 1] = g; // Green
+                data[index + 2] = b; // Blue
                 // data[index + 3] = Math.floor(this.maskOpacity * 255); // Alpha (0.5 transparency -> 128)
                 data[index + 3] = 255; // Alpha (0.5 transparency -> 128)
             }
@@ -401,6 +413,12 @@ class Canvas {
                     let mask = null;
                     if (annotation !== null) {
                         mask = new Mask(annotation);
+                        if (this.edittingLabel) {
+                            mask.setCategoryId(this.edittingLabel.getLabelId());
+                            mask.setCategoryName(
+                                this.edittingLabel.getLabelName()
+                            );
+                        }
                     }
                     this.updateEditingResult(mask, selected_points, labels);
                 });
@@ -443,6 +461,14 @@ class Canvas {
                         let mask = null;
                         if (annotation !== null) {
                             mask = new Mask(annotation);
+                            if (this.edittingLabel) {
+                                mask.setCategoryId(
+                                    this.edittingLabel.getLabelId()
+                                );
+                                mask.setCategoryName(
+                                    this.edittingLabel.getLabelName()
+                                );
+                            }
                         }
                         this.updateEditingResult(mask, selected_points, labels);
                     });
@@ -460,5 +486,9 @@ class Canvas {
             }
         }
         return clickedMasks;
+    }
+
+    setEdittingLabel(label) {
+        this.edittingLabel = label;
     }
 }

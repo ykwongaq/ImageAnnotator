@@ -75,7 +75,6 @@ class Label {
         } else {
             this.labelName = labelName;
         }
-        this.setColorById();
     }
 
     getLabelId() {
@@ -92,17 +91,5 @@ class Label {
 
     setLabelName(labelName) {
         this.labelName = labelName;
-    }
-
-    setColorById() {
-        if (this.labelId === null) {
-            this.color = LabelManagner.defaultColor;
-        } else {
-            this.color = LabelManagner.getColorById(this.labelId);
-        }
-    }
-
-    getColor() {
-        return this.color;
     }
 }
