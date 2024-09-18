@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Label Page</title>
+        <link rel="stylesheet" href="css/pageInfo.css" />
+        <link rel="stylesheet" href="css/fileUploader.css" />
+        <link rel="stylesheet" href="css/labelPage/labelPage.css" />
+        <link rel="stylesheet" href="css/labelPage/sceneInfo.css" />
+        <link rel="stylesheet" href="css/labelPage/categoryView.css" />
+        <link rel="stylesheet" href="css/button.css" />
+        <link rel="stylesheet" href="css/labelPage/maskMode.css" />
+        <link rel="stylesheet" href="css/labelPage/maskOpacity.css" />
+        <link rel="stylesheet" href="css/labelPage/statisticView.css" />
+        <link rel="stylesheet" href="css/labelPage/mainView.css" />
+    </head>
+    <body>
+        <div class="page-info">
+            <button class="button" onclick="navigateTo('main_page.html')">
+                Back to Main Menu
+            </button>
+            <h1>Label Page</h1>
+        </div>
+        <div id="drop-area" class="drop-area">
+            Drop your image folder here or
+            <span id="select-link"> select </span> the folder
+            <input type="file" id="file-input" webkitdirectory directory />
+        </div>
+        <div id="scene-info" class="scene-info">
+            <div id="image-name-text" class="image-name-text">Image Name</div>
+            <div class="progressbar-view">
+                <div id="image-progress-text" class="progress-text">
+                    Image: (10 / 100)
+                </div>
+                <div class="progress-container round-xlarge">
+                    <div
+                        id="image-progress-bar"
+                        class="progressbar round-xlarge"
+                        style="width: 50%"
+                    ></div>
+                </div>
+            </div>
+        </div>
+        <div id="category-view" class="category-view">
+            <input
+                type="text"
+                id="category-search-input"
+                class="category-search-input"
+                placeholder="Search category"
+            />
+            <div
+                id="category-button-container"
+                class="category-button-container"
+            ></div>
+            <div class="add-category-view">
+                <input
+                    id="add-category-input"
+                    type="text"
+                    class="add-category-input"
+                    placeholder="Add Category"
+                />
+                <button id="add-category-button" class="button-28">Add</button>
+            </div>
+        </div>
+        <div id="main-view" class="main-view">
+            <div class="mask-mode-view">
+                <div class="mask-mode-radio-container">
+                    <div class="ratio-option">
+                        <input
+                            type="radio"
+                            id="label-mask-button"
+                            name="mask-mode"
+                            value="0"
+                            checked
+                        />
+                        <label for="label-mask-button">Label Mask</label>
+                    </div>
+
+                    <div class="ratio-option">
+                        <input
+                            type="radio"
+                            id="add-mask-button"
+                            name="mask-mode"
+                            value="1"
+                        />
+                        <label for="add-mask-button">Add Mask</label>
+                    </div>
+
+                    <div class="ratio-option">
+                        <input
+                            type="radio"
+                            id="remove-mask-button"
+                            name="mask-mode"
+                            value="2"
+                        />
+                        <label for="remove-mask-button">Remove Mask</label>
+                    </div>
+                </div>
+                <div class="edit-mask-button-container">
+                    <button id="edit-mask-undo-button" class="button-28">
+                        Undo
+                    </button>
+                    <button id="edit-mask-reset-button" class="button-28">
+                        Reset
+                    </button>
+                    <button id="edit-mask-confirm-button" class="button-28">
+                        Confirm
+                    </button>
+                </div>
+            </div>
+            <div class="mask-opacity-view">
+                <div class="text">Mask</div>
+                <div class="text">Solid</div>
+                <div class="mask-silder">
+                    <input id="mask-opacity-silder" type="range" />
+                </div>
+                <div class="text">Transparent</div>
+            </div>
+            <canvas id="canvas" class="canvas"></canvas>
+            <div class="statistic-view">
+                <div class="statistic-title">Statistic Report</div>
+                <div
+                    id="statistic-box-container"
+                    class="statistic-box-container"
+                ></div>
+            </div>
+        </div>
+        <div id="bottom-button-container" class="bottom-button-container">
+            <button id="prev-image-button" class="button-28">
+                Prev Image (A)
+            </button>
+            <button id="reset-viewpoint-button" class="button-28">
+                Reset Viewpoint (W)
+            </button>
+            <!-- <button id="show_mask_button" class="button-28">
+                Add Mask (S)
+            </button> -->
+            <button id="next-image-button" class="button-28">
+                Next Image & Save (D)
+            </button>
+        </div>
+
+        <div id="delete-context-menu" class="delete-context-menu">
+            <ul>
+                <li id="delete-action">Delete Category</li>
+            </ul>
+        </div>
+
+        <template id="statistic-box-template">
+            <div class="statistic-box">
+                <div class="info">Something (1/2) 50%</div>
+                <div class="statistic-process-bar-container">
+                    <div class="progress-container round-xlarge">
+                        <div
+                            class="progressbar round-xlarge"
+                            style="width: 50%"
+                        ></div>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <script src="/eel.js"></script>
+        <script src="js/label/Label.js"></script>
+        <script src="js/label/categoryView.js"></script>
+        <script src="js/label/dataset.js"></script>
+        <script src="js/navigate.js"></script>
+        <script src="js/dropArea.js"></script>
+        <script src="js/label/annotator.js"></script>
+        <script src="js/label/editMode.js"></script>
+        <script src="js/label/canvas.js"></script>
+        <script src="js/label/maskOpacitySelector.js"></script>
+        <script src="js/label/statisticView.js"></script>
+        <script src="js/label/labelPage.js"></script>
+    </body>
+</html>

@@ -1,0 +1,21 @@
+.selector-view {
+    background-color: yellow;
+    display: flex;
+    flex-direction: column;
+}
+
+.image-view {
+    background-color: green;
+    height: 100%;
+    max-height: 100%;
+    width: 80%;
+    max-width: 80%;
+}
+
+.selected-view {
+    background-color: red;
+    height: 100%;
+    max-height: 100%;
+    width: 20%;
+    max-width: 20%;
+}

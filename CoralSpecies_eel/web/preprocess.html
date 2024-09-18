@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="css/pageInfo.css" />
+        <link rel="stylesheet" href="css/preprocessPage/preprocessPage.css" />
+        <link rel="stylesheet" href="css/fileUploader.css" />
+        <!-- <link rel="stylesheet" href="css/preprocessPage/selectorView.css" />
+        <link rel="stylesheet" href="css/preprocessPage/processView.css" /> -->
+        <title>Preprocess Page</title>
+    </head>
+    <body>
+        <div class="page-info">
+            <button class="button" onclick="navigateTo('main_page.html')">
+                Back to Main Menu
+            </button>
+            <h1>Preprocess Page</h1>
+        </div>
+        <div id="drop-area" class="drop-area">
+            Drop your image folder here or
+            <span id="select-link">select</span> the folder
+            <input type="file" id="file-input" webkitdirectory directory />
+        </div>
+        <div class="selector-view">
+            <div class="image-view">
+                <div id="deselected-gallery" class="gallery-view"></div>
+                <div class="gallery-button-container">
+                    <button id="select-all-button">Select All</button>
+                </div>
+            </div>
+            <div class="selected-image-view">
+                <div id="selected-gallery" class="gallery-view"></div>
+                <div class="gallery-button-container">
+                    <button id="deselect-all-button">Deselect All</button>
+                </div>
+            </div>
+        </div>
+        <div class="process-view">
+            <button id="process-button">Process</button>
+        </div>
+        <script src="/eel.js"></script>
+        <script src="js/dropArea.js"></script>
+        <script src="js/navigate.js"></script>
+        <script src="js/preprocess/annotationProcessor.js"></script>
+        <script src="js/preprocess/imageSelector.js"></script>
+        <script src="js/preprocess/selectorView.js"></script>
+    </body>
+</html>
