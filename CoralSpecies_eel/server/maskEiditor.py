@@ -1,20 +1,23 @@
-import onnxruntime as ort
-import numpy as np
-import matplotlib.pyplot as plt
-import cv2
-
-from .transforms import ResizeLongestSide
+import logging
 from typing import Dict, List
 
-import logging
+import cv2
+import matplotlib.pyplot as plt
+import numpy as np
+import onnxruntime as ort
+
+from .transforms import ResizeLongestSide
+
 
 class MaskEidtor:
 
-    def __init__(self, onnx_path:str):
+    def __init__(self, onnx_path: str):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.logger.info(f"Loading ONNX model from {onnx_path}")
 
-        self.ort_session = ort.InferenceSession(onnx_path, providers=['CPUExecutionProvider'])
+        self.ort_session = ort.InferenceSession(
+            onnx_path, providers=["CPUExecutionProvider"]
+        )
         self.image = None
         self.image_embedding = None
         self.image_size = None
@@ -24,14 +27,13 @@ class MaskEidtor:
         self.onnx_mask_input = np.zeros((1, 1, 256, 256), dtype=np.float32)
         self.onnx_has_mask_input = np.zeros(1, dtype=np.float32)
 
-    
     def set_image(self, image, image_embedding):
         self.logger.info("Setting image and image embedding")
         self.image = image
         self.image_embedding = image_embedding
 
         self.image_size = image.shape[:2]
-        self.transforms = ResizeLongestSide(min(self.image_size))
+        self.transforms = ResizeLongestSide(max(self.image_size))
 
     def add_input(self, x, y, label):
         self.logger.info(f"Adding input point: ({x}, {y}, {label})")
@@ -51,13 +53,13 @@ class MaskEidtor:
         for input in self.inputs:
             points.append(input[:2])
         return points
-    
+
     def get_input_labels(self):
         labels = []
         for input in self.inputs:
             labels.append(input[2])
         return labels
-    
+
     def infer_mask(self):
         if self.image is None:
             return None
@@ -67,12 +69,15 @@ class MaskEidtor:
 
         if len(input_points) == 0:
             return np.zeros((self.image_size[0], self.image_size[1]), dtype=np.bool_)
-        
+
         onnx_coord = np.array(input_points, dtype=np.float32)[None, :, :]
+        onnx_coord = self.transforms.apply_coords(
+            onnx_coord, self.image.shape[:2]
+        ).astype(np.float32)
 
-        onnx_coord = self.transforms.apply_coords(onnx_coord, self.image.shape[:2]).astype(np.float32)
-
-        onnx_label = np.array(input_labels, dtype=np.float32)[None, :].astype(np.float32)
+        onnx_label = np.array(input_labels, dtype=np.float32)[None, :].astype(
+            np.float32
+        )
 
         ort_inputs = {
             "image_embeddings": self.image_embedding,
@@ -88,4 +93,3 @@ class MaskEidtor:
         masks = masks.squeeze()
 
         return masks
-    
