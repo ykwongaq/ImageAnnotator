@@ -1,23 +1,3 @@
-import eel
-import random
-import os
-import threading
-import numpy as np
-import signal
-import bottle
-import base64
-import json
-
-from PIL import Image
-
-from io import BytesIO
-
-from annotator.embedding import EmbeddingGenerator
-from annotator.util import decode_image_url, JsonUtil, get_resource_path, coco_mask_to_rle
-from annotator.segmentation import CoralSegmentation
-from annotator.dataset import Dataset, DataFilter
-from annotator.maskEiditor import MaskEidtor
-
 import logging
 
 # Initialize logging
@@ -49,199 +29,339 @@ def setup_logging(log_file='log.log'):
 
 # Initialize logging
 setup_logging()
-logger = logging.getLogger(__name__)
 
-# It is a MUST to put all the initialization code inside the if __name__ == "__main__": block
-# due to the way multiprocessing works in Python
-# Initialize the EmbeddingGenerator
-model_path  = get_resource_path("models/sam_vit_b_01ec64.pth")
-model_type = "vit_b"
-embedding_generator = EmbeddingGenerator(model_path, model_type)
+import eel
+import os
+import numpy as np
+import copy
 
-coral_model_path = get_resource_path("models/vit_b_coralscop.pth")
-coral_segmentation = CoralSegmentation(coral_model_path, "vit_b")
+from PIL import Image
 
-onnx_path = get_resource_path("models/sam_vit_b.onnx")
-mask_editor = MaskEidtor(onnx_path)
+from server.util.coco import encode_to_coco_mask, coco_mask_to_rle
+from server.util.general import get_resource_path, decode_image_url, remove_image_url_header
+from server.util.json import gen_image_json, save_json, gen_mask_json
+from server.embedding import EmbeddingGenerator
+from server.segmentation import CoralSegmentation
+from server.dataset import Dataset, DataFilter, Data
+from server.maskEiditor import MaskEidtor
 
-dataset = Dataset()
-data_filter = DataFilter()
+class PreprocessServer:
+    DEFAULT_CONFIG = {
+        "output_dir": ".",
+    }
 
-json_util = JsonUtil()
+    def __init__(self):
+        self.logger = logging.getLogger(self.__class__.__name__)
+        self.logger.info(f"Initializing {self.__class__.__name__} ...")
 
-# Expose this function to JavaScript
-@eel.expose
-def get_random_number():
-    return random.randint(1, 100)
+        # Initialize the EmbeddingGenerator
+        model_path  = get_resource_path("models/sam_vit_b_01ec64.pth")
+        model_type = "vit_b"
+        self.embedding_generator = EmbeddingGenerator(model_path, model_type)
 
-def process_image_multiprocess(data_url, image_file, return_list, idx, embedding_generator):
-    image = decode_image_url(data_url)
-    embedding = embedding_generator.generate_embedding(image)
+        # Initialize the CoralSegmentation
+        coral_model_path = get_resource_path("models/vit_b_coralscop.pth")
+        self.coral_segmentation = CoralSegmentation(coral_model_path, "vit_b")
 
-    image_filename = os.path.splitext(os.path.basename(image_file))[0]
-    embedding_filename = f"{image_filename}.npy"
+        self.config = PreprocessServer.DEFAULT_CONFIG
 
-    np.save(embedding_filename, embedding)
+    def update_config(self, config):
+        self.config.update(config)
+        self.logger.info(f"Updated configuration: {self.config}")
 
-    result = f"Embedding saved to {embedding_filename}"
-    return_list.append((idx, result))
+    def preprocess(self, image_url:str, image_file:str):
+        self.logger.info(f"Preprocessing image: {image_file}")
 
-def gen_embedding(data_url, output_file):
-    image = decode_image_url(data_url)
-    embedding = embedding_generator.generate_embedding(image)
-    logger.info(f"Saving embedding to {output_file}")
-    np.save(output_file, embedding)
+        output_folder = self.config["output_dir"]
+        output_folder = os.path.normpath(output_folder)
+        output_folder = os.path.join(output_folder, "data")
+        os.makedirs(output_folder, exist_ok=True)
 
-def gen_annotation_file(image, output_file):
-    masks = coral_segmentation.generate_masks(image)
-    json_item = json_util.gen_annotations(image, masks, os.path.basename(output_file))
-    print(f"Saving annotation to {output_file}")
-    json_util.save_json(json_item, output_file)
+        image = decode_image_url(image_url)
 
-@eel.expose
-def generate_embedding(data_url, image_file):
-    return gen_embedding(data_url, image_file)
+        # Save the image
+        image_folder = os.path.join(output_folder, "images")
+        image_path = os.path.join(image_folder, image_file)
+        os.makedirs(image_folder, exist_ok=True)
+        self.save_image(image, image_path)
 
-@eel.expose
-def process(data_url, image_file):
+        # Generate the image embedding
+        embedding = self.embedding_generator.generate_embedding(image)
+        filename = os.path.splitext(image_file)[0]
+        embedding_folder = os.path.join(output_folder, "embeddings")
+        os.makedirs(embedding_folder, exist_ok=True)
+        embedding_output_file = os.path.join(embedding_folder, f"{filename}.npy")
+        self.save_embedding(embedding, embedding_output_file)
 
-    output_folder = "data"
-    os.makedirs(output_folder, exist_ok=True)
+        # Generate coral segmentation masks
+        annotation_folder = os.path.join(output_folder, "annotations")
+        os.makedirs(annotation_folder, exist_ok=True)
+        annotation_output_file = os.path.join(annotation_folder, f"{filename}.json")
+        annotations = self.coral_segmentation.generate_masks_json(image)
+        image_json = gen_image_json(image, filename=image_file)
+        output_json = {}
+        output_json["image"] = image_json
+        output_json["annotations"] = annotations
+        self.save_json(output_json, annotation_output_file)
 
-    # Save image
-    image = decode_image_url(data_url)
-    image_folder = os.path.join(output_folder, "images")
-    os.makedirs(image_folder, exist_ok=True)
-    image_output_file = os.path.join(image_folder, image_file)
-    logger.info(f"Saving image to {image_output_file}")
+        # Geenrate project file
+        project_file = os.path.join(output_folder, "project.json")
+        project_info = {}
+        project_info["working_dir"] = os.path.abspath(output_folder)
+        self.save_json(project_info, project_file)
+
+        return image, embedding, output_json
+
+    def save_image(self, image, output_path):
+        self.logger.info(f"Saving image to {output_path}")
+        image_ = Image.fromarray(image)
+        image_.save(output_path)
+
+    def save_embedding(self, embedding, output_path):   
+        self.logger.info(f"Saving embedding to {output_path}")
+        np.save(output_path, embedding)
+
+    def save_json(self, json, output_path):
+        self.logger.info(f"Saving json to {output_path}")
+        save_json(json, output_path)
+
+class LabelServe:
     
-    image_object = Image.fromarray(image)
-    image_object.save(image_output_file)
+    def __init__(self):
+        self.logger = logging.getLogger(self.__class__.__name__)
+        self.logger.info(f"Initializing {self.__class__.__name__} ...")
+        
+        onnx_path = get_resource_path("models/sam_vit_b.onnx")
+        self.mask_editor = MaskEidtor(onnx_path)
 
-    # Generate embedding
-    embedding_fodler = os.path.join(output_folder, "embeddings")
-    os.makedirs(embedding_fodler, exist_ok=True)
-    image_filename = os.path.splitext(os.path.basename(image_file))[0]
-    embedding_filename = os.path.join(embedding_fodler, f"{image_filename}.npy")
-    gen_embedding(data_url, embedding_filename)
+    def add_edit_mask_input_point(self, x, y, label):
+        self.logger.info(f"Adding point to mask editor: ({x}, {y}, {label})")
 
-    # Generate annotation
-    annotation_folder = os.path.join(output_folder, "annotations")
-    os.makedirs(annotation_folder, exist_ok=True)
-    image_filename = os.path.splitext(os.path.basename(image_file))[0]
-    annotation_filename = os.path.join(annotation_folder, f"{image_filename}.json")
-    gen_annotation_file(image, annotation_filename)
+        self.mask_editor.add_input(x, y, label)
+        mask = self.mask_editor.infer_mask()
+        annotation = gen_mask_json(mask)
+        rle = coco_mask_to_rle(annotation["segmentation"])
+        annotation["segmentation"]["counts_number"] = rle
 
-    return f"Embedding and annotation saved for {image_file}"
+        return_item = {}
+        return_item["annotation"] = annotation
+        return_item["selected_points"] = self.mask_editor.get_input_points() 
+        return_item["labels"] = self.mask_editor.get_input_labels()
+        return return_item
+    
+    def undo_edit_mask_input_point(self):
+        self.logger.info("Undoing input point")
+        self.mask_editor.undo_input()
+        mask = self.mask_editor.infer_mask()
+        annotation = gen_mask_json(mask)
+        rle = coco_mask_to_rle(annotation["segmentation"])
+        annotation["segmentation"]["counts_number"] = rle
+
+        return_item = {}
+        return_item["annotation"] = annotation
+        return_item["selected_points"] = self.mask_editor.get_input_points() 
+        return_item["labels"] = self.mask_editor.get_input_labels()
+        return return_item
+    
+    def clear_edit_mask_input_points(self):
+        self.logger.info("Clearing input points")
+        self.mask_editor.clear_inputs()
+
+    def confirm_edit_mask_input(self):
+        self.logger.info("Confirming mask input")
+        self.mask_editor.clear_inputs()
+
+    def set_editting_image_by_idx(self, idx: int, data: Data):
+        self.logger.info(f"Setting editting image for index {idx} ...")
+        image = data.get_image()
+        embedding = data.get_embedding()
+        self.mask_editor.set_image(image, embedding)
+
+
+
+class Server:
+    def __init__(self):
+        self.logger = logging.getLogger(self.__class__.__name__)    
+        self.logger.info(f"Initializing {self.__class__.__name__} ...")
+
+        self.preprocess_server = PreprocessServer()
+        self.label_server = LabelServe()
+        self.dataset = Dataset()
+        self.data_filter = DataFilter()
+
+    def get_preprocess_server(self):
+        return self.preprocess_server
+    
+    def get_label_server(self):
+        return self.label_server
+    
+    def get_dataset(self):
+        return self.dataset
+    
+    def get_data_filter(self) -> DataFilter:
+        return self.data_filter 
+    
+    def preprocess(self, image_url:str , image_file:str):
+        image, embedding, json_item = self.preprocess_server.preprocess(image_url, image_file)
+        image_content = remove_image_url_header(image_url)
+        filename_wihthout_ext = os.path.splitext(image_file)[0]
+
+        data = Data(filename_wihthout_ext, image_content, None, None)
+        data.set_embedding(embedding)
+        data.set_json_item(json_item)
+
+        self.dataset.add_data(data)
+    
+@eel.expose
+def preprocess(image_url:str , image_file:str):
+    """
+    Preprocess the data:
+    1. Save the image to the image folder
+    2. Generate the image embedding
+    3. Generate coral segmentation masks
+    """
+    # preprocess_server = server.get_preprocess_server()
+    # preprocess_server.preprocess(image_url, image_file)
+    server.preprocess(image_url, image_file)
 
 @eel.expose
-def terminate():
-    global processes
-    for p in processes:
-        if p.is_alive():
-            p.terminate()
-            p.join()
-            logger.info(f"Process {p.pid} terminated")
+def update_preprocess_config(config):
+    """
+    Update the preprocess configuration
+    """
+    preprocess_server = server.get_preprocess_server()
+    preprocess_server.update_config(config)
 
 @eel.expose
 def clear_dataset():
-    logger.info("Clearing dataset ...")
+    """
+    Clear the dataset
+    """
+    dataset = server.get_dataset()
     dataset.clear()
 
 @eel.expose
-def receive_file(file_content, relative_path):
-    logger.info(f"Received file: {relative_path}")
+def receive_file(file_content: str, relative_path:str):
+    """
+    Store the file to the dataset for later operation
+    """
+    dataset = server.get_dataset()
     dataset.recieve_data(relative_path, file_content)
 
 @eel.expose
 def init_dataset():
-    logger.info("Initializing dataset ...")
+    """
+    Initialize the dataset
+    """
+    dataset = server.get_dataset()
     dataset.init_data()
 
     return dataset.get_size()
 
 @eel.expose
+def get_dataset_size():
+    """
+    Get the size of the dataset
+    """
+    dataset = server.get_dataset()
+    return dataset.get_size()
+
+@eel.expose
 def get_data(idx: int):
-    logger.info(f"Getting data for index {idx} ...")
+    """
+    Get the data at the given index
+    """
+    dataset = server.get_dataset()
     data = dataset.get_data(idx)
+    data_filter = server.get_data_filter()
 
     image_content = data.get_image_content()
-    json_item = data.get_annotations()
-    filename = data.get_filename()
+    json_item = data.get_json_item()
+    filenname = data.get_filename()
 
-    annotations = json_item["annotations"]
-    json_item["annotations"] = data_filter.filter_annotations(annotations)
+    copied_json_item = copy.deepcopy(json_item)
+    annotations = copied_json_item["annotations"]
+    annotations = data_filter.filter_annotations(annotations)
 
-    for annoation in json_item["annotations"]:
-        mask = coco_mask_to_rle(annoation["segmentation"])
-        annoation["segmentation"]["counts_number"] = mask
+    # Add the counts_number of the javaside
+    for annotation in annotations:
+        mask = coco_mask_to_rle(annotation["segmentation"])
+        annotation["segmentation"]["counts_number"] = mask
+    copied_json_item["annotations"] = annotations
 
     return_item = {}
     return_item["image"] = image_content
-    return_item["json_item"] = json_item
-    return_item["filename"] = filename
+    return_item["json_item"] = copied_json_item
+    return_item["filename"] = filenname
 
-    logger.info(f"Returning data for index {idx}:{filename} ...")
     return return_item
-    
+
 @eel.expose
 def set_editting_image_by_idx(idx):
-    logger.info(f"Setting editting image for index {idx} ...")
+    """
+    Set the editting image by index
+    """
+    dataset = server.get_dataset()
     data = dataset.get_data(idx)
-    image = data.get_image()
-    embedding = data.get_embedding()
-    mask_editor.set_image(image, embedding)
+    label_server = server.get_label_server()
+    label_server.set_editting_image_by_idx(idx, data)
 
 @eel.expose
 def add_edit_mask_input_point(x, y, label):
-    mask_editor.add_input(x, y, label)
-    mask = mask_editor.infer_mask()
-    annotation = json_util.gen_mask_json(mask)
-    rle = coco_mask_to_rle(annotation["segmentation"])
-    annotation["segmentation"]["counts_number"] = rle
-
-    return_item = {}
-    return_item["annotation"] = annotation
-    return_item["selected_points"] = mask_editor.get_input_points() 
-    return_item["labels"] = mask_editor.get_input_labels()
-    return return_item
+    """
+    Add a point to the mask editor
+    """
+    label_server = server.get_label_server()
+    return label_server.add_edit_mask_input_point(x, y, label)
 
 @eel.expose
 def undo_edit_mask_input_point():
-    mask_editor.undo_input()
-    mask = mask_editor.infer_mask()
-    annotation = json_util.gen_mask_json(mask)
-    rle = coco_mask_to_rle(annotation["segmentation"])
-    annotation["segmentation"]["counts_number"] = rle
-
-    return_item = {}
-    return_item["annotation"] = annotation
-    return_item["selected_points"] = mask_editor.get_input_points() 
-    return_item["labels"] = mask_editor.get_input_labels()
-    return return_item
-
+    """
+    Undo the last point in the mask editor
+    """
+    label_server = server.get_label_server()
+    return label_server.undo_edit_mask_input_point()
 
 @eel.expose
 def clear_edit_mask_input_points():
-    mask_editor.clear_inputs()
-
+    """
+    Clear all the points in the mask editor
+    """
+    label_server = server.get_label_server()
+    label_server.clear_edit_mask_input_points()
 
 @eel.expose
 def confirm_edit_mask_input():
-    mask_editor.clear_inputs()
+    """
+    Confirm the mask editing
+    """
+    label_server = server.get_label_server()
+    label_server.confirm_edit_mask_input()
 
 @eel.expose
 def save_data(json_item, filename, idx):
-    logger.info(f"Saving data for {filename} ...")
+    """
+    Save the data to the dataset
+    """
+  
     output_folder = "output"
     os.makedirs(output_folder, exist_ok=True)
 
     output_path = os.path.join(output_folder, f"{filename}.json")
-    json_util.save_json(json_item, output_path)
+    save_json(json_item, output_path)
 
+    dataset = server.get_dataset()
     dataset.save_annotation(idx, json_item)
 
+@eel.expose
+def update_filter_config(config):
+    """
+    Update the data filter configurationjnikml
+    """
+    data_filter = server.get_data_filter()
+    data_filter.update_filter(config)
+
 if __name__ == "__main__":
-    # Initialize Eel with the web folder
+    server = Server()
     eel.init('web')
     eel.start('main_page.html', size=(1200, 800))

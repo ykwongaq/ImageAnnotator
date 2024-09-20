@@ -4,6 +4,8 @@ import torch
 import numpy as np
 import logging
 
+from .util.coco import encode_to_coco_mask
+
 class CoralSegmentation:
     def __init__(self, model_path, model_type, point_number=32, iou_threshold=0.62, sta_threshold=0.62):
         self.logger = logging.getLogger(self.__class__.__name__)
@@ -26,10 +28,14 @@ class CoralSegmentation:
             min_mask_region_area=100,
         )
 
-    def generate_masks(self, image: np.ndarray) -> np.ndarray:
-        h, w = image.shape[:2]
+    def generate_masks_json(self, image: np.ndarray) -> np.ndarray:
         masks = self.mask_generator.generate(image)
-
-        masks = [mask["segmentation"] for mask in masks]
-        masks = [mask > 0 for mask in masks]
+        for mask in masks:
+            mask["segmentation"] = encode_to_coco_mask(mask["segmentation"] > 0)
+            del mask["cate_preds"]
+            del mask["fc_features"]
+            del mask["point_coords"]
+            del mask["stability_score"]
+            del mask["crop_box"]
+            del mask["similarity"]
         return masks

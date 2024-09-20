@@ -5,17 +5,28 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="stylesheet" href="css/pageInfo.css" />
         <link rel="stylesheet" href="css/preprocessPage/preprocessPage.css" />
+        <link rel="stylesheet" href="css/preprocessPage/selectorView.css" />
+        <link rel="stylesheet" href="css/preprocessPage/processView.css" />
+        <link rel="stylesheet" href="css/button.css" />
         <link rel="stylesheet" href="css/fileUploader.css" />
-        <!-- <link rel="stylesheet" href="css/preprocessPage/selectorView.css" />
-        <link rel="stylesheet" href="css/preprocessPage/processView.css" /> -->
+        <link rel="stylesheet" href="css/loadingIcon.css" />
+        <link rel="stylesheet" href="css/config.css" />
         <title>Preprocess Page</title>
     </head>
     <body>
+        <div id="loading-icon" class="loading-icon"></div>
         <div class="page-info">
             <button class="button" onclick="navigateTo('main_page.html')">
                 Back to Main Menu
             </button>
             <h1>Preprocess Page</h1>
+            <button
+                class="button"
+                id="continue-button"
+                onclick="navigateTo('label.html')"
+            >
+                Continue
+            </button>
         </div>
         <div id="drop-area" class="drop-area">
             Drop your image folder here or
@@ -25,25 +36,63 @@
         <div class="selector-view">
             <div class="image-view">
                 <div id="deselected-gallery" class="gallery-view"></div>
-                <div class="gallery-button-container">
-                    <button id="select-all-button">Select All</button>
+                <div id="select-all-button" class="gallery-button-container">
+                    Select All
                 </div>
             </div>
             <div class="selected-image-view">
                 <div id="selected-gallery" class="gallery-view"></div>
-                <div class="gallery-button-container">
-                    <button id="deselect-all-button">Deselect All</button>
+                <div id="deselect-all-button" class="gallery-button-container">
+                    Deselect All
                 </div>
             </div>
         </div>
         <div class="process-view">
-            <button id="process-button">Process</button>
+            <div id="selected-image-count-text" class="process-text">
+                Selected Images: 0
+            </div>
+            <div class="progressbar-view">
+                <div id="progress-text" class="progressbar-text">
+                    Process: (0 %)
+                </div>
+                <div class="progress-container round-xlarge">
+                    <div
+                        id="image-progress-bar"
+                        class="progressbar round-xlarge"
+                        style="width: 0%"
+                    ></div>
+                </div>
+            </div>
+            <button id="process-button" class="button-28">Process</button>
         </div>
+
+        <div class="sidebar" id="mask-configuration-page">
+            <h2>Configuration</h2>
+            <div class="form-group">
+                <label for="output-folder-input">Output Folder</label>
+                <input
+                    type="text"
+                    id="output-folder-input"
+                    placeholder="Output folder"
+                    value="."
+                />
+            </div>
+            <button id="save-button" class="save-button">
+                Save Configuration
+            </button>
+        </div>
+        <button id="configuration-page-button" class="toggle-button">
+            Setting
+        </button>
+
         <script src="/eel.js"></script>
+        <script src="js/loadingIconManager.js"></script>
         <script src="js/dropArea.js"></script>
         <script src="js/navigate.js"></script>
         <script src="js/preprocess/annotationProcessor.js"></script>
         <script src="js/preprocess/imageSelector.js"></script>
-        <script src="js/preprocess/selectorView.js"></script>
+        <script src="js/preprocess/config.js"></script>
+        <script src="js/preprocess/configPage.js"></script>
+        <script src="js/preprocess/preprocessPage.js"></script>
     </body>
 </html>

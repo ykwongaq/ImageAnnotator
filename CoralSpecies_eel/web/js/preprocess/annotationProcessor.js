@@ -6,9 +6,19 @@ class AnnotationProcesser {
         eel.generate_embedding(data_url, imageFile)(this.response);
     }
 
-    process(data_url, imageFile) {
+    process(data_url, imageFile, callBack = null) {
         console.log("Processing", imageFile);
-        eel.process(data_url, imageFile)(this.response);
+        const loadingIconManager = new LoadingIconManager();
+        loadingIconManager.showLoadingIcon();
+        eel.preprocess(
+            data_url,
+            imageFile
+        )((result) => {
+            loadingIconManager.hideLoadingIcon();
+            if (callBack) {
+                callBack(result);
+            }
+        });
     }
 
     response(result) {

@@ -2,7 +2,7 @@ const gallery = document.getElementById("gallery");
 const fileInput = document.getElementById("file-input");
 const selectFolder = document.getElementById("select-folder");
 
-class SelectorView {
+class PreprocessPage {
     constructor() {
         this.imageSelector = new ImageSelector();
         this.annotationProcessor = new AnnotationProcesser();
@@ -17,7 +17,49 @@ class SelectorView {
 
         this.processButton = document.getElementById("process-button");
 
+        let configurationPage = document.getElementById(
+            "mask-configuration-page"
+        );
+        let toggleButton = document.getElementById("configuration-page-button");
+
+        this.configPage = new PreprocessConfigPage(
+            configurationPage,
+            toggleButton
+        );
+
+        this.loadingIcon = document.getElementById("loading-icon");
+        let loadingIconManager = new LoadingIconManager();
+        loadingIconManager.setLoadingIcon(this.loadingIcon);
+        loadingIconManager.hideLoadingIcon();
+
+        this.imageCountText = document.getElementById(
+            "selected-image-count-text"
+        );
+        this.progressBar = document.getElementById("image-progress-bar");
+        this.progressText = document.getElementById("progress-text");
+        this.processedCount = 0;
+
+        this.continueButton = document.getElementById("continue-button");
         this.galleryItems = [];
+    }
+
+    enableChangeInGallery() {
+        // Create a MutationObserver instance
+        const observer = new MutationObserver((mutationsList, observer) => {
+            for (let mutation of mutationsList) {
+                if (mutation.type === "childList") {
+                    const childCount = this.getSelectedImagesCount();
+                    this.imageCountText.textContent = `Selected Images: ${childCount}`;
+                }
+            }
+        });
+
+        // Configure the observer to listen for changes in the child nodes
+        observer.observe(this.selectedGallery, { childList: true });
+    }
+
+    getSelectedImagesCount() {
+        return this.selectedGallery.childElementCount;
     }
 
     enableDropArea() {
@@ -109,11 +151,27 @@ class SelectorView {
             const imageSrc = [];
             const imageFiles = [];
 
+            this.processedCount = 0;
+            this.progressBar.style.width = "0%";
+            this.progressText.textContent = "Process: (0 %)";
+
             selectedImages.forEach((imageFile) => {
                 const imageTag =
                     this.imageSelector.getImageTagByFilename(imageFile);
                 const data_url = imageTag.src;
-                this.annotationProcessor.process(data_url, imageFile);
+                this.annotationProcessor.process(
+                    data_url,
+                    imageFile,
+                    (result) => {
+                        this.processedCount++;
+                        const percentage =
+                            (this.processedCount / selectedImages.length) * 100;
+                        this.progressBar.style.width = `${percentage}%`;
+                        this.progressText.textContent = `Process: ${percentage.toFixed(
+                            2
+                        )} %`;
+                    }
+                );
             });
         });
     }
@@ -194,11 +252,13 @@ class SelectorView {
 }
 
 function main() {
-    const selectorView = new SelectorView();
-    selectorView.enableDropArea();
-    selectorView.enableSelectAllButton();
-    selectorView.enableDeselectAllButton();
-    selectorView.enableProcessButton();
+    const preprocessPage = new PreprocessPage();
+    preprocessPage.enableDropArea();
+    preprocessPage.enableSelectAllButton();
+    preprocessPage.enableDeselectAllButton();
+    preprocessPage.enableProcessButton();
+    preprocessPage.configPage.enable();
+    preprocessPage.enableChangeInGallery();
 }
 
 main();

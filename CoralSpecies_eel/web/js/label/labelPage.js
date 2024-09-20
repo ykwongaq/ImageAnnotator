@@ -19,6 +19,9 @@ class LabelPage {
 
         this.loadDataFinished = false;
 
+        this.imageProcessText = document.getElementById("image-progress-text");
+        this.imageProcessBar = document.getElementById("image-progress-bar");
+
         this.editMaskUndoButton = document.getElementById(
             "edit-mask-undo-button"
         );
@@ -42,15 +45,41 @@ class LabelPage {
         this.resetViewpointButton = document.getElementById(
             "reset-viewpoint-button"
         );
+
+        let configurationPage = document.getElementById(
+            "mask-configuration-page"
+        );
+        let toggleButton = document.getElementById("configuration-page-button");
+
+        this.configurationPage = new ConfigurationPage(
+            configurationPage,
+            toggleButton,
+            this
+        );
+
+        const loadingIcon = document.getElementById("loading-icon");
+        const loadingIconManager = new LoadingIconManager();
+        loadingIconManager.setLoadingIcon(loadingIcon);
+        loadingIconManager.hideLoadingIcon();
+    }
+
+    reload() {
+        this.setCurrentDataByIdx(this.dataset.currentDataIdx);
     }
 
     run(totalImageCount) {
+        if (totalImageCount <= 0) {
+            alert("Invalid folder uploaded");
+            return;
+        }
         this.dataset.setTotalImages(totalImageCount);
         this.setCurrentDataByIdx(0);
     }
 
     setCurrentDataByIdx(idx) {
         this.dataset.setCurrentDataIdx(idx);
+        const loadingIconManager = new LoadingIconManager();
+        loadingIconManager.showLoadingIcon();
         this.dataset.getData((response) => {
             const imageUrl = response["image"];
             const jsonItem = response["json_item"];
@@ -66,6 +95,14 @@ class LabelPage {
             this.statisticReport.setData(data);
             this.statisticReport.updateStatistic();
             this.statisticManager.updateStatistic(this.statisticReport);
+
+            this.imageProcessText.innerText = `Image ${idx + 1} / ${
+                this.dataset.totalImages
+            }`;
+            this.imageProcessBar.style.width = `${
+                ((idx + 1) / this.dataset.totalImages) * 100
+            }%`;
+            loadingIconManager.hideLoadingIcon();
         });
     }
 
@@ -108,10 +145,12 @@ class LabelPage {
                 eel.confirm_edit_mask_input()(() => {
                     const canvas = new Canvas(null);
                     const mask = canvas.getEdittingMask();
+                    mask.setColorById();
                     const currentData = this.dataset.getCurrentData();
                     currentData.addMask(mask);
-                    canvas.updateEditingResult(null, [], []);
                     canvas.updateMasks();
+
+                    this.clearEdittedMask();
 
                     this.statisticReport.updateStatistic();
                     this.statisticManager.updateStatistic(this.statisticReport);
@@ -222,9 +261,17 @@ class LabelPage {
                 const reader = new FileReader();
                 reader.onload = (event) => {
                     // Extract base64 dsata
+
+                    const loadingIconManager = new LoadingIconManager();
+                    loadingIconManager.showLoadingIcon();
                     const fileContent = event.target.result.split(",")[1];
                     console.log("relativePath: ", relativePath);
-                    eel.receive_file(fileContent, relativePath);
+                    eel.receive_file(
+                        fileContent,
+                        relativePath
+                    )(() => {
+                        loadingIconManager.hideLoadingIcon();
+                    });
                     filesProcesssed++;
                     if (filesProcesssed === totalFiles) {
                         eel.init_dataset()(this.run.bind(this));
@@ -258,6 +305,7 @@ class LabelPage {
                     .then(() => {
                         // All files processed
                         console.log("All files have been processed.");
+
                         eel.init_dataset()(this.run.bind(this));
                     })
                     .catch(function (error) {
@@ -274,18 +322,23 @@ class LabelPage {
                 item.file(
                     function (file) {
                         // Process the file here
-                        console.log("File:", path + file.name);
 
                         const reader = new FileReader();
                         reader.onload = function (event) {
-                            const data = event.target.result;
+                            const loadingIconManager = new LoadingIconManager();
+                            loadingIconManager.showLoadingIcon();
 
+                            const data = event.target.result.split(",")[1];
+                            console.log("Relative path: ", path + file.name);
                             // Send data to Python-Eel
                             eel.receive_file(
                                 data,
                                 path + file.name
                             )(function () {
                                 // File processing is done
+                                const loadingIconManager =
+                                    new LoadingIconManager();
+                                loadingIconManager.hideLoadingIcon();
                                 resolve();
                             });
                         };
@@ -343,6 +396,13 @@ function main() {
     labelPage.enableMaskModeButtons();
     labelPage.enableMaskOpacitySlider();
     labelPage.enableBottomButtons();
+    labelPage.configurationPage.enable();
+
+    eel.get_dataset_size()((size) => {
+        if (size > 0) {
+            labelPage.run(size);
+        }
+    });
 }
 
 main();

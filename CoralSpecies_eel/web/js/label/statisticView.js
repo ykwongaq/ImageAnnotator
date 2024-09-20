@@ -58,7 +58,11 @@ class StatisticBoxManager {
         );
 
         const maskInfo = this.getInfoDiv(maskProgressBox);
-        maskInfo.innerHTML = `Mask: ${finishedMaskCount} / ${totalMaskCount} (${precentage}%)`;
+        if (totalMaskCount === 0) {
+            maskInfo.innerHTML = `Mask: ${finishedMaskCount} / ${totalMaskCount} (0%)`;
+        } else {
+            maskInfo.innerHTML = `Mask: ${finishedMaskCount} / ${totalMaskCount} (${precentage}%)`;
+        }
 
         const progressBar = this.getProgressBar(maskProgressBox);
         progressBar.style.width = `${precentage}%`;

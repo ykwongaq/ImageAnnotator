@@ -13,9 +13,12 @@
         <link rel="stylesheet" href="css/labelPage/maskMode.css" />
         <link rel="stylesheet" href="css/labelPage/maskOpacity.css" />
         <link rel="stylesheet" href="css/labelPage/statisticView.css" />
+        <link rel="stylesheet" href="css/config.css" />
+        <link rel="stylesheet" href="css/loadingIcon.css" />
         <link rel="stylesheet" href="css/labelPage/mainView.css" />
     </head>
     <body>
+        <div id="loading-icon" class="loading-icon"></div>
         <div class="page-info">
             <button class="button" onclick="navigateTo('main_page.html')">
                 Back to Main Menu
@@ -161,12 +164,62 @@
             </div>
         </template>
 
+        <div class="sidebar" id="mask-configuration-page">
+            <h2>Configuration</h2>
+            <div class="form-group">
+                <label id="min-area-text" for="min-area-slider"
+                    >Min Area (%)</label
+                >
+                <input
+                    type="range"
+                    id="min-area-slider"
+                    min="0"
+                    max="20"
+                    step="0.1"
+                    value="0.1"
+                />
+            </div>
+            <div class="form-group">
+                <label id="min-confidence-text" for="min-confidence-slider"
+                    >Min Confidence (%)</label
+                >
+                <input
+                    type="range"
+                    id="min-confidence-slider"
+                    min="0"
+                    max="100"
+                    value="50"
+                />
+            </div>
+            <div class="form-group">
+                <label id="max-overlap-text" for="max-overlap-slider"
+                    >Max Overlap (%)</label
+                >
+                <input
+                    type="range"
+                    id="max-overlap-slider"
+                    min="0"
+                    max="100"
+                    value="50"
+                />
+            </div>
+            <button id="save-button" class="save-button">
+                Save Configuration
+            </button>
+        </div>
+        <button id="configuration-page-button" class="toggle-button">
+            Setting
+        </button>
+
         <script src="/eel.js"></script>
+        <script src="js/loadingIconManager.js"></script>
+        <script src="js/label/config.js"></script>
         <script src="js/label/Label.js"></script>
         <script src="js/label/categoryView.js"></script>
         <script src="js/label/dataset.js"></script>
         <script src="js/navigate.js"></script>
         <script src="js/dropArea.js"></script>
+        <script src="js/label/configPage.js"></script>
         <script src="js/label/annotator.js"></script>
         <script src="js/label/canvas.js"></script>
         <script src="js/label/statisticView.js"></script>

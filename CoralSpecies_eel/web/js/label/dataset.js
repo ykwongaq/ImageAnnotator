@@ -1,14 +1,23 @@
 class Mask {
     constructor(annotation) {
         this.annotation = annotation;
-        this.categoryId = annotation["category_id"];
-        this.categoryName = annotation["category_name"];
         this.maskId = annotation["id"];
         this.decodeMask = null;
 
         this.width = annotation["segmentation"]["size"][1];
         this.height = annotation["segmentation"]["size"][0];
 
+        if ("category_id" in annotation) {
+            this.categoryId = annotation["category_id"];
+        } else {
+            this.categoryId = null;
+        }
+
+        if ("category_name" in annotation) {
+            this.categoryName = annotation["category_name"];
+        } else {
+            this.categoryName = null;
+        }
         this.maskColor = LabelManager.getColorById(this.categoryId);
 
         this.area = annotation["area"];
@@ -24,6 +33,7 @@ class Mask {
             },
             area: this.area,
             bbox: this.annotation["bbox"],
+            predicted_iou: this.annotation["predicted_iou"],
         };
     }
 
@@ -37,6 +47,14 @@ class Mask {
 
     getColor() {
         return this.maskColor;
+    }
+
+    setColorById() {
+        if (this.categoryId !== null && this.categoryId !== undefined) {
+            this.maskColor = LabelManager.getColorById(this.categoryId);
+        } else {
+            this.maskColor = LabelManager.defaultColor;
+        }
     }
 
     setCategoryId(categoryId) {
@@ -224,7 +242,6 @@ class Dataset {
     }
 
     setTotalImages(totalImages) {
-        console.log("Total images: ", totalImages);
         this.totalImages = totalImages;
     }
 
