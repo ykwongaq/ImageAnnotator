@@ -1,7 +1,10 @@
 import logging
+import tkinter as tk
+from tkinter import filedialog
+
 
 # Initialize logging
-def setup_logging(log_file='log.log'):
+def setup_logging(log_file="log.log"):
     # Define a custom format for the log messages
     log_format = "[%(levelname)s][%(asctime)s][%(name)s] %(message)s"
     date_format = "%Y-%m-%d|%H:%M:%S"
@@ -27,6 +30,7 @@ def setup_logging(log_file='log.log'):
     root_logger.addHandler(console_handler)
     root_logger.addHandler(file_handler)
 
+
 # Initialize logging
 setup_logging()
 
@@ -38,12 +42,17 @@ import copy
 from PIL import Image
 
 from server.util.coco import encode_to_coco_mask, coco_mask_to_rle
-from server.util.general import get_resource_path, decode_image_url, remove_image_url_header
+from server.util.general import (
+    get_resource_path,
+    decode_image_url,
+    remove_image_url_header,
+)
 from server.util.json import gen_image_json, save_json, gen_mask_json
 from server.embedding import EmbeddingGenerator
 from server.segmentation import CoralSegmentation
 from server.dataset import Dataset, DataFilter, Data
 from server.maskEiditor import MaskEidtor
+
 
 class PreprocessServer:
     DEFAULT_CONFIG = {
@@ -55,7 +64,7 @@ class PreprocessServer:
         self.logger.info(f"Initializing {self.__class__.__name__} ...")
 
         # Initialize the EmbeddingGenerator
-        model_path  = get_resource_path("models/sam_vit_b_01ec64.pth")
+        model_path = get_resource_path("models/sam_vit_b_01ec64.pth")
         model_type = "vit_b"
         self.embedding_generator = EmbeddingGenerator(model_path, model_type)
 
@@ -69,10 +78,39 @@ class PreprocessServer:
         self.config.update(config)
         self.logger.info(f"Updated configuration: {self.config}")
 
-    def preprocess(self, image_url:str, image_file:str):
+    def check_valid_folder(self, path):
+        # Get the parent directory of the given path
+        parent_dir = os.path.dirname(path)
+
+        # Check if the parent directory exists
+        if not os.path.exists(parent_dir):
+            error_message = f"Parent directory does not exist: {parent_dir}"
+            self.logger.debug(error_message)
+            return False, error_message
+
+        # Check if you have write permission in the parent directory
+        if not os.access(parent_dir, os.W_OK):
+            error_message = f"No write permission in the parent directory: {parent_dir}"
+            self.logger.debug(error_message)
+            return False, error_message
+
+        # Check if the directory already exists
+        if os.path.exists(path):
+            error_message = f"Directory already exists: {path}"
+            self.logger.debug(error_message)
+            return False, error_message
+
+        try:
+            os.makedirs(path, exist_ok=True)
+            return True, ""
+        except Exception as e:
+            self.logger.error(f"Error creating directory: {e}")
+            return False, str(e)
+
+    def preprocess(self, image_url: str, image_file: str, projectPath: str):
         self.logger.info(f"Preprocessing image: {image_file}")
 
-        output_folder = self.config["output_dir"]
+        output_folder = projectPath
         output_folder = os.path.normpath(output_folder)
         output_folder = os.path.join(output_folder, "data")
         os.makedirs(output_folder, exist_ok=True)
@@ -99,6 +137,12 @@ class PreprocessServer:
         annotation_output_file = os.path.join(annotation_folder, f"{filename}.json")
         annotations = self.coral_segmentation.generate_masks_json(image)
         image_json = gen_image_json(image, filename=image_file)
+
+        image_id = 0
+        image_json["image_id"] = image_id
+        for annotation in annotations:
+            annotation["image_id"] = image_id
+
         output_json = {}
         output_json["image"] = image_json
         output_json["annotations"] = annotations
@@ -107,17 +151,17 @@ class PreprocessServer:
         # Geenrate project file
         project_file = os.path.join(output_folder, "project.json")
         project_info = {}
-        project_info["working_dir"] = os.path.abspath(output_folder)
+        project_info["project_path"] = os.path.abspath(projectPath)
         self.save_json(project_info, project_file)
 
-        return image, embedding, output_json
+        return image, embedding, output_json, project_info
 
     def save_image(self, image, output_path):
         self.logger.info(f"Saving image to {output_path}")
         image_ = Image.fromarray(image)
         image_.save(output_path)
 
-    def save_embedding(self, embedding, output_path):   
+    def save_embedding(self, embedding, output_path):
         self.logger.info(f"Saving embedding to {output_path}")
         np.save(output_path, embedding)
 
@@ -125,12 +169,13 @@ class PreprocessServer:
         self.logger.info(f"Saving json to {output_path}")
         save_json(json, output_path)
 
+
 class LabelServe:
-    
+
     def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.logger.info(f"Initializing {self.__class__.__name__} ...")
-        
+
         onnx_path = get_resource_path("models/sam_vit_b.onnx")
         self.mask_editor = MaskEidtor(onnx_path)
 
@@ -145,10 +190,10 @@ class LabelServe:
 
         return_item = {}
         return_item["annotation"] = annotation
-        return_item["selected_points"] = self.mask_editor.get_input_points() 
+        return_item["selected_points"] = self.mask_editor.get_input_points()
         return_item["labels"] = self.mask_editor.get_input_labels()
         return return_item
-    
+
     def undo_edit_mask_input_point(self):
         self.logger.info("Undoing input point")
         self.mask_editor.undo_input()
@@ -159,10 +204,10 @@ class LabelServe:
 
         return_item = {}
         return_item["annotation"] = annotation
-        return_item["selected_points"] = self.mask_editor.get_input_points() 
+        return_item["selected_points"] = self.mask_editor.get_input_points()
         return_item["labels"] = self.mask_editor.get_input_labels()
         return return_item
-    
+
     def clear_edit_mask_input_points(self):
         self.logger.info("Clearing input points")
         self.mask_editor.clear_inputs()
@@ -178,10 +223,9 @@ class LabelServe:
         self.mask_editor.set_image(image, embedding)
 
 
-
 class Server:
     def __init__(self):
-        self.logger = logging.getLogger(self.__class__.__name__)    
+        self.logger = logging.getLogger(self.__class__.__name__)
         self.logger.info(f"Initializing {self.__class__.__name__} ...")
 
         self.preprocess_server = PreprocessServer()
@@ -191,18 +235,20 @@ class Server:
 
     def get_preprocess_server(self):
         return self.preprocess_server
-    
+
     def get_label_server(self):
         return self.label_server
-    
+
     def get_dataset(self):
         return self.dataset
-    
+
     def get_data_filter(self) -> DataFilter:
-        return self.data_filter 
-    
-    def preprocess(self, image_url:str , image_file:str):
-        image, embedding, json_item = self.preprocess_server.preprocess(image_url, image_file)
+        return self.data_filter
+
+    def preprocess(self, image_url: str, image_file: str, projectPath: str):
+        image, embedding, json_item, project_info = self.preprocess_server.preprocess(
+            image_url, image_file, projectPath
+        )
         image_content = remove_image_url_header(image_url)
         filename_wihthout_ext = os.path.splitext(image_file)[0]
 
@@ -211,9 +257,11 @@ class Server:
         data.set_json_item(json_item)
 
         self.dataset.add_data(data)
-    
+        self.dataset.setProjectInfo(project_info)
+
+
 @eel.expose
-def preprocess(image_url:str , image_file:str):
+def preprocess(image_url: str, image_file: str, projectPath: str):
     """
     Preprocess the data:
     1. Save the image to the image folder
@@ -222,7 +270,8 @@ def preprocess(image_url:str , image_file:str):
     """
     # preprocess_server = server.get_preprocess_server()
     # preprocess_server.preprocess(image_url, image_file)
-    server.preprocess(image_url, image_file)
+    server.preprocess(image_url, image_file, projectPath)
+
 
 @eel.expose
 def update_preprocess_config(config):
@@ -232,6 +281,7 @@ def update_preprocess_config(config):
     preprocess_server = server.get_preprocess_server()
     preprocess_server.update_config(config)
 
+
 @eel.expose
 def clear_dataset():
     """
@@ -240,13 +290,15 @@ def clear_dataset():
     dataset = server.get_dataset()
     dataset.clear()
 
+
 @eel.expose
-def receive_file(file_content: str, relative_path:str):
+def receive_file(file_content: str, relative_path: str):
     """
     Store the file to the dataset for later operation
     """
     dataset = server.get_dataset()
     dataset.recieve_data(relative_path, file_content)
+
 
 @eel.expose
 def init_dataset():
@@ -256,7 +308,14 @@ def init_dataset():
     dataset = server.get_dataset()
     dataset.init_data()
 
-    return dataset.get_size()
+    dataset_size = dataset.get_size()
+    current_idx = dataset.get_current_data_idx()
+
+    return_json = {}
+    return_json["size"] = dataset_size
+    return_json["current_data_idx"] = current_idx
+    return return_json
+
 
 @eel.expose
 def get_dataset_size():
@@ -265,6 +324,7 @@ def get_dataset_size():
     """
     dataset = server.get_dataset()
     return dataset.get_size()
+
 
 @eel.expose
 def get_data(idx: int):
@@ -279,22 +339,33 @@ def get_data(idx: int):
     json_item = data.get_json_item()
     filenname = data.get_filename()
 
+    project_info = dataset.get_project_info()
+    return_item = {}
+
+    if "filter_config" in project_info:
+        config = project_info["filter_config"]
+        if str(idx) in config:
+            filter_config = config[str(idx)]
+            dataset.upate_filter_config_in_project_info(filter_config)
+            data_filter.update_filter(filter_config)
+            return_item["filter_config"] = filter_config
+
     copied_json_item = copy.deepcopy(json_item)
     annotations = copied_json_item["annotations"]
-    annotations = data_filter.filter_annotations(annotations)
-
     # Add the counts_number of the javaside
     for annotation in annotations:
         mask = coco_mask_to_rle(annotation["segmentation"])
         annotation["segmentation"]["counts_number"] = mask
     copied_json_item["annotations"] = annotations
 
-    return_item = {}
+    filtered_indices = data_filter.filter_annotations(json_item["annotations"])
     return_item["image"] = image_content
     return_item["json_item"] = copied_json_item
     return_item["filename"] = filenname
+    return_item["filtered_indices"] = filtered_indices
 
     return return_item
+
 
 @eel.expose
 def set_editting_image_by_idx(idx):
@@ -306,6 +377,7 @@ def set_editting_image_by_idx(idx):
     label_server = server.get_label_server()
     label_server.set_editting_image_by_idx(idx, data)
 
+
 @eel.expose
 def add_edit_mask_input_point(x, y, label):
     """
@@ -313,6 +385,7 @@ def add_edit_mask_input_point(x, y, label):
     """
     label_server = server.get_label_server()
     return label_server.add_edit_mask_input_point(x, y, label)
+
 
 @eel.expose
 def undo_edit_mask_input_point():
@@ -322,6 +395,7 @@ def undo_edit_mask_input_point():
     label_server = server.get_label_server()
     return label_server.undo_edit_mask_input_point()
 
+
 @eel.expose
 def clear_edit_mask_input_points():
     """
@@ -329,6 +403,7 @@ def clear_edit_mask_input_points():
     """
     label_server = server.get_label_server()
     label_server.clear_edit_mask_input_points()
+
 
 @eel.expose
 def confirm_edit_mask_input():
@@ -338,20 +413,16 @@ def confirm_edit_mask_input():
     label_server = server.get_label_server()
     label_server.confirm_edit_mask_input()
 
+
 @eel.expose
 def save_data(json_item, filename, idx):
     """
     Save the data to the dataset
     """
-  
-    output_folder = "output"
-    os.makedirs(output_folder, exist_ok=True)
-
-    output_path = os.path.join(output_folder, f"{filename}.json")
-    save_json(json_item, output_path)
 
     dataset = server.get_dataset()
     dataset.save_annotation(idx, json_item)
+
 
 @eel.expose
 def update_filter_config(config):
@@ -361,7 +432,26 @@ def update_filter_config(config):
     data_filter = server.get_data_filter()
     data_filter.update_filter(config)
 
+    dataset = server.get_dataset()
+    dataset.upate_filter_config_in_project_info(config)
+
+
+@eel.expose
+def check_valid_folder(path):
+    """
+    Check if the path is valid
+    """
+    PreprocessServer = server.get_preprocess_server()
+    success, message = PreprocessServer.check_valid_folder(path)
+
+    return_item = {}
+    return_item["success"] = success
+    return_item["error_message"] = message
+
+    return return_item
+
+
 if __name__ == "__main__":
     server = Server()
-    eel.init('web')
-    eel.start('main_page.html', size=(1200, 800))
+    eel.init("web")
+    eel.start("main_page.html", size=(1200, 800))

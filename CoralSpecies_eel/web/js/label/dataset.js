@@ -21,12 +21,22 @@ class Mask {
         this.maskColor = LabelManager.getColorById(this.categoryId);
 
         this.area = annotation["area"];
+        this.shouldDisplay = true;
+    }
+
+    setShouldDisplay(shouldDisplay) {
+        this.shouldDisplay = shouldDisplay;
+    }
+
+    getShouldDisplay() {
+        return this.shouldDisplay;
     }
 
     exportJson() {
         return {
             id: this.maskId,
             category_id: parseInt(this.categoryId),
+            category_name: this.categoryName,
             segmentation: {
                 size: [this.height, this.width],
                 counts: this.annotation["segmentation"]["counts"],
@@ -146,7 +156,17 @@ class Data {
         }
         this.imageFileName = imageFileName;
         this.imageId = jsonItem["image"]["image_id"];
+
+        // this.filteredIndices = [];
     }
+
+    // setFilteredIndices(indices) {
+    //     this.filteredIndices = indices;
+    // }
+
+    // getFilteredIndices() {
+    //     return this.filteredIndices;
+    // }
 
     getImageUrl() {
         return this.imageDataUrl;
@@ -198,7 +218,7 @@ class Data {
             annotations.push(maskJson);
         }
         jsonItem["annotations"] = annotations;
-        jsonItem["categories"] = this.extractCategoryJson();
+        // jsonItem["categories"] = this.extractCategoryJson();
 
         return jsonItem;
     }

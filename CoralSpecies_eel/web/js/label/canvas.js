@@ -160,6 +160,8 @@ class Canvas {
         maskCanvas.height = this.imageHeight;
 
         const masks = this.data.getMasks();
+        // const filteredIndices = this.data.getFilteredIndices();
+
         const imageData = maskCtx.getImageData(
             0,
             0,
@@ -169,6 +171,9 @@ class Canvas {
         const data = imageData.data; // This is a flat array of [r, g, b, a, r, g, b, a, ...]
 
         for (const mask of masks) {
+            if (!mask.getShouldDisplay()) {
+                continue;
+            }
             const color = mask.getColor();
             const maskData = mask.getDecodedMask();
             const [r, g, b] = this.hexToRGB(color);

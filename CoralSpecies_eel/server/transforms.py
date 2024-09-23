@@ -17,10 +17,12 @@ class ResizeLongestSide:
     transforming both numpy array and batched torch tensors.
     """
 
-    def __init__(self, target_length: int) -> None:
-        self.target_length = target_length
+    def __init__(self) -> None:
+        self.target_length = 1024
 
-    def apply_coords(self, coords: np.ndarray, original_size: Tuple[int, ...]) -> np.ndarray:
+    def apply_coords(
+        self, coords: np.ndarray, original_size: Tuple[int, ...]
+    ) -> np.ndarray:
         """
         Expects a numpy array of length 2 in the final dimension. Requires the
         original image size in (H, W) format.
@@ -34,9 +36,10 @@ class ResizeLongestSide:
         coords[..., 1] = coords[..., 1] * (new_h / old_h)
         return coords
 
-
     @staticmethod
-    def get_preprocess_shape(oldh: int, oldw: int, long_side_length: int) -> Tuple[int, int]:
+    def get_preprocess_shape(
+        oldh: int, oldw: int, long_side_length: int
+    ) -> Tuple[int, int]:
         """
         Compute the output size given input size and target long side length.
         """

@@ -11,6 +11,8 @@
         <link rel="stylesheet" href="css/fileUploader.css" />
         <link rel="stylesheet" href="css/loadingIcon.css" />
         <link rel="stylesheet" href="css/config.css" />
+
+        <link rel="stylesheet" href="css/preprocessPage/projectPath.css" />
         <title>Preprocess Page</title>
     </head>
     <body>
@@ -23,7 +25,7 @@
             <button
                 class="button"
                 id="continue-button"
-                onclick="navigateTo('label.html')"
+                onclick="navigateWithoutClear('label.html')"
             >
                 Continue
             </button>
@@ -32,6 +34,15 @@
             Drop your image folder here or
             <span id="select-link">select</span> the folder
             <input type="file" id="file-input" webkitdirectory directory />
+        </div>
+        <div class="project-path-view">
+            <div>Project Path</div>
+            <input
+                type="text"
+                id="project-path-input"
+                placeholder="Project path"
+                value="."
+            />
         </div>
         <div class="selector-view">
             <div class="image-view">
@@ -65,25 +76,6 @@
             </div>
             <button id="process-button" class="button-28">Process</button>
         </div>
-
-        <div class="sidebar" id="mask-configuration-page">
-            <h2>Configuration</h2>
-            <div class="form-group">
-                <label for="output-folder-input">Output Folder</label>
-                <input
-                    type="text"
-                    id="output-folder-input"
-                    placeholder="Output folder"
-                    value="."
-                />
-            </div>
-            <button id="save-button" class="save-button">
-                Save Configuration
-            </button>
-        </div>
-        <button id="configuration-page-button" class="toggle-button">
-            Setting
-        </button>
 
         <script src="/eel.js"></script>
         <script src="js/loadingIconManager.js"></script>

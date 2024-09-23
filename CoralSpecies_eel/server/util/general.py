@@ -12,6 +12,7 @@ from functools import wraps
 
 logger = logging.getLogger("GeneralUtil")
 
+
 def time_it(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -20,7 +21,9 @@ def time_it(func):
         end = time.time()
         logger.debug(f"{func.__name__} took {end - start} seconds")
         return result
+
     return wrapper
+
 
 def decode_image_url(image_url):
     encoded = remove_image_url_header(image_url)
@@ -30,11 +33,13 @@ def decode_image_url(image_url):
     image = np.array(image)
     return image
 
-def remove_image_url_header(image_url): 
+
+def remove_image_url_header(image_url):
     return image_url.split(",")[1]
 
+
 def get_resource_path(relative_path):
-    """ Get the absolute path to a resource, works for dev and for PyInstaller """
+    """Get the absolute path to a resource, works for dev and for PyInstaller"""
     try:
         # PyInstaller creates a temporary folder and stores path in _MEIPASS
         base_path = sys._MEIPASS
@@ -42,6 +47,7 @@ def get_resource_path(relative_path):
         base_path = os.path.abspath(".")
 
     return os.path.join(base_path, relative_path)
+
 
 def load_image_from_content(content):
     try:
@@ -51,7 +57,8 @@ def load_image_from_content(content):
     except Exception as e:
         logger.error(f"Error processing image: {e}")
         return None
-    
+
+
 def load_json_from_content(content):
     try:
         decodes_bytes = base64.b64decode(content)
@@ -60,6 +67,7 @@ def load_json_from_content(content):
     except Exception as e:
         logger.error(f"Error processing json: {e}")
         return None
+
 
 def load_numpy_from_content(content):
     try:

@@ -40,7 +40,7 @@ class StatisticBoxManager {
         const labelCountBox = this.template.content.cloneNode(true);
         const percentage = Math.floor((labelCount / maskCount) * 100);
         const labelInfo = this.getInfoDiv(labelCountBox);
-        labelInfo.innerHTML = `${labelId}. ${labelName}: Area (${percentage}%)`;
+        labelInfo.innerHTML = `${labelId}. ${labelName}: Coverage (${percentage}%)`;
 
         const progressBar = this.getProgressBar(labelCountBox);
         progressBar.style.width = `${(labelCount / maskCount) * 100}%`;
@@ -51,21 +51,29 @@ class StatisticBoxManager {
     createMaskProcessBox(statisticReport) {
         const maskProgressBox = this.template.content.cloneNode(true);
 
-        const totalMaskCount = statisticReport.getTotalMaskCount();
-        const finishedMaskCount = statisticReport.getFinishedMaskCount();
-        const precentage = Math.floor(
-            (finishedMaskCount / totalMaskCount) * 100
-        );
-
-        const maskInfo = this.getInfoDiv(maskProgressBox);
-        if (totalMaskCount === 0) {
-            maskInfo.innerHTML = `Mask: ${finishedMaskCount} / ${totalMaskCount} (0%)`;
-        } else {
-            maskInfo.innerHTML = `Mask: ${finishedMaskCount} / ${totalMaskCount} (${precentage}%)`;
+        const totalArea = statisticReport.getTotalArea();
+        let areaDict = statisticReport.getAreaDict();
+        let totalAreaCovered = 0;
+        for (const labelId in areaDict) {
+            totalAreaCovered += areaDict[labelId];
         }
+        const areaPercentage = Math.floor((totalAreaCovered / totalArea) * 100);
+        const maskInfo = this.getInfoDiv(maskProgressBox);
+        maskInfo.innerHTML = `All Coral Coverage: (${areaPercentage}%)`;
+        // const totalMaskCount = statisticReport.getTotalMaskCount();
+        // const finishedMaskCount = statisticReport.getFinishedMaskCount();
+        // const precentage = Math.floor(
+        //     (finishedMaskCount / totalMaskCount) * 100
+        // );
+
+        // if (totalMaskCount === 0) {
+        //     maskInfo.innerHTML = `Mask: ${finishedMaskCount} / ${totalMaskCount} (0%)`;
+        // } else {
+        //     maskInfo.innerHTML = `Mask: ${finishedMaskCount} / ${totalMaskCount} (${precentage}%)`;
+        // }
 
         const progressBar = this.getProgressBar(maskProgressBox);
-        progressBar.style.width = `${precentage}%`;
+        progressBar.style.width = `${areaPercentage}%`;
 
         return maskProgressBox;
     }
@@ -132,6 +140,9 @@ class StatisticReport {
         this.totalArea = this.data.getImageHeight() * this.data.getImageWidth();
 
         for (const mask of this.data.getMasks()) {
+            if (!mask.getShouldDisplay()) {
+                continue;
+            }
             const label_id = mask.getCategoryId();
             if (label_id === null) {
                 this.unfinishedMaskCount += 1;

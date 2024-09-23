@@ -33,7 +33,8 @@ class MaskEidtor:
         self.image_embedding = image_embedding
 
         self.image_size = image.shape[:2]
-        self.transforms = ResizeLongestSide(max(self.image_size))
+        self.logger.info(f"Image size: {self.image_size}")
+        self.transforms = ResizeLongestSide()
 
     def add_input(self, x, y, label):
         self.logger.info(f"Adding input point: ({x}, {y}, {label})")

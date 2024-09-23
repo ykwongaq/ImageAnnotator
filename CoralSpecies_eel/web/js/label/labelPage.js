@@ -19,6 +19,7 @@ class LabelPage {
 
         this.loadDataFinished = false;
 
+        this.imageNameText = document.getElementById("image-name-text");
         this.imageProcessText = document.getElementById("image-progress-text");
         this.imageProcessBar = document.getElementById("image-progress-bar");
 
@@ -67,13 +68,14 @@ class LabelPage {
         this.setCurrentDataByIdx(this.dataset.currentDataIdx);
     }
 
-    run(totalImageCount) {
+    run(totalImageCount, currentDataIdx = 0) {
         if (totalImageCount <= 0) {
             alert("Invalid folder uploaded");
             return;
         }
+        console.log("Current data idx: ", currentDataIdx);
         this.dataset.setTotalImages(totalImageCount);
-        this.setCurrentDataByIdx(0);
+        this.setCurrentDataByIdx(currentDataIdx);
     }
 
     setCurrentDataByIdx(idx) {
@@ -84,8 +86,26 @@ class LabelPage {
             const imageUrl = response["image"];
             const jsonItem = response["json_item"];
             const imageFileName = response["filename"];
+            const filteredIndics = response["filtered_indices"];
+
+            if ("filter_config" in response) {
+                const filter_config = response["filter_config"];
+                this.configurationPage.updateViesBasedOnConfig(filter_config);
+            }
 
             const data = new Data(imageUrl, jsonItem, imageFileName);
+            // data.setFilteredIndices(filteredIndics);
+
+            // Update should display
+            let maskIdx = 0;
+            for (const mask of data.getMasks()) {
+                if (filteredIndics.includes(maskIdx)) {
+                    mask.setShouldDisplay(true);
+                } else {
+                    mask.setShouldDisplay(false);
+                }
+                maskIdx++;
+            }
             this.dataset.setCurrentData(data);
             this.canvas.setData(data);
             this.canvas.draw();
@@ -103,6 +123,8 @@ class LabelPage {
                 ((idx + 1) / this.dataset.totalImages) * 100
             }%`;
             loadingIconManager.hideLoadingIcon();
+
+            this.imageNameText.innerText = imageFileName;
         });
     }
 
@@ -271,11 +293,16 @@ class LabelPage {
                         relativePath
                     )(() => {
                         loadingIconManager.hideLoadingIcon();
+                        filesProcesssed++;
+                        if (filesProcesssed === totalFiles) {
+                            eel.init_dataset()((response) => {
+                                const size = response["size"];
+                                const currentDataIdx =
+                                    response["current_data_idx"];
+                                this.run(size, currentDataIdx);
+                            });
+                        }
                     });
-                    filesProcesssed++;
-                    if (filesProcesssed === totalFiles) {
-                        eel.init_dataset()(this.run.bind(this));
-                    }
                 };
                 reader.readAsDataURL(file);
             }
@@ -306,7 +333,11 @@ class LabelPage {
                         // All files processed
                         console.log("All files have been processed.");
 
-                        eel.init_dataset()(this.run.bind(this));
+                        eel.init_dataset()((response) => {
+                            const size = response["size"];
+                            const currentDataIdx = response["current_data_idx"];
+                            this.run(size, currentDataIdx);
+                        });
                     })
                     .catch(function (error) {
                         console.error("Error processing files:", error);

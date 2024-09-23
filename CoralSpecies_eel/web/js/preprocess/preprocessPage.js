@@ -17,15 +17,15 @@ class PreprocessPage {
 
         this.processButton = document.getElementById("process-button");
 
-        let configurationPage = document.getElementById(
-            "mask-configuration-page"
-        );
-        let toggleButton = document.getElementById("configuration-page-button");
+        // let configurationPage = document.getElementById(
+        //     "mask-configuration-page"
+        // );
+        // let toggleButton = document.getElementById("configuration-page-button");
 
-        this.configPage = new PreprocessConfigPage(
-            configurationPage,
-            toggleButton
-        );
+        // this.configPage = new PreprocessConfigPage(
+        //     configurationPage,
+        //     toggleButton
+        // );
 
         this.loadingIcon = document.getElementById("loading-icon");
         let loadingIconManager = new LoadingIconManager();
@@ -41,6 +41,8 @@ class PreprocessPage {
 
         this.continueButton = document.getElementById("continue-button");
         this.galleryItems = [];
+
+        this.projectPathInput = document.getElementById("project-path-input");
     }
 
     enableChangeInGallery() {
@@ -147,31 +149,50 @@ class PreprocessPage {
     enableProcessButton() {
         this.processButton.addEventListener("click", () => {
             const selectedImages = this.imageSelector.getSelectedImages();
+            const projectPath = this.projectPathInput.value;
 
-            const imageSrc = [];
-            const imageFiles = [];
+            eel.check_valid_folder(projectPath)((response) => {
+                let isValid = response["success"];
+                let error_message = response["error_message"];
 
-            this.processedCount = 0;
-            this.progressBar.style.width = "0%";
-            this.progressText.textContent = "Process: (0 %)";
+                if (isValid) {
+                    const imageSrc = [];
+                    const imageFiles = [];
 
-            selectedImages.forEach((imageFile) => {
-                const imageTag =
-                    this.imageSelector.getImageTagByFilename(imageFile);
-                const data_url = imageTag.src;
-                this.annotationProcessor.process(
-                    data_url,
-                    imageFile,
-                    (result) => {
-                        this.processedCount++;
-                        const percentage =
-                            (this.processedCount / selectedImages.length) * 100;
-                        this.progressBar.style.width = `${percentage}%`;
-                        this.progressText.textContent = `Process: ${percentage.toFixed(
-                            2
-                        )} %`;
-                    }
-                );
+                    this.processedCount = 0;
+                    this.progressBar.style.width = "0%";
+                    this.progressText.textContent = "Process: (0 %)";
+
+                    selectedImages.forEach((imageFile) => {
+                        const imageTag =
+                            this.imageSelector.getImageTagByFilename(imageFile);
+                        const data_url = imageTag.src;
+                        this.annotationProcessor.process(
+                            data_url,
+                            imageFile,
+                            projectPath,
+                            (result) => {
+                                this.processedCount++;
+                                const percentage =
+                                    (this.processedCount /
+                                        selectedImages.length) *
+                                    100;
+                                this.progressBar.style.width = `${percentage}%`;
+                                this.progressText.textContent = `Process: ${percentage.toFixed(
+                                    2
+                                )} %`;
+                            }
+                        );
+                    });
+                } else {
+                    alert(
+                        "Invalid project path: " +
+                            projectPath +
+                            " with error: " +
+                            error_message
+                    );
+                    return;
+                }
             });
         });
     }
@@ -257,7 +278,7 @@ function main() {
     preprocessPage.enableSelectAllButton();
     preprocessPage.enableDeselectAllButton();
     preprocessPage.enableProcessButton();
-    preprocessPage.configPage.enable();
+    // preprocessPage.configPage.enable();
     preprocessPage.enableChangeInGallery();
 }
 
