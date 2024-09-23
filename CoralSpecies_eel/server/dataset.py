@@ -86,6 +86,7 @@ class DataFilter:
             if area > min_area:
                 filtered_index.add(idx)
 
+        self.logger.info(f"Filtered index: {filtered_index}")
         return filtered_index
 
     @time_it
@@ -144,7 +145,9 @@ class DataFilter:
             & filtered_indices_by_predicted_iou
         )
 
-        return list(filtered_indices)
+        filtered_indices = list(filtered_indices)
+        filtered_indices = [int(idx) for idx in filtered_indices]
+        return filtered_indices
 
 
 class Data:

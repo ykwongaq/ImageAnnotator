@@ -95,10 +95,10 @@ class PreprocessServer:
             return False, error_message
 
         # Check if the directory already exists
-        if os.path.exists(path):
-            error_message = f"Directory already exists: {path}"
-            self.logger.debug(error_message)
-            return False, error_message
+        # if os.path.exists(path):
+        #     error_message = f"Directory already exists: {path}"
+        #     self.logger.debug(error_message)
+        #     return False, error_message
 
         try:
             os.makedirs(path, exist_ok=True)
@@ -359,6 +359,7 @@ def get_data(idx: int):
     copied_json_item["annotations"] = annotations
 
     filtered_indices = data_filter.filter_annotations(json_item["annotations"])
+
     return_item["image"] = image_content
     return_item["json_item"] = copied_json_item
     return_item["filename"] = filenname
@@ -452,6 +453,10 @@ def check_valid_folder(path):
 
 
 if __name__ == "__main__":
+    # Initialize Tkinter root in the main thread
+    root = tk.Tk()
+    root.withdraw()  # Hide the root window
+
     server = Server()
     eel.init("web")
     eel.start("main_page.html", size=(1200, 800))
