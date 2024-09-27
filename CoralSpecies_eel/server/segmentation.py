@@ -1,9 +1,9 @@
-from .segment_anything import sam_model_registry, SamAutomaticMaskGenerator
-
-import torch
-import numpy as np
 import logging
 
+import numpy as np
+import torch
+
+from .segment_anything import SamAutomaticMaskGenerator, sam_model_registry
 from .util.coco import encode_to_coco_mask
 
 
@@ -48,4 +48,8 @@ class CoralSegmentation:
             del mask["stability_score"]
             del mask["crop_box"]
             del mask["similarity"]
+
+        # Filter out the masks that the predicted_iou is null
+        masks = [mask for mask in masks if mask["predicted_iou"] is not None]
+
         return masks

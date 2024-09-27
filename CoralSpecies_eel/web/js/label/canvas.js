@@ -76,7 +76,7 @@ class Canvas {
         let g = 144;
         let b = 255;
 
-        if (edittingMask.getCategoryId) {
+        if (edittingMask.getCategoryId()) {
             const color = LabelManager.getColorById(
                 edittingMask.getCategoryId()
             );
@@ -101,6 +101,9 @@ class Canvas {
         // Put the modified image data back to the canvas
         maskCtx.putImageData(imageData, 0, 0);
 
+        const pointRadius = Math.min(this.imageWidth, this.imageHeight) * 0.01;
+        console.log("pointRadius", pointRadius);
+
         for (let i = 0; i < selected_points.length; i++) {
             const [imageX, imageY] = selected_points[i];
             const label = labels[i];
@@ -112,7 +115,7 @@ class Canvas {
 
             // Draw a circle at the selected point
             maskCtx.beginPath();
-            maskCtx.arc(imageX, imageY, 5, 0, 2 * Math.PI);
+            maskCtx.arc(imageX, imageY, pointRadius, 0, 2 * Math.PI);
 
             maskCtx.fillStyle = color;
             maskCtx.fill();
@@ -254,7 +257,7 @@ class Canvas {
             this.ctx.globalAlpha = 1.0;
 
             if (this.edittingMask !== null) {
-                this.ctx.globalAlpha = 0.6;
+                this.ctx.globalAlpha = 0.7;
                 this.ctx.drawImage(this.edittingMaskCache, 0, 0);
                 this.ctx.globalAlpha = 1.0;
             }

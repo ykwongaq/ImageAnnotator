@@ -19,6 +19,14 @@ class CategoryView {
         this.selectedDeleteId = null;
     }
 
+    getSearchInputDom() {
+        return this.searchInput;
+    }
+
+    getAddCategoryInputDom() {
+        return this.addCategoryInput;
+    }
+
     enable() {
         this.updateButtons();
         this.enableSearch();
@@ -105,6 +113,11 @@ class CategoryView {
 
             this.buttonContainer.appendChild(button);
         }
+
+        const statisticReport = new StatisticReport();
+        statisticReport.updateStatistic();
+        const statisticBoxManager = new StatisticBoxManager();
+        statisticBoxManager.updateStatistic(statisticReport);
     }
 
     markLabel(categoryId, categoryName) {

@@ -24,6 +24,10 @@ class Mask {
         this.shouldDisplay = true;
     }
 
+    setConfidence(confidence) {
+        this.annotation["predicted_iou"] = confidence;
+    }
+
     setShouldDisplay(shouldDisplay) {
         this.shouldDisplay = shouldDisplay;
     }

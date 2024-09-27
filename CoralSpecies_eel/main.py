@@ -1,7 +1,4 @@
 import logging
-import tkinter as tk
-from tkinter import filedialog
-
 
 # Initialize logging
 def setup_logging(log_file="log.log"):
@@ -34,24 +31,23 @@ def setup_logging(log_file="log.log"):
 # Initialize logging
 setup_logging()
 
-import eel
-import os
-import numpy as np
 import copy
+import os
 
+import eel
+import numpy as np
 from PIL import Image
+from tkinter import Tk
+from tkinter import filedialog
 
-from server.util.coco import encode_to_coco_mask, coco_mask_to_rle
-from server.util.general import (
-    get_resource_path,
-    decode_image_url,
-    remove_image_url_header,
-)
-from server.util.json import gen_image_json, save_json, gen_mask_json
+from server.dataset import Data, DataFilter, Dataset
 from server.embedding import EmbeddingGenerator
-from server.segmentation import CoralSegmentation
-from server.dataset import Dataset, DataFilter, Data
 from server.maskEiditor import MaskEidtor
+from server.segmentation import CoralSegmentation
+from server.util.coco import coco_mask_to_rle, encode_to_coco_mask
+from server.util.general import (decode_image_url, get_resource_path,
+                                 remove_image_url_header)
+from server.util.json import gen_image_json, gen_mask_json, save_json
 
 
 class PreprocessServer:
@@ -249,12 +245,13 @@ class Server:
         image, embedding, json_item, project_info = self.preprocess_server.preprocess(
             image_url, image_file, projectPath
         )
-        image_content = remove_image_url_header(image_url)
-        filename_wihthout_ext = os.path.splitext(image_file)[0]
+        # image_content = remove_image_url_header(image_url)
 
-        data = Data(filename_wihthout_ext, image_content, None, None)
-        data.set_embedding(embedding)
-        data.set_json_item(json_item)
+        filename_wihthout_ext = os.path.splitext(image_file)[0]
+        data = Data(filename_wihthout_ext, image, embedding, json_item)
+        # data = Data(filename_wihthout_ext, image_content, None, None)
+        # data.set_embedding(embedding)
+        # data.set_json_item(json_item)
 
         self.dataset.add_data(data)
         self.dataset.setProjectInfo(project_info)
@@ -349,6 +346,7 @@ def get_data(idx: int):
             dataset.upate_filter_config_in_project_info(filter_config)
             data_filter.update_filter(filter_config)
             return_item["filter_config"] = filter_config
+            print(f"Filter config: {filter_config}")
 
     copied_json_item = copy.deepcopy(json_item)
     annotations = copied_json_item["annotations"]
@@ -451,12 +449,34 @@ def check_valid_folder(path):
 
     return return_item
 
+@eel.expose
+def select_folder():
+	root = Tk()
+	root.withdraw()
+	root.wm_attributes('-topmost', 1)
+	folder = filedialog.askdirectory()
+	return folder
+
+@eel.expose
+def load_project(project_path:str):
+    print(f"Loading project: {project_path}")
+    dataset = server.get_dataset()
+    error_message = dataset.load_project(project_path)
+    return error_message
+
+@eel.expose
+def get_data_size():
+    dataset = server.get_dataset()
+    return dataset.get_size()
+
+@eel.expose
+def get_current_image_idx():
+    dataset = server.get_dataset()
+    return dataset.get_current_data_idx()
+
 
 if __name__ == "__main__":
-    # Initialize Tkinter root in the main thread
-    root = tk.Tk()
-    root.withdraw()  # Hide the root window
-
+    print("Please wait for the tool to be ready ...")
     server = Server()
     eel.init("web")
-    eel.start("main_page.html", size=(1200, 800))
+    eel.start('main_page.html', size=(1200, 800))

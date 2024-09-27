@@ -1,7 +1,7 @@
 class LabelPage {
     constructor() {
-        this.dropAreaDom = document.getElementById("drop-area");
-        this.dropArea = new DropArea(this.dropAreaDom);
+        // this.dropAreaDom = document.getElementById("drop-area");
+        // this.dropArea = new DropArea(this.dropAreaDom);
 
         this.categoryViewDom = document.getElementById("category-view");
         this.deleteContextMenuDom = document.getElementById(
@@ -46,6 +46,7 @@ class LabelPage {
         this.resetViewpointButton = document.getElementById(
             "reset-viewpoint-button"
         );
+        this.loadProjectButton = document.getElementById("load-project-button");
 
         let configurationPage = document.getElementById(
             "mask-configuration-page"
@@ -168,6 +169,7 @@ class LabelPage {
                     const canvas = new Canvas(null);
                     const mask = canvas.getEdittingMask();
                     mask.setColorById();
+                    mask.setConfidence(1);
                     const currentData = this.dataset.getCurrentData();
                     currentData.addMask(mask);
                     canvas.updateMasks();
@@ -262,6 +264,29 @@ class LabelPage {
             const canvas = new Canvas(null);
             canvas.resetViewpoint();
         });
+
+        this.loadProjectButton.addEventListener("click", () => {
+            eel.select_folder()((folder_path) => {
+                if (folder_path === null) {
+                    return;
+                }
+
+                eel.load_project(folder_path)((errorMessage) => {
+                    if (errorMessage != null) {
+                        alert(errorMessage);
+                        return;
+                    }
+
+                    eel.get_dataset_size()((size) => {
+                        this.dataset.setTotalImages(size);
+                    });
+
+                    eel.get_current_image_idx()((idx) => {
+                        this.setCurrentDataByIdx(idx);
+                    });
+                });
+            });
+        });
     }
 
     finishLoadingData(totalImageCount) {
@@ -269,152 +294,26 @@ class LabelPage {
         this.dataset.setTotalImages(totalImageCount);
     }
 
-    enableDropArea() {
-        const dropArea = new DropArea(this.dropAreaDom);
-        dropArea.handleClick = (e) => {
-            eel.clear_dataset();
-            this.loadDataFinished = false;
-            const files = dropArea.getFileInput().files;
-            const totalFiles = files.length;
-            let filesProcesssed = 0;
-            for (const file of files) {
-                const relativePath = file.webkitRelativePath || file.name;
-
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    // Extract base64 dsata
-
-                    const loadingIconManager = new LoadingIconManager();
-                    loadingIconManager.showLoadingIcon();
-                    const fileContent = event.target.result.split(",")[1];
-                    console.log("relativePath: ", relativePath);
-                    eel.receive_file(
-                        fileContent,
-                        relativePath
-                    )(() => {
-                        loadingIconManager.hideLoadingIcon();
-                        filesProcesssed++;
-                        if (filesProcesssed === totalFiles) {
-                            eel.init_dataset()((response) => {
-                                const size = response["size"];
-                                const currentDataIdx =
-                                    response["current_data_idx"];
-                                this.run(size, currentDataIdx);
-                            });
-                        }
-                    });
-                };
-                reader.readAsDataURL(file);
+    enableShortcut() {
+        document.addEventListener("keydown", (event) => {
+            if (
+                document.activeElement ===
+                    this.categoryView.getSearchInputDom() ||
+                document.activeElement ===
+                    this.categoryView.getAddCategoryInputDom()
+            ) {
+                return;
             }
-        };
 
-        dropArea.handleDrop = (e) => {
-            eel.clear_dataset();
-            e.preventDefault();
-            this.loadDataFinished = false;
-            const items = e.dataTransfer.items;
-            let promises = [];
-
-            if (items) {
-                // Use DataTransferItemList interface to access the items
-                for (let i = 0; i < items.length; i++) {
-                    const item = items[i];
-                    const entry = item.getAsEntry
-                        ? item.getAsEntry()
-                        : item.webkitGetAsEntry();
-
-                    if (entry) {
-                        promises.push(this.traverseFileTree(entry));
-                    }
-                }
-
-                Promise.all(promises)
-                    .then(() => {
-                        // All files processed
-                        console.log("All files have been processed.");
-
-                        eel.init_dataset()((response) => {
-                            const size = response["size"];
-                            const currentDataIdx = response["current_data_idx"];
-                            this.run(size, currentDataIdx);
-                        });
-                    })
-                    .catch(function (error) {
-                        console.error("Error processing files:", error);
-                    });
-            }
-        };
-        dropArea.enable();
-    }
-
-    traverseFileTree(item, path = "") {
-        return new Promise((resolve, reject) => {
-            if (item.isFile) {
-                item.file(
-                    function (file) {
-                        // Process the file here
-
-                        const reader = new FileReader();
-                        reader.onload = function (event) {
-                            const loadingIconManager = new LoadingIconManager();
-                            loadingIconManager.showLoadingIcon();
-
-                            const data = event.target.result.split(",")[1];
-                            console.log("Relative path: ", path + file.name);
-                            // Send data to Python-Eel
-                            eel.receive_file(
-                                data,
-                                path + file.name
-                            )(function () {
-                                // File processing is done
-                                const loadingIconManager =
-                                    new LoadingIconManager();
-                                loadingIconManager.hideLoadingIcon();
-                                resolve();
-                            });
-                        };
-                        reader.onerror = function (error) {
-                            reject(error);
-                        };
-                        reader.readAsDataURL(file);
-                    },
-                    function (error) {
-                        reject(error);
-                    }
-                );
-            } else if (item.isDirectory) {
-                const dirReader = item.createReader();
-                let entries = [];
-
-                // Read all directory entries
-                const readEntries = () => {
-                    dirReader.readEntries(
-                        (results) => {
-                            if (results.length) {
-                                entries = entries.concat(Array.from(results));
-                                readEntries(); // Continue reading entries
-                            } else {
-                                // All entries have been read
-                                let promises = entries.map((entry) =>
-                                    this.traverseFileTree(
-                                        entry,
-                                        path + item.name + "/"
-                                    )
-                                );
-                                Promise.all(promises)
-                                    .then(() => resolve())
-                                    .catch((error) => reject(error));
-                            }
-                        },
-                        (error) => {
-                            reject(error);
-                        }
-                    );
-                };
-                readEntries(); // Start reading entries
-            } else {
-                // Not a file or directory
-                resolve();
+            const inputKey = event.key.toLowerCase();
+            if (inputKey === "a") {
+                this.prevImageButton.click();
+            } else if (inputKey === "d") {
+                this.nextImageButton.click();
+                // } else if (inputKey === "s") {
+                //     SHOW_MASK_BUTTON.click();
+            } else if (inputKey === "w") {
+                this.resetViewpointButton.click();
             }
         });
     }
@@ -422,12 +321,13 @@ class LabelPage {
 
 function main() {
     const labelPage = new LabelPage();
-    labelPage.enableDropArea();
+    // labelPage.enableDropArea();
     labelPage.enableCategoryView();
     labelPage.enableMaskModeButtons();
     labelPage.enableMaskOpacitySlider();
     labelPage.enableBottomButtons();
     labelPage.configurationPage.enable();
+    labelPage.enableShortcut();
 
     eel.get_dataset_size()((size) => {
         if (size > 0) {

@@ -1,21 +1,20 @@
-import os
-import numpy as np
-import logging
-import time
 import copy
+import logging
+import os
+import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from io import BytesIO
+from typing import Dict, List, Set
+import base64
 
+import numpy as np
+from PIL import Image
+
+from .util.coco import decode_coco_mask
 from .util.general import (
-    load_image_from_content,
-    load_numpy_from_content,
-    load_json_from_content,
     time_it,
 )
-from .util.coco import decode_coco_mask
-from .util.json import save_json
-from PIL import Image
-from io import BytesIO
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import List, Dict, Set
+from .util.json import save_json, load_json
 
 
 class DataFilter:
@@ -149,76 +148,44 @@ class DataFilter:
         filtered_indices = [int(idx) for idx in filtered_indices]
         return filtered_indices
 
-
 class Data:
-
-    def __init__(self, filename, image_content, embedding_content, json_content):
-        self.logger = logging.getLogger(self.__class__.__name__)
+    def __init__(self, filename:str, image:np.ndarray, embedding:np.ndarray, json_item:Dict):
+        self.image = image
+        self.embedding = embedding
+        self.json_item = json_item
         self.filename = filename
-        self.image_content = image_content
-        self.embedding_content = embedding_content
-        self.json_content = json_content
-
-        self.image = None
-        self.embedding = None
-        self.json_item = None
 
     def get_image(self):
-        if self.image is None:
-            self.image = load_image_from_content(self.image_content)
         return self.image
 
-    def set_embedding(self, embedding):
-        self.embedding = embedding
-
-    def set_json_item(self, json_item):
-        self.json_item = json_item
-
-    @time_it
     def get_embedding(self):
-        if self.embedding is None:
-            self.embedding = load_numpy_from_content(self.embedding_content)
         return self.embedding
-
-    @time_it
+    
     def get_json_item(self):
-        if self.json_item is None:
-            self.json_item = load_json_from_content(self.json_content)
         return self.json_item
-
-    @time_it
-    def get_image_content(self):
-        extension = os.path.splitext(self.filename)[1][1:]
-        extension = extension.lower()
-
-        # Ensure the extension is valid
-        valid_extensions = {"png", "jpeg", "jpg", "gif", "bmp"}
-        if extension not in valid_extensions:
-            extension = "png"  # Default to png if not valid
-
-        image_url = f"data:image/{extension};base64,{self.image_content}"
-        return image_url
-
-    def get_embedding_content(self):
-        return self.embedding_content
-
-    def get_annotation_content(self):
-        return self.json_content
-
+    
     def get_filename(self):
         return self.filename
-
-    def set_json_item(self, json_item):
+    
+    def set_json_item(self, json_item: Dict):
         self.json_item = json_item
-        # json_content = self.get_json_item()
+    
+    @time_it
+    def get_image_content(self):
+        # Ensure the imaeg is uint8
+        if self.image.dtype != np.uint8:
+            image_array = (255 * (self.image / np.max(self.image))).astype(np.uint8)
+        else:
+            image_array = self.image
 
-        # categoryDict = {}
-        # for category in json_content["categories"]:
-        #     categoryDict[category["id"]] = category["name"]
+        buffered = BytesIO()
+        
+        image_content = Image.fromarray(image_array)
+        image_content.save(buffered, format="PNG")
 
-        # for annotation in json_content["annotations"]:
-        #     annotation["category_name"] = categoryDict[annotation["category_id"]]
-
+        image_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+        data_url = f"data:image/png;base64,{image_str}"
+        return data_url
 
 class Dataset:
     def __init__(self, output_dir: str = "."):
@@ -254,31 +221,123 @@ class Dataset:
     def add_data(self, data):
         self.data_list.append(data)
 
-    @time_it
-    def init_data(self):
-        self.logger.info("Initializing data ...")
-        filenames = (
-            set(self.recieved_images.keys())
-            & set(self.recieved_embeddings.keys())
-            & set(self.recieved_jsons.keys())
-        )
+    def load_project(self, project_path):
+        self.logger.info(f"Loading project from {project_path} ...")
+        self.clear()
 
-        filenames = list(filenames)
+        data_folder = os.path.join(project_path, "data")
+        image_folder = os.path.join(data_folder, "images")
+        embedding_folder = os.path.join(data_folder, "embeddings")
+        annotation_folder = os.path.join(data_folder, "annotations")
+        project_json_file = os.path.join(data_folder, "project.json")
 
-        filenames.sort()
-
-        for filename in filenames:
-            image_content = self.recieved_images[filename]
-            embedding_content = self.recieved_embeddings[filename]
-            annotation_content = self.recieved_jsons[filename]
-
-            data = Data(filename, image_content, embedding_content, annotation_content)
-            self.data_list.append(data)
-
-        self.project_info = load_json_from_content(self.project_info_content)
-
+        if not os.path.isdir(data_folder):
+            error_message = f"Data folder not found: {data_folder}"
+            return error_message
+        
+        if not os.path.isdir(image_folder):
+            error_message = f"Image folder not found: {image_folder}"
+            return error_message
+        
+        if not os.path.isdir(embedding_folder):
+            error_message = f"Embedding folder not found: {embedding_folder}"
+            return error_message
+        
+        if not os.path.isdir(annotation_folder):
+            error_message = f"Annotation folder not found: {annotation_folder}"
+            return error_message
+        
+        if not os.path.isfile(project_json_file):
+            error_message = f"Project json file not found: {project_json_file}"
+            return error_message
+        
+        self.project_info = load_json(project_json_file)
+        self.current_data_idx = 0
         if "last_image_idx" in self.project_info:
             self.current_data_idx = self.project_info["last_image_idx"]
+
+        image_files = os.listdir(image_folder)
+        image_files.sort()
+
+        filenames = [os.path.splitext(filename)[0] for filename in image_files]
+
+        annotation_files = []
+        for filename in filenames:
+            annotation_file = os.path.join(annotation_folder, f"{filename}.json")
+            if not os.path.isfile(annotation_file):
+                error_message = f"Annotation file not found: {annotation_file}"
+                return error_message
+            annotation_files.append(os.path.basename(annotation_file))
+        
+        embedding_files = []
+        for filename in filenames:
+            embedding_file = os.path.join(embedding_folder, f"{filename}.npy")
+            if not os.path.isfile(embedding_file):
+                error_message = f"Embedding file not found: {embedding_file}"
+                return error_message
+            embedding_files.append(os.path.basename(embedding_file))
+
+        # Verify that the corresponding files are at the same order
+        if len(filenames) != len(annotation_files) or len(filenames) != len(embedding_files):
+            self.logger.error(f"Number of files: {len(filenames)}")
+            self.logger.error(f"Number of annotation files: {len(annotation_files)}")
+            self.logger.error(f"Number of embedding files: {len(embedding_files)}")
+            error_message = "Number of files do not match"
+            return error_message
+        
+        for (imaeg_filename, embedding_filename, annotation_filename) in zip(image_files, embedding_files, annotation_files):
+            # Verify that the filenames are the same
+            image_filename_without_extension = os.path.splitext(imaeg_filename)[0]
+            embedding_filename_without_extension = os.path.splitext(embedding_filename)[0]
+            annotation_filename_without_extension = os.path.splitext(annotation_filename)[0]
+
+            if image_filename_without_extension != embedding_filename_without_extension or image_filename_without_extension != annotation_filename_without_extension:
+                self.logger.error(f"Image filename: {image_filename_without_extension}")
+                self.logger.error(f"Embedding filename: {embedding_filename_without_extension}")
+                self.logger.error(f"Annotation filename: {annotation_filename_without_extension}")
+                self.logger.error("Filenames do not match")
+                error_message = "Filenames do not match"
+                return error_message
+            
+            image_path = os.path.join(image_folder, imaeg_filename)
+            embedding_path = os.path.join(embedding_folder, embedding_filename)
+            annotation_path = os.path.join(annotation_folder, annotation_filename)
+
+            image = Image.open(image_path)
+            image = np.array(image)
+            embedding = np.load(embedding_path)
+            annotation = load_json(annotation_path)
+        
+            data = Data(image_filename_without_extension, image, embedding, annotation)
+            self.data_list.append(data)
+
+        return None 
+            
+    # @time_it
+    # def init_data(self):
+    #     self.logger.info("Initializing data ...")
+    #     filenames = (
+    #         set(self.recieved_images.keys())
+    #         & set(self.recieved_embeddings.keys())
+    #         & set(self.recieved_jsons.keys())
+    #     )
+
+    #     filenames = list(filenames)
+
+    #     filenames.sort()
+
+    #     for filename in filenames:
+    #         image_content = self.recieved_images[filename]
+    #         embedding_content = self.recieved_embeddings[filename]
+    #         annotation_content = self.recieved_jsons[filename]
+
+    #         data = Data(filename, image_content, embedding_content, annotation_content)
+    #         self.data_list.append(data)
+
+    #     self.project_info = load_json_from_content(self.project_info_content)
+
+    #     if "last_image_idx" in self.project_info:
+    #         self.current_data_idx = self.project_info["last_image_idx"]
 
     def setProjectInfo(self, project_info):
         self.project_info = project_info
@@ -396,9 +455,6 @@ class Dataset:
         if "filter_config" not in self.project_info:
             self.project_info["filter_config"] = {}
         self.project_info["filter_config"][str(idx)] = DataFilter().export_config()
-        # self.update_project_info(
-        #     {"filter_config": {str(idx): DataFilter().export_config()}}
-        # )
 
         # Save project.json
         data_folder = os.path.join(project_path, "data")

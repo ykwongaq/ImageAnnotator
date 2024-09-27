@@ -36,6 +36,9 @@ class Annotator {
             mask.setColor(color);
         }
         this.selectedMasks = [];
+
+        const canvas = new Canvas();
+        canvas.updateMasks();
     }
 
     static getSelectedMasks() {

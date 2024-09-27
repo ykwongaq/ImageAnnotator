@@ -36,14 +36,17 @@ class StatisticBoxManager {
         this.showStatisticBoxes(boxes);
     }
 
-    createLabelCountBox(labelId, labelName, labelCount, maskCount) {
+    createLabelCountBox(labelId, labelName, coveredArea, totalArea) {
         const labelCountBox = this.template.content.cloneNode(true);
-        const percentage = Math.floor((labelCount / maskCount) * 100);
+        let percentage = 0;
+        if (totalArea !== 0) {
+            percentage = Math.floor((coveredArea / totalArea) * 100);
+        }
         const labelInfo = this.getInfoDiv(labelCountBox);
         labelInfo.innerHTML = `${labelId}. ${labelName}: Coverage (${percentage}%)`;
 
         const progressBar = this.getProgressBar(labelCountBox);
-        progressBar.style.width = `${(labelCount / maskCount) * 100}%`;
+        progressBar.style.width = `${percentage}%`;
 
         return labelCountBox;
     }
@@ -57,20 +60,13 @@ class StatisticBoxManager {
         for (const labelId in areaDict) {
             totalAreaCovered += areaDict[labelId];
         }
-        const areaPercentage = Math.floor((totalAreaCovered / totalArea) * 100);
+
+        let areaPercentage = 0;
+        if (totalArea !== 0) {
+            areaPercentage = Math.floor((totalAreaCovered / totalArea) * 100);
+        }
         const maskInfo = this.getInfoDiv(maskProgressBox);
         maskInfo.innerHTML = `All Coral Coverage: (${areaPercentage}%)`;
-        // const totalMaskCount = statisticReport.getTotalMaskCount();
-        // const finishedMaskCount = statisticReport.getFinishedMaskCount();
-        // const precentage = Math.floor(
-        //     (finishedMaskCount / totalMaskCount) * 100
-        // );
-
-        // if (totalMaskCount === 0) {
-        //     maskInfo.innerHTML = `Mask: ${finishedMaskCount} / ${totalMaskCount} (0%)`;
-        // } else {
-        //     maskInfo.innerHTML = `Mask: ${finishedMaskCount} / ${totalMaskCount} (${precentage}%)`;
-        // }
 
         const progressBar = this.getProgressBar(maskProgressBox);
         progressBar.style.width = `${areaPercentage}%`;
@@ -134,6 +130,10 @@ class StatisticReport {
     }
 
     updateStatistic() {
+        if (this.data == null) {
+            console.log("No data to update statistic");
+            return;
+        }
         this.resetData();
 
         this.totalMaskCount = this.data.getMaskCount();
