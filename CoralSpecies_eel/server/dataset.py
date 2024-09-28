@@ -309,6 +309,7 @@ class Dataset:
         image_files.sort()
 
         filenames = [os.path.splitext(filename)[0] for filename in image_files]
+        filenames.sort()
 
         annotation_files = []
         for filename in filenames:

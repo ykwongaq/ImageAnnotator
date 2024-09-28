@@ -161,6 +161,11 @@ class PreprocessPage {
             this.disableProcessButton();
 
             const selectedImages = this.imageSelector.getSelectedImages();
+            // Sort the selected images by filename
+            selectedImages.sort((a, b) => {
+                return a.localeCompare(b);
+            });
+
             // const projectPath = this.projectPathInput.value;
 
             eel.select_folder()((projectPath) => {
