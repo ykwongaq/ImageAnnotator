@@ -272,13 +272,21 @@ class LabelPage {
                     return;
                 }
 
-                eel.load_project(folder_path)((errorMessage) => {
-                    if (errorMessage != null) {
-                        alert(errorMessage);
-                        return;
-                    }
+                eel.is_valid_project_folder(folder_path)((response) => {
+                    const success = response["success"];
+                    if (success) {
+                        eel.load_project(folder_path)((errorMessage) => {
+                            if (errorMessage != null) {
+                                alert(errorMessage);
+                                return;
+                            }
 
-                    this.autoStart();
+                            this.autoStart();
+                        });
+                    } else {
+                        const errorMessage = response["error_message"];
+                        alert(errorMessage);
+                    }
                 });
             });
         });

@@ -89,7 +89,7 @@ class CategoryView {
             const labelName = LabelManager.labels[labelId];
 
             const button = document.createElement("button");
-            button.innerHTML = labelName;
+            button.innerHTML = `${labelId}. ${labelName}`;
             button.classList.add("button-2");
             button.onclick = () => {
                 if (Annotator.getCurrentMode() === Annotator.LABEL_MASK) {

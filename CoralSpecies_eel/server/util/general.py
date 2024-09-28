@@ -30,6 +30,9 @@ def decode_image_url(image_url):
     data = base64.b64decode(encoded)
 
     image = Image.open(BytesIO(data))
+    
+    if image.mode == "RGBA":
+        image = image.convert("RGB") 
     image = np.array(image)
     return image
 

@@ -112,6 +112,7 @@ class PreprocessServer:
         os.makedirs(output_folder, exist_ok=True)
 
         image = decode_image_url(image_url)
+        self.logger.debug(f"image shape: {image.shape}")
 
         # Save the image
         image_folder = os.path.join(output_folder, "images")
@@ -488,6 +489,16 @@ def have_mask_belong_to_category(category_idx):
     response = {}
     response["has_mask_belong_to_category"] = has_mask_belong_to_category
     response["image_idx"] = image_idx
+    return response
+
+@eel.expose
+def is_valid_project_folder(project_folder):
+    dataset = server.get_dataset()
+    sucess, error_message = dataset.is_valid_project_folder(project_folder)
+
+    response = {}
+    response["success"] = sucess
+    response["error_message"] = error_message
     return response
 
 if __name__ == "__main__":

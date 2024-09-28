@@ -80,9 +80,7 @@ class PreprocessPage {
 
         dropArea.handleClick = (e) => {
             e.preventDefault();
-            this.imageSelector.clearData();
-            this.deselectedGallery.innerHTML = "";
-            this.selectedGallery.innerHTML = "";
+            // this.clearUnselectedItem();
             const files = e.target.files;
             Array.from(files).forEach((file) => {
                 if (file.type.startsWith("image/")) {
@@ -93,9 +91,8 @@ class PreprocessPage {
 
         dropArea.handleDrop = (e) => {
             e.preventDefault();
-            this.imageSelector.clearData();
-            this.deselectedGallery.innerHTML = "";
-            this.selectedGallery.innerHTML = "";
+
+            // this.clearUnselectedItem();
 
             let dt = e.dataTransfer;
             let items = dt.items;
@@ -116,6 +113,15 @@ class PreprocessPage {
         dropArea.enable();
     }
 
+    clearUnselectedItem() {
+        this.imageSelector.clearUnselectedData();
+        this.deselectedGallery.innerHTML = "";
+
+        // Remove the item in gallyItems
+        this.galleryItems = this.galleryItems.filter((galleryItem) => {
+            return this.selectedGallery.contains(galleryItem);
+        });
+    }
     enableSelectAllButton() {
         this.selectAllButton.addEventListener("click", () => {
             this.galleryItems.forEach((galleryItem) => {
@@ -222,6 +228,12 @@ class PreprocessPage {
     }
 
     loadImage(imageFile) {
+        // Check if the imageFile added already
+        const fileName = imageFile.name;
+        if (this.imageSelector.images.includes(fileName)) {
+            return;
+        }
+
         const galleryItem = document.createElement("div");
         galleryItem.classList.add("gallery-item");
 
@@ -232,7 +244,6 @@ class PreprocessPage {
         };
         reader.readAsDataURL(imageFile);
 
-        const fileName = imageFile.name;
         const filenameElement = document.createElement("div");
         filenameElement.textContent = fileName;
 
@@ -256,10 +267,11 @@ class PreprocessPage {
     }
 
     selectImage(imageFile, galleryItem) {
-        this.imageSelector.selectImage(imageFile);
-
-        // Add it to the selected gallery
-        this.selectedGallery.appendChild(galleryItem);
+        const success = this.imageSelector.selectImage(imageFile);
+        if (success) {
+            // Add it to the selected gallery
+            this.selectedGallery.appendChild(galleryItem);
+        }
 
         // Remove it from the deselected gallery
         if (this.deselectedGallery.contains(galleryItem)) {

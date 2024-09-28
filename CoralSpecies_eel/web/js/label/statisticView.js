@@ -28,7 +28,7 @@ class StatisticBoxManager {
                 labelId,
                 labelName,
                 area,
-                statisticReport.getTotalArea()
+                statisticReport.getImageArea()
             );
             boxes.push(labelCountBox);
         }
@@ -53,17 +53,12 @@ class StatisticBoxManager {
 
     createMaskProcessBox(statisticReport) {
         const maskProgressBox = this.template.content.cloneNode(true);
-
-        const totalArea = statisticReport.getTotalArea();
-        let areaDict = statisticReport.getAreaDict();
-        let totalAreaCovered = 0;
-        for (const labelId in areaDict) {
-            totalAreaCovered += areaDict[labelId];
-        }
+        const imageArea = statisticReport.getImageArea();
+        const totalCoralArea = statisticReport.getTotalCoralArea();
 
         let areaPercentage = 0;
-        if (totalArea !== 0) {
-            areaPercentage = Math.floor((totalAreaCovered / totalArea) * 100);
+        if (imageArea !== 0) {
+            areaPercentage = Math.floor((totalCoralArea / imageArea) * 100);
         }
         const maskInfo = this.getInfoDiv(maskProgressBox);
         maskInfo.innerHTML = `All Coral Coverage: (${areaPercentage}%)`;
@@ -100,11 +95,8 @@ class StatisticReport {
         StatisticReport.instance = this;
         this.data = null;
 
-        this.totalMaskCount = 0;
-        this.finishedMaskCount = 0;
-        this.unfinishedMaskCount = 0;
-
-        this.totalArea = 0;
+        this.imageArea = 0;
+        this.totalCoralArea = 0;
         this.areaDict = {};
         for (const label_id in LabelManager.labels) {
             this.areaDict[label_id] = 0;
@@ -119,10 +111,8 @@ class StatisticReport {
     }
 
     resetData() {
-        this.totalMaskCount = 0;
-        this.finishedMaskCount = 0;
-        this.unfinishedMaskCount = 0;
-        this.totalArea = 0;
+        this.imageArea = 0;
+        this.totalCoralArea = 0;
         this.areaDict = {};
         for (const label_id in LabelManager.labels) {
             this.areaDict[label_id] = 0;
@@ -136,33 +126,22 @@ class StatisticReport {
         }
         this.resetData();
 
-        this.totalMaskCount = this.data.getMaskCount();
-        this.totalArea = this.data.getImageHeight() * this.data.getImageWidth();
+        this.imageArea = this.data.getImageHeight() * this.data.getImageWidth();
+        this.totalCoralArea = 0;
 
         for (const mask of this.data.getMasks()) {
             if (!mask.getShouldDisplay()) {
                 continue;
             }
+            this.totalCoralArea += mask.getArea();
             const label_id = mask.getCategoryId();
             if (label_id === null) {
-                this.unfinishedMaskCount += 1;
+                // this.unfinishedMaskCount += 1;
             } else {
-                this.finishedMaskCount += 1;
+                // this.finishedMaskCount += 1;
                 this.areaDict[label_id] += mask.getArea();
             }
         }
-    }
-
-    getTotalMaskCount() {
-        return this.totalMaskCount;
-    }
-
-    getFinishedMaskCount() {
-        return this.finishedMaskCount;
-    }
-
-    getUnfinishedMaskCount() {
-        return this.unfinishedMaskCount;
     }
 
     getAreaById(label_id) {
@@ -173,7 +152,11 @@ class StatisticReport {
         return this.areaDict;
     }
 
-    getTotalArea() {
-        return this.totalArea;
+    getImageArea() {
+        return this.imageArea;
+    }
+
+    getTotalCoralArea() {
+        return this.totalCoralArea;
     }
 }

@@ -237,6 +237,59 @@ class Dataset:
     def add_data(self, data):
         self.data_list.append(data)
 
+    def is_valid_project_folder(self, project_path):
+        data_folder = os.path.join(project_path, "data")
+        image_folder = os.path.join(data_folder, "images")
+        embedding_folder = os.path.join(data_folder, "embeddings")
+        annotation_folder = os.path.join(data_folder, "annotations")
+        project_json_file = os.path.join(data_folder, "project.json")
+
+        if not os.path.isdir(data_folder):
+            error_message = f"Data folder not found: {data_folder}"
+            return False, error_message
+        
+        if not os.path.isdir(image_folder):
+            error_message = f"Image folder not found: {image_folder}"
+            return False, error_message 
+        
+        if not os.path.isdir(embedding_folder):
+            error_message = f"Embedding folder not found: {embedding_folder}"
+            return False, error_message
+        
+        if not os.path.isdir(annotation_folder):
+            error_message = f"Annotation folder not found: {annotation_folder}"
+            return False, error_message
+        
+        if not os.path.isfile(project_json_file):
+            error_message = f"Project json file not found: {project_json_file}"
+            return False
+        
+        # Check that all the corresponding files exist
+        image_files = os.listdir(image_folder)
+
+        if len(image_files) == 0:
+            error_message = f"No image files found in {image_folder}"
+            return False, error_message
+        
+        image_files.sort()
+
+        filenames = [os.path.splitext(filename)[0] for filename in image_files]
+
+        for filename in filenames:
+            annotation_file = os.path.join(annotation_folder, f"{filename}.json")
+            if not os.path.isfile(annotation_file):
+                error_message = f"Annotation file not found: {annotation_file}"
+                return False, error_message
+        
+            embedding_file = os.path.join(embedding_folder, f"{filename}.npy")
+            if not os.path.isfile(embedding_file):
+                error_message = f"Embedding file not found: {embedding_file}"
+                return False, error_message
+            
+        return True, None
+        
+
+
     def load_project(self, project_path):
         self.logger.info(f"Loading project from {project_path} ...")
         self.clear()
@@ -246,26 +299,6 @@ class Dataset:
         embedding_folder = os.path.join(data_folder, "embeddings")
         annotation_folder = os.path.join(data_folder, "annotations")
         project_json_file = os.path.join(data_folder, "project.json")
-
-        if not os.path.isdir(data_folder):
-            error_message = f"Data folder not found: {data_folder}"
-            return error_message
-        
-        if not os.path.isdir(image_folder):
-            error_message = f"Image folder not found: {image_folder}"
-            return error_message
-        
-        if not os.path.isdir(embedding_folder):
-            error_message = f"Embedding folder not found: {embedding_folder}"
-            return error_message
-        
-        if not os.path.isdir(annotation_folder):
-            error_message = f"Annotation folder not found: {annotation_folder}"
-            return error_message
-        
-        if not os.path.isfile(project_json_file):
-            error_message = f"Project json file not found: {project_json_file}"
-            return error_message
         
         self.project_info = load_json(project_json_file)
         self.current_data_idx = 0
