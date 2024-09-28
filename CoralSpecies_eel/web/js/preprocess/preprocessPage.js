@@ -136,16 +136,34 @@ class PreprocessPage {
         });
     }
 
+    disableProcessButton() {
+        this.processButton.disabled = true;
+        this.processButton.style.borderColor = "gray";
+        this.processButton.style.color = "gray";
+        this.processButton.style.cursor = "not-allowed";
+    }
+
+    reEnableProcessButton() {
+        this.processButton.disabled = false;
+        this.processButton.style.borderColor = "black";
+        this.processButton.style.color = "black";
+        this.processButton.style.cursor = "pointer";
+    }
+
     enableProcessButton() {
         this.processButton.addEventListener("click", () => {
+            this.disableProcessButton();
+
             const selectedImages = this.imageSelector.getSelectedImages();
             // const projectPath = this.projectPathInput.value;
 
             eel.select_folder()((projectPath) => {
                 if (projectPath === null) {
                     console.log("No folder selected");
+                    this.reEnableProcessButton();
                     return;
                 }
+
                 eel.check_valid_folder(projectPath)((response) => {
                     let isValid = response["success"];
                     let error_message = response["error_message"];
@@ -178,6 +196,13 @@ class PreprocessPage {
                                     this.progressText.textContent = `Process: ${percentage.toFixed(
                                         2
                                     )} %`;
+
+                                    if (
+                                        this.processedCount ===
+                                        selectedImages.length
+                                    ) {
+                                        this.reEnableProcessButton();
+                                    }
                                 }
                             );
                         });
@@ -188,6 +213,7 @@ class PreprocessPage {
                                 " with error: " +
                                 error_message
                         );
+                        this.reEnableProcessButton();
                         return;
                     }
                 });

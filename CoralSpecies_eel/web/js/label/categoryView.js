@@ -44,8 +44,9 @@ class CategoryView {
 
     enableDeleteAction() {
         this.deleteAction.addEventListener("click", () => {
-            LabelManager.removeLabel(this.selectedDeleteId);
-            this.updateButtons();
+            LabelManager.removeLabel(this.selectedDeleteId, () => {
+                this.updateButtons();
+            });
             this.deleteContextMenu.style.display = "none";
         });
     }
@@ -108,7 +109,7 @@ class CategoryView {
                 this.deleteContextMenu.style.display = "block";
                 this.deleteContextMenu.style.left = event.pageX + "px";
                 this.deleteContextMenu.style.top = event.pageY + "px";
-                this.selectedDeleteId = labelId;
+                this.selectedDeleteId = parseInt(labelId);
             });
 
             this.buttonContainer.appendChild(button);

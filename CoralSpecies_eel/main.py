@@ -148,6 +148,7 @@ class PreprocessServer:
         project_file = os.path.join(output_folder, "project.json")
         project_info = {}
         project_info["project_path"] = os.path.abspath(projectPath)
+        project_info["labels"] = {0: "coral"}
         self.save_json(project_info, project_file)
 
         return image, embedding, output_json, project_info
@@ -414,13 +415,13 @@ def confirm_edit_mask_input():
 
 
 @eel.expose
-def save_data(json_item, filename, idx):
+def save_data(json_item, idx, labels_list):
     """
     Save the data to the dataset
     """
 
     dataset = server.get_dataset()
-    dataset.save_annotation(idx, json_item)
+    dataset.save_annotation(idx, json_item, labels_list)
 
 
 @eel.expose
@@ -474,9 +475,26 @@ def get_current_image_idx():
     dataset = server.get_dataset()
     return dataset.get_current_data_idx()
 
+@eel.expose
+def get_label_list():
+    dataset = server.get_dataset()
+    return dataset.get_label_list()
+
+@eel.expose
+def have_mask_belong_to_category(category_idx):
+    dataset = server.get_dataset()
+    has_mask_belong_to_category, image_idx = dataset.have_mask_belong_to_category(category_idx)
+
+    response = {}
+    response["has_mask_belong_to_category"] = has_mask_belong_to_category
+    response["image_idx"] = image_idx
+    return response
 
 if __name__ == "__main__":
     print("Please wait for the tool to be ready ...")
-    server = Server()
     eel.init("web")
+    print(f"About to start the server ...")
+    server = Server()
+    print(f"Server initialized ...")
     eel.start('main_page.html', size=(1200, 800))
+    print(f"Server started ...")

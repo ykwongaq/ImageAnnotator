@@ -169,6 +169,13 @@ class Data:
     
     def set_json_item(self, json_item: Dict):
         self.json_item = json_item
+
+    def have_mask_belong_to_category(self, category_id):
+        for annotation in self.json_item["annotations"]:
+            print(f"category_id: {category_id} with type {type(category_id)}, while annotation category_id: {annotation['category_id']} with type {type(annotation['category_id'])}")
+            if annotation["category_id"] == category_id:
+                return True
+        return False
     
     @time_it
     def get_image_content(self):
@@ -208,6 +215,15 @@ class Dataset:
 
         self.current_data_idx = 0
 
+    def have_mask_belong_to_category(self, category_id):
+        for idx, data in enumerate(self.data_list):
+            if idx == self.current_data_idx:
+                continue
+            if data.have_mask_belong_to_category(category_id):
+                print(f"Found category_id: {category_id} in data index: {idx}")
+                return True, idx
+        return False, None
+    
     def clear(self):
         self.logger.info("Clearing dataset ...")
         self.recieved_images = {}
@@ -313,31 +329,13 @@ class Dataset:
 
         return None 
             
-    # @time_it
-    # def init_data(self):
-    #     self.logger.info("Initializing data ...")
-    #     filenames = (
-    #         set(self.recieved_images.keys())
-    #         & set(self.recieved_embeddings.keys())
-    #         & set(self.recieved_jsons.keys())
-    #     )
+    def get_label_list(self):
+        if self.project_info is None:
+            return []
+        if "labels" not in self.project_info:
+            return []
+        return self.project_info["labels"]
 
-    #     filenames = list(filenames)
-
-    #     filenames.sort()
-
-    #     for filename in filenames:
-    #         image_content = self.recieved_images[filename]
-    #         embedding_content = self.recieved_embeddings[filename]
-    #         annotation_content = self.recieved_jsons[filename]
-
-    #         data = Data(filename, image_content, embedding_content, annotation_content)
-    #         self.data_list.append(data)
-
-    #     self.project_info = load_json_from_content(self.project_info_content)
-
-    #     if "last_image_idx" in self.project_info:
-    #         self.current_data_idx = self.project_info["last_image_idx"]
 
     def setProjectInfo(self, project_info):
         self.project_info = project_info
@@ -427,7 +425,7 @@ class Dataset:
             self.project_info["filter_config"] = {}
         self.project_info["filter_config"][str(self.current_data_idx)] = config
 
-    def save_annotation(self, idx, annotation):
+    def save_annotation(self, idx, annotation, labels_list: List):
         self.logger.info(f"Saving annotation for index {idx} ...")
         data = self.get_data(idx)
 
@@ -455,6 +453,7 @@ class Dataset:
         if "filter_config" not in self.project_info:
             self.project_info["filter_config"] = {}
         self.project_info["filter_config"][str(idx)] = DataFilter().export_config()
+        self.project_info["labels"] = labels_list
 
         # Save project.json
         data_folder = os.path.join(project_path, "data")

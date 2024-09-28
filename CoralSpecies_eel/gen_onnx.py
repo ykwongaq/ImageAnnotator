@@ -178,7 +178,7 @@ if __name__ == "__main__":
         checkpoint=args.checkpoint,
         output=args.output,
         opset=args.opset,
-        return_single_mask=True, # Always return single mask for this script
+        return_single_mask=False, # Always return single mask for this script
         gelu_approximate=args.gelu_approximate,
         use_stability_score=args.use_stability_score,
         return_extra_metrics=args.return_extra_metrics,
@@ -199,3 +199,4 @@ if __name__ == "__main__":
             weight_type=QuantType.QUInt8,
         )
         print("Done!")
+

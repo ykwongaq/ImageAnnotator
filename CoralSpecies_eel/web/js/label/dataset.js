@@ -273,6 +273,10 @@ class Dataset {
         this.currentDataIdx = idx;
     }
 
+    getCurrentDataIdx() {
+        return this.currentDataIdx;
+    }
+
     setCurrentData(data) {
         this.currentData = data;
     }
@@ -284,4 +288,6 @@ class Dataset {
     getData(callbackFunction = null) {
         eel.get_data(this.currentDataIdx)(callbackFunction);
     }
+
+    haveMaskBelongToCategory(categoryId) {}
 }

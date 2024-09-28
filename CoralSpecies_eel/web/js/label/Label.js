@@ -53,12 +53,51 @@ class LabelManager {
     }
 
     static addLabel(labelName) {
-        const labelId = Object.keys(this.labels).length;
+        // If the label name already exists, return
+        if (Object.values(this.labels).includes(labelName)) {
+            return;
+        }
+        // Get the largest labelId and add 1 to it
+        const labelId =
+            Math.max(...Object.keys(this.labels).map((key) => parseInt(key))) +
+            1;
         this.labels[labelId] = labelName;
     }
 
-    static removeLabel(labelId) {
-        delete this.labels[labelId];
+    static removeLabel(labelId, callback = null) {
+        // First check if the labelId exists in current image
+        const dataset = new Dataset();
+        const data = dataset.getCurrentData();
+        for (const mask of data.getMasks()) {
+            if (mask.getCategoryId() === labelId) {
+                alert(
+                    `Cannot remove label ${labelId} because it is used in current image`
+                );
+                return;
+            }
+        }
+
+        const currentImageIdx = dataset.getCurrentDataIdx();
+
+        // Check if other image contain this label
+        eel.have_mask_belong_to_category(labelId)((result) => {
+            const has_mask = result["has_mask_belong_to_category"];
+            console.log(result);
+            if (has_mask) {
+                const image_idx = result["image_idx"];
+                alert(
+                    `Cannot remove label ${labelId} because it is used in image ${
+                        image_idx + 1
+                    }`
+                );
+                return;
+            }
+            delete this.labels[labelId];
+
+            if (callback !== null) {
+                callback();
+            }
+        });
     }
 }
 

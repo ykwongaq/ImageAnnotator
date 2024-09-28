@@ -243,7 +243,7 @@ class LabelPage {
         const currentDataIdx = this.dataset.currentDataIdx;
         const json_item = currentData.exportJson();
         const filename = currentData.imageFileName;
-        eel.save_data(json_item, filename, currentDataIdx);
+        eel.save_data(json_item, currentDataIdx, LabelManager.labels);
     }
 
     enableBottomButtons() {
@@ -255,6 +255,7 @@ class LabelPage {
         });
 
         this.prevImageButton.addEventListener("click", () => {
+            this.saveData();
             if (this.dataset.currentDataIdx > 0) {
                 this.setCurrentDataByIdx(this.dataset.currentDataIdx - 1);
             }
@@ -277,13 +278,7 @@ class LabelPage {
                         return;
                     }
 
-                    eel.get_dataset_size()((size) => {
-                        this.dataset.setTotalImages(size);
-                    });
-
-                    eel.get_current_image_idx()((idx) => {
-                        this.setCurrentDataByIdx(idx);
-                    });
+                    this.autoStart();
                 });
             });
         });
@@ -317,6 +312,25 @@ class LabelPage {
             }
         });
     }
+
+    autoStart() {
+        eel.get_dataset_size()((size) => {
+            if (size > 0) {
+                this.dataset.setTotalImages(size);
+                eel.get_current_image_idx()((idx) => {
+                    this.setCurrentDataByIdx(idx);
+                });
+
+                eel.get_label_list()((labelList) => {
+                    if (labelList.size === 0) {
+                        return;
+                    }
+                    LabelManager.labels = labelList;
+                    this.categoryView.updateButtons();
+                });
+            }
+        });
+    }
 }
 
 function main() {
@@ -329,11 +343,7 @@ function main() {
     labelPage.configurationPage.enable();
     labelPage.enableShortcut();
 
-    eel.get_dataset_size()((size) => {
-        if (size > 0) {
-            labelPage.run(size);
-        }
-    });
+    labelPage.autoStart();
 }
 
 main();
