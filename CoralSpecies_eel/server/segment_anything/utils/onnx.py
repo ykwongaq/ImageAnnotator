@@ -117,7 +117,7 @@ class SamOnnxModel(nn.Module):
         sparse_embedding = self._embed_points(point_coords, point_labels)
         dense_embedding = self._embed_masks(mask_input, has_mask_input)
 
-        masks, scores = self.model.mask_decoder.predict_masks(
+        masks, scores, cate_pred, fc_features = self.model.mask_decoder.predict_masks(
             image_embeddings=image_embeddings,
             image_pe=self.model.prompt_encoder.get_dense_pe(),
             sparse_prompt_embeddings=sparse_embedding,
@@ -141,4 +141,4 @@ class SamOnnxModel(nn.Module):
             areas = (upscaled_masks > self.model.mask_threshold).sum(-1).sum(-1)
             return upscaled_masks, scores, stability_scores, areas, masks
 
-        return upscaled_masks, scores, masks
+        return upscaled_masks, scores, masks, cate_pred, fc_features

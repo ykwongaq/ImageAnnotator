@@ -2,7 +2,7 @@ import numpy as np
 import torch
 import logging
 
-from segment_anything import sam_model_registry, SamPredictor
+from .segment_anything import sam_model_registry, SamPredictor
 
 class EmbeddingGenerator:
     def __init__(self, model_path, model_type):

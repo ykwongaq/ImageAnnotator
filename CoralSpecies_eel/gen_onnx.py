@@ -6,8 +6,8 @@
 
 import torch
 
-from segment_anything import sam_model_registry
-from segment_anything.utils.onnx import SamOnnxModel
+from server.segment_anything import sam_model_registry
+from server.segment_anything.utils.onnx import SamOnnxModel
 
 import argparse
 import warnings
@@ -138,7 +138,7 @@ def run_export(
 
     _ = onnx_model(**dummy_inputs)
 
-    output_names = ["masks", "iou_predictions", "low_res_masks"]
+    output_names = ["masks", "iou_predictions", "low_res_masks", "cate_pred", "fc_features"]
 
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", category=torch.jit.TracerWarning)
@@ -178,7 +178,7 @@ if __name__ == "__main__":
         checkpoint=args.checkpoint,
         output=args.output,
         opset=args.opset,
-        return_single_mask=False, # Always return single mask for this script
+        return_single_mask=True, # Always return single mask for this script
         gelu_approximate=args.gelu_approximate,
         use_stability_score=args.use_stability_score,
         return_extra_metrics=args.return_extra_metrics,

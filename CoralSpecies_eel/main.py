@@ -60,7 +60,7 @@ class PreprocessServer:
         self.logger.info(f"Initializing {self.__class__.__name__} ...")
 
         # Initialize the EmbeddingGenerator
-        model_path = get_resource_path("models/sam_vit_b_01ec64.pth")
+        model_path = get_resource_path("models/vit_b_coralscop.pth")
         model_type = "vit_b"
         self.embedding_generator = EmbeddingGenerator(model_path, model_type)
 
@@ -89,12 +89,6 @@ class PreprocessServer:
             error_message = f"No write permission in the parent directory: {parent_dir}"
             self.logger.debug(error_message)
             return False, error_message
-
-        # Check if the directory already exists
-        # if os.path.exists(path):
-        #     error_message = f"Directory already exists: {path}"
-        #     self.logger.debug(error_message)
-        #     return False, error_message
 
         try:
             os.makedirs(path, exist_ok=True)
@@ -174,7 +168,8 @@ class LabelServe:
         self.logger = logging.getLogger(self.__class__.__name__)
         self.logger.info(f"Initializing {self.__class__.__name__} ...")
 
-        onnx_path = get_resource_path("models/sam_vit_b.onnx")
+        onnx_path = get_resource_path("models/coralscop_vit_b.onnx")
+        # onnx_path = get_resource_path("models/sam_vit_b.onnx")
         self.mask_editor = MaskEidtor(onnx_path)
 
     def add_edit_mask_input_point(self, x, y, label):

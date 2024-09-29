@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import onnxruntime as ort
 
-from .transforms import ResizeLongestSide
+from  .segment_anything.utils.transforms import ResizeLongestSide
 
 
 class MaskEidtor:
@@ -26,7 +26,7 @@ class MaskEidtor:
 
         self.onnx_mask_input = np.zeros((1, 1, 256, 256), dtype=np.float32)
         self.onnx_has_mask_input = np.zeros(1, dtype=np.float32)
-        self.transforms = ResizeLongestSide()
+        self.transforms = ResizeLongestSide(1024)
 
     def set_image(self, image, image_embedding):
         self.logger.info("Setting image and image embedding")
@@ -89,7 +89,7 @@ class MaskEidtor:
             "orig_im_size": np.array(self.image.shape[:2], dtype=np.float32),
         }
 
-        masks, _, _ = self.ort_session.run(None, ort_inputs)
+        masks, _, _, _, _ = self.ort_session.run(None, ort_inputs)
         masks = masks > 0.0
         masks = masks.squeeze()
 
