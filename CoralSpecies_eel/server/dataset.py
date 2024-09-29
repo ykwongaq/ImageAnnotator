@@ -106,7 +106,7 @@ class DataFilter:
         with ThreadPoolExecutor() as executor:
             masks = list(executor.map(decode_mask, annotations))
 
-        M = np.array([mask.flatten() for mask in masks], dtype=np.bool_)
+        M = np.array([mask.flatten() for mask in masks], dtype=np.int32)
         areas = M.sum(axis=1)
 
         intersection = M @ M.T
@@ -124,11 +124,11 @@ class DataFilter:
             if suppressed[i]:
                 continue
             keep.add(i)
-            suppressed |= iou_matrix[i] > iou_limit
-            suppressed[i] = False
+            # Suppress indices with IoU > limit, excluding index i
+            suppressed |= (iou_matrix[i] > iou_limit) & (np.arange(len(areas)) != i)
 
         return keep
-
+ 
     @time_it
     def filter_annotations(self, annotations: List[Dict]) -> List[Dict]:
         filtered_indices_by_area = self.filter_by_area(annotations, self.area_limit)

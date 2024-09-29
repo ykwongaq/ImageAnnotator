@@ -89,7 +89,7 @@ class MaskEidtor:
             "orig_im_size": np.array(self.image.shape[:2], dtype=np.float32),
         }
 
-        masks, _, _, _, _ = self.ort_session.run(None, ort_inputs)
+        masks, _, _ = self.ort_session.run(None, ort_inputs)
         masks = masks > 0.0
         masks = masks.squeeze()
 
