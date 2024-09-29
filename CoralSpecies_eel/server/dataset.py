@@ -115,6 +115,7 @@ class DataFilter:
         # Compute IoU matrix
         iou_matrix = intersection / union
 
+    
         # Apply Non-Maximum Suppression (NMS)
         indices = np.argsort(-areas)
         suppressed = np.zeros(len(areas), dtype=bool)
@@ -133,10 +134,10 @@ class DataFilter:
     def filter_annotations(self, annotations: List[Dict]) -> List[Dict]:
         filtered_indices_by_area = self.filter_by_area(annotations, self.area_limit)
         filtered_indices_by_iou = self.filtered_by_predicted_iou(
-            annotations, self.iou_limit
+            annotations, self.predict_iou_limit
         )
         filtered_indices_by_predicted_iou = self.filtered_by_iou(
-            annotations, self.predict_iou_limit
+            annotations, self.iou_limit 
         )
         filtered_indices = (
             filtered_indices_by_area
@@ -172,7 +173,8 @@ class Data:
 
     def have_mask_belong_to_category(self, category_id):
         for annotation in self.json_item["annotations"]:
-            print(f"category_id: {category_id} with type {type(category_id)}, while annotation category_id: {annotation['category_id']} with type {type(annotation['category_id'])}")
+            if "category_id" not in annotation:
+                continue
             if annotation["category_id"] == category_id:
                 return True
         return False

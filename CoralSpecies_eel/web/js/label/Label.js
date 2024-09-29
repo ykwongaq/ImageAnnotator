@@ -58,6 +58,12 @@ class LabelManager {
             return;
         }
         // Get the largest labelId and add 1 to it
+        // If the label is empty, set the labelId to 0
+        if (Object.keys(this.labels).length === 0) {
+            this.labels[0] = labelName;
+            return;
+        }
+
         const labelId =
             Math.max(...Object.keys(this.labels).map((key) => parseInt(key))) +
             1;

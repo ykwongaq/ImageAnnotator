@@ -33,12 +33,24 @@ class CategoryView {
         this.enableAddCategory();
         this.enableDeleteAction();
         this.enableButtonContainerWheel();
+        this.enableDocument();
     }
 
     enableButtonContainerWheel() {
         this.buttonContainer.addEventListener("wheel", (event) => {
             event.preventDefault();
             this.buttonContainer.scrollLeft += event.deltaY;
+        });
+    }
+
+    enableDocument() {
+        document.addEventListener("click", (event) => {
+            if (
+                event.target !== this.deleteContextMenu &&
+                event.target !== this.deleteAction
+            ) {
+                this.deleteContextMenu.style.display = "none";
+            }
         });
     }
 
