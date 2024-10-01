@@ -60,13 +60,14 @@ class PreprocessServer:
         self.logger.info(f"Initializing {self.__class__.__name__} ...")
 
         # Initialize the EmbeddingGenerator
-        model_path = get_resource_path("models/sam_vit_b_01ec64.pth")
+        model_path = get_resource_path("models/vit_h_encoder_quantized.onnx")
         model_type = "vit_b"
         self.embedding_generator = EmbeddingGenerator(model_path, model_type)
 
         # Initialize the CoralSegmentation
-        coral_model_path = get_resource_path("models/vit_b_coralscop.pth")
-        self.coral_segmentation = CoralSegmentation(coral_model_path, "vit_b")
+        coral_model_path = get_resource_path("models/e_coralscop.pth")
+        key = b'lj9Srfw65OtubiNKM9kxsdHx_6xi4I8fdXGekz-qz8g='
+        self.coral_segmentation = CoralSegmentation(coral_model_path, "vit_b", key )
 
         self.config = PreprocessServer.DEFAULT_CONFIG
 
@@ -168,7 +169,7 @@ class LabelServe:
         self.logger = logging.getLogger(self.__class__.__name__)
         self.logger.info(f"Initializing {self.__class__.__name__} ...")
 
-        onnx_path = get_resource_path("models/sam_vit_b.onnx")
+        onnx_path = get_resource_path("models/vit_h_decoder_quantized.onnx")
         # onnx_path = get_resource_path("models/sam_vit_b.onnx")
         self.mask_editor = MaskEidtor(onnx_path)
 

@@ -90,8 +90,8 @@ class SamOnnxModel(nn.Module):
         return masks
 
     def select_masks(
-        self, masks: torch.Tensor, iou_preds: torch.Tensor, num_points: int
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        self, masks: torch.Tensor, iou_preds: torch.Tensor, num_points: int, cate_pred: torch.Tensor, fc_features: torch.Tensor
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
         # Determine if we should return the multiclick mask or not from the number of points.
         # The reweighting is used to avoid control flow.
         score_reweight = torch.tensor(
@@ -101,8 +101,10 @@ class SamOnnxModel(nn.Module):
         best_idx = torch.argmax(score, dim=1)
         masks = masks[torch.arange(masks.shape[0]), best_idx, :, :].unsqueeze(1)
         iou_preds = iou_preds[torch.arange(masks.shape[0]), best_idx].unsqueeze(1)
+        cate_pred = cate_pred[torch.arange(masks.shape[0]), best_idx, :].unsqueeze(1)
+        fc_features = fc_features[torch.arange(masks.shape[0]), best_idx, :].unsqueeze(1)
 
-        return masks, iou_preds
+        return masks, iou_preds, cate_pred, fc_features
 
     @torch.no_grad()
     def forward(
@@ -114,6 +116,9 @@ class SamOnnxModel(nn.Module):
         has_mask_input: torch.Tensor,
         orig_im_size: torch.Tensor,
     ):
+        sparse_embedding = self._embed_points(point_coords, point_labels)
+        dense_embedding = self._embed_masks(mask_input, has_mask_input)
+
         sparse_embedding = self._embed_points(point_coords, point_labels)
         dense_embedding = self._embed_masks(mask_input, has_mask_input)
 
@@ -130,7 +135,7 @@ class SamOnnxModel(nn.Module):
             )
 
         if self.return_single_mask:
-            masks, scores = self.select_masks(masks, scores, point_coords.shape[1])
+            masks, scores, cate_pred, fc_features = self.select_masks(masks, scores, point_coords.shape[1], cate_pred, fc_features)
 
         upscaled_masks = self.mask_postprocessing(masks, orig_im_size)
 

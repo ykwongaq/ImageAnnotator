@@ -107,6 +107,9 @@ def _build_sam(
     )
     sam.eval()
 
+    if checkpoint is None:
+        return sam
+
     if os.path.isfile(checkpoint):
         print("loading from "+checkpoint)
         with open(checkpoint, "rb") as f:
