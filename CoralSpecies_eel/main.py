@@ -65,9 +65,9 @@ class PreprocessServer:
         self.embedding_generator = EmbeddingGenerator(model_path, model_type)
 
         # Initialize the CoralSegmentation
-        coral_model_path = get_resource_path("models/e_coralscop.pth")
-        key = b'lj9Srfw65OtubiNKM9kxsdHx_6xi4I8fdXGekz-qz8g='
-        self.coral_segmentation = CoralSegmentation(coral_model_path, "vit_b", key )
+        coral_model_path = get_resource_path("models/vit_b_coralscop.pth")
+        # key = b'lj9Srfw65OtubiNKM9kxsdHx_6xi4I8fdXGekz-qz8g='
+        self.coral_segmentation = CoralSegmentation(coral_model_path, "vit_b")
 
         self.config = PreprocessServer.DEFAULT_CONFIG
 

@@ -1,8 +1,8 @@
-import logging
 import io
+import logging
+
 import numpy as np
 import torch
-from cryptography.fernet import Fernet
 
 from .segment_anything import SamAutomaticMaskGenerator, sam_model_registry
 from .util.coco import encode_to_coco_mask
@@ -13,24 +13,14 @@ class CoralSegmentation:
         self,
         model_path,
         model_type,
-        key,
         point_number=32,
         iou_threshold=0.62,
         sta_threshold=0.62,
     ):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.logger.info(f"Initializing {self.__class__.__name__} ...")
-        cipher_suite = Fernet(key)
 
-        with open(model_path, "rb") as file:
-            encrypted_model = file.read()
-        decrypted_model = cipher_suite.decrypt(encrypted_model)
-        weights_io = io.BytesIO(decrypted_model)
-        model_weight_dict = torch.load(weights_io, weights_only=True)
-
-        sam = sam_model_registry[model_type]()
-        sam.load_state_dict(model_weight_dict)
-        
+        sam = sam_model_registry[model_type](checkpoint=model_path)
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.logger.info(f"Using device: {device}")
         sam.to(device=device)
