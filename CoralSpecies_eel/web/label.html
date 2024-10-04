@@ -16,15 +16,26 @@
         <link rel="stylesheet" href="css/config.css" />
         <link rel="stylesheet" href="css/loadingIcon.css" />
         <link rel="stylesheet" href="css/labelPage/mainView.css" />
+        <link rel="stylesheet" href="css/topNavigationBar.css" />
     </head>
     <body>
+        <div class="topnav" id="myTopnav">
+            <button onclick="navigateTo('main_page.html')">
+                Back To Main Page
+            </button>
+            <button>File</button>
+            <button class="active">Label</button>
+            <button>Statistic</button>
+            <button>Setting</button>
+        </div>
+
         <div id="loading-icon" class="loading-icon"></div>
-        <div class="page-info">
+        <!-- <div class="page-info">
             <button class="button" onclick="navigateTo('main_page.html')">
                 Back to Main Menu
             </button>
             <h1>Label Page</h1>
-        </div>
+        </div> -->
         <!-- <div id="drop-area" class="drop-area">
             Drop your image folder here or
             <span id="select-link"> select </span> the folder
@@ -34,13 +45,13 @@
             <div id="image-name-text" class="image-name-text">Image Name</div>
             <div class="progressbar-view">
                 <div id="image-progress-text" class="progress-text">
-                    Image: (10 / 100)
+                    Image: (0 / 0)
                 </div>
                 <div class="progress-container round-xlarge">
                     <div
                         id="image-progress-bar"
                         class="progressbar round-xlarge"
-                        style="width: 50%"
+                        style="width: 0%"
                     ></div>
                 </div>
             </div>
@@ -210,9 +221,9 @@
                 Save Configuration
             </button>
         </div>
-        <button id="configuration-page-button" class="toggle-button">
+        <!-- <button id="configuration-page-button" class="toggle-button">
             Setting
-        </button>
+        </button> -->
 
         <script src="/eel.js"></script>
         <script src="js/loadingIconManager.js"></script>
