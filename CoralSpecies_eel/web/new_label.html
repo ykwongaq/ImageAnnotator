@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Label Page</title>
+        <!-- <link
+            rel="stylesheet"
+            href="css/fontawesome-free-6.6.0-web/css/fontawesome.min.css"
+        /> -->
+        <link
+            rel="stylesheet"
+            href="css/fontawesome-free-6.6.0-web/css/all.min.css"
+        />
+        <link rel="stylesheet" href="css/topNavigationBar.css" />
+        <link rel="stylesheet" href="css/bottomNavigationBar.css" />
+        <!-- <link rel="stylesheet" href="css/newLabelPage/radioButton.css" /> -->
+        <link rel="stylesheet" href="css/newLabelPage/modeView.css" />
+        <link rel="stylesheet" href="css/newLabelPage/sliderView.css" />
+        <link rel="stylesheet" href="css/newLabelPage/middleContentView.css" />
+        <link rel="stylesheet" href="css/newLabelPage/labelView.css" />
+        <link rel="stylesheet" href="css/newLabelPage/contentView.css" />
+        <link rel="stylesheet" href="css/newLabelPage/labelPage.css" />
+    </head>
+    <body>
+        <div class="topnav" id="myTopnav">
+            <div class="icon-container">
+                <img src="images/coralscan_icon.png" alt="icon" />
+            </div>
+            <div class="icon-text">CoralSCAN</div>
+            <button onclick="navigateTo('main_page.html')">
+                Back To Main Page
+            </button>
+            <button>File</button>
+            <button class="active">Label</button>
+            <button>Statistic</button>
+            <button>Setting</button>
+        </div>
+        <div class="contentView">
+            <div class="modeView">
+                <div class="radioContainer">
+                    <div class="radio-section">
+                        <div class="radio-item">
+                            <input
+                                name="radio"
+                                id="radio1"
+                                type="radio"
+                            /><label for="radio1">Label Mask</label>
+                        </div>
+                        <div class="radio-item">
+                            <input
+                                name="radio"
+                                id="radio2"
+                                type="radio"
+                            /><label for="radio2">Add Mask</label>
+                        </div>
+                        <div class="radio-item">
+                            <input name="radio" id="radio3" type="radio" />
+                            <label for="radio3">Remove Mask</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="actionContainer">
+                    <div class="actionButton">Undo</div>
+                    <div class="actionButton">Reset</div>
+                    <div class="actionButton">Confirm</div>
+                </div>
+            </div>
+            <div class="sliderView">
+                <div class="text">Mask</div>
+                <div class="text">Solid</div>
+                <div class="slider">
+                    <input id="mask-opacity-silder" type="range" />
+                </div>
+                <div class="text">Transparent</div>
+            </div>
+            <div class="middleContentView">
+                <div class="info">Image Name (0/0)</div>
+                <div class="progress-container round-xlarge">
+                    <div
+                        id="image-progress-bar"
+                        class="progressbar round-xlarge"
+                        style="width: 0%"
+                    ></div>
+                </div>
+                <canvas class="canvas"></canvas>
+            </div>
+            <div class="labelView">
+                <form>
+                    <input type="text" placeholder="Search ..." name="search" />
+                    <button type="submit"><i class="fa fa-search"></i></button>
+                </form>
+                <form>
+                    <input type="text" placeholder="Add ..." name="add" />
+                    <button type="submit">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                </form>
+                <div class="bar"></div>
+                <div class="statusContainer">
+                    <div class="radio-item">
+                        <input
+                            name="status"
+                            id="status-1-button"
+                            type="radio"
+                        /><label for="status-1-button">Healthy</label>
+                    </div>
+                    <div class="radio-item">
+                        <input
+                            name="status"
+                            id="status-2-button"
+                            type="radio"
+                        /><label for="status-2-button">Bleached</label>
+                    </div>
+                    <div class="radio-item">
+                        <input
+                            name="status"
+                            id="status-3-button"
+                            type="radio"
+                        />
+                        <label for="status-3-button">Dead</label>
+                    </div>
+                </div>
+                <div class="bar"></div>
+                <div class="labelContainer">
+                    <div class="labelButton">
+                        <div class="colorBox"></div>
+                        <div class="labelText">Label 1</div>
+                    </div>
+                    <div class="labelButton">
+                        <div class="colorBox"></div>
+                        <div class="labelText">Label 2</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="bottomnav">
+            <button>Prev Image (A)</button>
+            <button>Reset View Point (W)</button>
+            <button>Next Image (D)</button>
+        </div>
+
+        <!-- <script src="/eel.js"></script>
+        <script src="js/loadingIconManager.js"></script>
+        <script src="js/label/config.js"></script>
+        <script src="js/label/Label.js"></script>
+        <script src="js/label/categoryView.js"></script>
+        <script src="js/label/dataset.js"></script>
+        <script src="js/navigate.js"></script>
+        <script src="js/dropArea.js"></script>
+        <script src="js/label/configPage.js"></script>
+        <script src="js/label/annotator.js"></script>
+        <script src="js/label/canvas.js"></script>
+        <script src="js/label/statisticView.js"></script>
+        <script src="js/label/labelPage.js"></script> -->
+    </body>
+</html>
