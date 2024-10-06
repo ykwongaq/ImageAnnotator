@@ -1,5 +1,11 @@
 class TopNavigationBar {
     constructor() {
+        if (TopNavigationBar.instance instanceof TopNavigationBar) {
+            return TopNavigationBar.instance;
+        }
+
+        TopNavigationBar.instance = this;
+
         this.labelButton = document.getElementById("label-button");
         this.statisticButton = document.getElementById("statistic-button");
         this.settingButton = document.getElementById("setting-button");
@@ -8,17 +14,25 @@ class TopNavigationBar {
         this.exportCOCOButton = document.getElementById("export-coco-button");
         this.exportExcelButton = document.getElementById("export-excel-button");
         this.exportGraphButton = document.getElementById("export-graph-button");
+        this.exportAllButton = document.getElementById("export-all-button");
 
         this.buttons = [
             this.labelButton,
             this.statisticButton,
             this.settingButton,
         ];
+
+        return this;
     }
 
     enable() {
         this.enableButtons();
         this.enableFileDropdownMenu();
+        this.enableLoadProjectButton();
+        this.enableExportCOCOButton();
+        this.enableExportExcelButton();
+        this.enableExportGraphButton();
+        this.enableExportAllButton();
     }
 
     clearActiveState() {
@@ -73,5 +87,36 @@ class TopNavigationBar {
 
         const page = document.getElementById(pageId);
         page.classList.add("active-page");
+    }
+
+    enableLoadProjectButton() {
+        this.loadProjectButton.addEventListener("click", () => {
+            const core = new Core();
+            core.loadProject();
+        });
+    }
+
+    enableExportCOCOButton() {
+        this.exportCOCOButton.addEventListener("click", () => {
+            console.error("Not implemented yet");
+        });
+    }
+
+    enableExportExcelButton() {
+        this.exportExcelButton.addEventListener("click", () => {
+            console.error("Not implemented yet");
+        });
+    }
+
+    enableExportGraphButton() {
+        this.exportGraphButton.addEventListener("click", () => {
+            console.error("Not implemented yet");
+        });
+    }
+
+    enableExportAllButton() {
+        this.exportAllButton.addEventListener("click", () => {
+            console.error("Not implemented yet");
+        });
     }
 }

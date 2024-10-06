@@ -102,7 +102,6 @@ class Canvas {
         maskCtx.putImageData(imageData, 0, 0);
 
         const pointRadius = Math.min(this.imageWidth, this.imageHeight) * 0.01;
-        console.log("pointRadius", pointRadius);
 
         for (let i = 0; i < selected_points.length; i++) {
             const [imageX, imageY] = selected_points[i];
@@ -394,7 +393,6 @@ class Canvas {
                 canvasX,
                 canvasY
             );
-
             if (Annotator.getCurrentMode() === Annotator.LABEL_MASK) {
                 if (this.isInsideImageBoundary(canvasX, canvasY)) {
                     const clickedMasks = this.getClickedMasks(imageX, imageY);

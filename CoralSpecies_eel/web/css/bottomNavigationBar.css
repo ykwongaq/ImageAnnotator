@@ -26,6 +26,7 @@
     display: flex; /* Use flexbox on the button */
     justify-content: center; /* Center text horizontally */
     align-items: center; /* Center text vertically */
+    cursor: pointer;
 }
 
 .bottomnav button:hover {

@@ -72,9 +72,11 @@ class LabelManager {
 
     static removeLabel(labelId, callback = null) {
         // First check if the labelId exists in current image
+        console.log("rmeove label: ", labelId);
         const dataset = new Dataset();
         const data = dataset.getCurrentData();
         for (const mask of data.getMasks()) {
+            console.log("mask category id: ", mask.getCategoryId());
             if (mask.getCategoryId() === labelId) {
                 alert(
                     `Cannot remove label ${labelId} because it is used in current image`

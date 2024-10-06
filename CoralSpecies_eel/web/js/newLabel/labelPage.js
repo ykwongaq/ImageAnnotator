@@ -6,12 +6,16 @@ class LabelPage {
         this.modeView = new ModeView();
         this.canvas = new Canvas();
         this.opacityView = new OpacityView();
+        this.progressInfoView = new ProgressInfoView();
+        this.labelView = new LabelView();
     }
 
     enable() {
         this.topNavigationBar.enable();
         this.modeView.enable();
         this.opacityView.enable();
+        this.labelView.enable();
+        this.bottomNavigationBar.enable();
     }
 }
 

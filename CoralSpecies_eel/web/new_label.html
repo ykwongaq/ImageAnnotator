@@ -8,6 +8,7 @@
             rel="stylesheet"
             href="css/fontawesome-free-6.6.0-web/css/all.min.css"
         />
+        <link rel="stylesheet" href="css/util.css" />
         <link rel="stylesheet" href="css/page.css" />
         <link rel="stylesheet" href="css/dropdownMenu.css" />
         <link rel="stylesheet" href="css/topNavigationBar.css" />
@@ -39,6 +40,11 @@
             <button id="export-coco-button">Export COCO</button>
             <button id="export-excel-button">Export Excel</button>
             <button id="export-graph-button">Export Graph</button>
+            <button id="export-all-button">Export All</button>
+        </div>
+
+        <div id="label-dropdown-menu" class="dropdown-content">
+            <button id="delete-label-button">Delete Label</button>
         </div>
 
         <div id="annotationPage" class="page active-page">
@@ -51,6 +57,8 @@
                                     name="editMode"
                                     id="label-mask-button"
                                     type="radio"
+                                    value="0"
+                                    checked
                                 /><label for="label-mask-button"
                                     >Label Mask</label
                                 >
@@ -60,6 +68,7 @@
                                     name="editMode"
                                     id="add-mask-button"
                                     type="radio"
+                                    value="1"
                                 /><label for="add-mask-button">Add Mask</label>
                             </div>
                             <div class="radio-item">
@@ -67,6 +76,7 @@
                                     name="editMode"
                                     id="remove-mask-button"
                                     type="radio"
+                                    value="2"
                                 />
                                 <label for="remove-mask-button"
                                     >Remove Mask</label
@@ -75,9 +85,13 @@
                         </div>
                     </div>
                     <div id="actionContainer" class="actionContainer">
-                        <div id="undo-button" class="actionButton">Undo</div>
-                        <div id="reset-button" class="actionButton">Reset</div>
-                        <div id="confirm-button" class="actionButton">
+                        <div id="undo-button" class="actionButton hidden">
+                            Undo
+                        </div>
+                        <div id="reset-button" class="actionButton hidden">
+                            Reset
+                        </div>
+                        <div id="confirm-button" class="actionButton hidden">
                             Confirm
                         </div>
                     </div>
@@ -102,9 +116,9 @@
                     <canvas id="canvas" class="canvas"></canvas>
                 </div>
                 <div class="labelView">
-                    <form>
+                    <div class="inputForm">
                         <input
-                            id="serach-input"
+                            id="search-input"
                             type="text"
                             placeholder="Search ..."
                             name="search"
@@ -112,8 +126,8 @@
                         <button id="search-button" type="submit">
                             <i class="fa fa-search"></i>
                         </button>
-                    </form>
-                    <form>
+                    </div>
+                    <div class="inputForm">
                         <input
                             id="add-category-input"
                             type="text"
@@ -123,7 +137,7 @@
                         <button id="add-category-button" type="submit">
                             <i class="fa-solid fa-plus"></i>
                         </button>
-                    </form>
+                    </div>
                     <div class="bar"></div>
                     <div class="statusContainer">
                         <div class="radio-item">
@@ -131,6 +145,7 @@
                                 name="status"
                                 id="status-1-button"
                                 type="radio"
+                                checked
                             /><label for="status-1-button">Healthy</label>
                         </div>
                         <div class="radio-item">
@@ -150,19 +165,11 @@
                         </div>
                     </div>
                     <div class="bar"></div>
-                    <div class="labelContainer">
-                        <div class="labelButton">
-                            <div class="colorBox"></div>
-                            <div class="labelText">Label 1</div>
-                        </div>
-                        <div class="labelButton">
-                            <div class="colorBox"></div>
-                            <div class="labelText">Label 2</div>
-                        </div>
-                    </div>
+                    <div id="label-container" class="labelContainer"></div>
                 </div>
             </div>
         </div>
+
         <div id="statisticPage" class="page">
             <h1>Statistic Page</h1>
         </div>
@@ -171,25 +178,19 @@
         </div>
 
         <div class="bottomnav">
-            <button>Prev Image (A)</button>
-            <button>Reset View Point (W)</button>
-            <button>Next Image (D)</button>
+            <button id="prev-image-button">Prev Image (A)</button>
+            <button id="reset-viewpoint-button">Reset View Point (W)</button>
+            <button id="next-image-button">Next Image (D)</button>
         </div>
 
-        <!-- <script src="/eel.js"></script>
-        <script src="js/loadingIconManager.js"></script>
-        <script src="js/label/config.js"></script>
-        <script src="js/label/Label.js"></script>
-        <script src="js/label/categoryView.js"></script>
-        <script src="js/label/dataset.js"></script>
-        <script src="js/navigate.js"></script>
-        <script src="js/dropArea.js"></script>
-        <script src="js/label/configPage.js"></script>
-        <script src="js/label/annotator.js"></script>
-        <script src="js/label/canvas.js"></script>
-        <script src="js/label/statisticView.js"></script>
-        <script src="js/label/labelPage.js"></script> -->
-        <!-- <script src="/eel.js"></script> -->
+        <template id="label-button-template">
+            <div class="labelButton">
+                <div class="colorBox"></div>
+                <div class="labelText">New Label</div>
+            </div>
+        </template>
+        <script src="./eel.js"></script>
+        <script scr="js/navigate.js"></script>
         <script src="js/newLabel/canvas.js"></script>
         <script src="js/newLabel/config.js"></script>
         <script src="js/newLabel/dataset.js"></script>
@@ -197,7 +198,10 @@
         <script src="js/newLabel/LabelView.js"></script>
         <script src="js/newLabel/modeView.js"></script>
         <script src="js/newLabel/topNavigationBar.js"></script>
+        <script src="js/newLabel/opacityView.js"></script>
+        <script src="js/newLabel/progressInfoView.js"></script>
         <script src="js/newLabel/bottomNavigationBar.js"></script>
+        <script src="js/newLabel/core.js"></script>
         <script src="js/newLabel/labelPage.js"></script>
     </body>
 </html>

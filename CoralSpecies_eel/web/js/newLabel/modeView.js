@@ -52,10 +52,18 @@ class Annotator {
 
 class ModeView {
     constructor() {
+        if (ModeView.instance instanceof ModeView) {
+            return ModeView.instance;
+        }
+
+        ModeView.instance = this;
+
         this.modeRadios = document.querySelectorAll("input[name='editMode']");
         this.undoButton = document.getElementById("undo-button");
         this.resetButton = document.getElementById("reset-button");
         this.confirmButton = document.getElementById("confirm-button");
+
+        return this;
     }
 
     enable() {
@@ -101,24 +109,25 @@ class ModeView {
 
     enableConfirmButton() {
         this.confirmButton.addEventListener("click", () => {
+            const dataset = new Dataset();
             if (Annotator.getCurrentMode() === Annotator.ADD_MASK) {
                 eel.confirm_edit_mask_input()(() => {
                     const canvas = new Canvas(null);
                     const mask = canvas.getEdittingMask();
                     mask.setColorById();
                     mask.setConfidence(1);
-                    const currentData = this.dataset.getCurrentData();
+
+                    const currentData = dataset.getCurrentData();
                     currentData.addMask(mask);
                     canvas.updateMasks();
 
                     this.clearEdittedMask();
 
-                    this.statisticReport.updateStatistic();
-                    this.statisticManager.updateStatistic(this.statisticReport);
+                    // TODO: Update Statistic Report
                 });
             } else if (Annotator.getCurrentMode() === Annotator.DELETE_MASK) {
                 const selectedMasks = Annotator.getSelectedMasks();
-                const currentData = this.dataset.getCurrentData();
+                const currentData = dataset.getCurrentData();
                 for (const mask of selectedMasks) {
                     currentData.removeMask(mask);
                 }
@@ -126,8 +135,7 @@ class ModeView {
                 const canvas = new Canvas(null);
                 canvas.updateMasks();
 
-                this.statisticReport.updateStatistic();
-                this.statisticManager.updateStatistic(this.statisticReport);
+                // TODO: Update Statistic Report
             }
         });
     }
@@ -144,23 +152,33 @@ class ModeView {
             canvas.updateEditingResult(null, [], []);
             canvas.setEdittingLabel(null);
 
-            this.categoryView.removeSelectedColor();
+            const labelView = new LabelView();
+            labelView.removeSelectedColor();
         });
     }
 
     showConfirmButton() {
-        this.confirmButton.style.display = "block";
+        this.confirmButton.classList.remove("hidden");
+        // this.confirmButton.style.display = "block";
     }
 
     showActionButtons() {
-        this.undoButton.style.display = "block";
-        this.resetButton.style.display = "block";
-        this.confirmButton.style.display = "block";
+        this.undoButton.classList.remove("hidden");
+        this.resetButton.classList.remove("hidden");
+        this.confirmButton.classList.remove("hidden");
+
+        // this.undoButton.style.display = "block";
+        // this.resetButton.style.display = "block";
+        // this.confirmButton.style.display = "block";
     }
 
     hideActionButtons() {
-        this.undoButton.style.display = "none";
-        this.resetButton.style.display = "none";
-        this.confirmButton.style.display = "none";
+        this.undoButton.classList.add("hidden");
+        this.resetButton.classList.add("hidden");
+        this.confirmButton.classList.add("hidden");
+
+        // this.undoButton.style.display = "none";
+        // this.resetButton.style.display = "none";
+        // this.confirmButton.style.display = "none";
     }
 }

@@ -4,7 +4,7 @@ class OpacityView {
     }
 
     enable() {
-        this.maskOpacitySilder.addEventListener("input", function (event) {
+        this.opacitySlider.addEventListener("input", function (event) {
             const opacity = this.value / 100;
             const canvas = new Canvas(null);
             canvas.setMaskOpacity(opacity);

@@ -3,9 +3,10 @@
     display: flex;
     flex-direction: column;
     min-width: 280px;
+    overflow: auto;
 }
 
-.labelView form {
+.labelView .inputForm {
     height: 5%;
     max-height: 5%;
     min-height: 5%;
@@ -14,7 +15,7 @@
     margin: 2px;
 }
 
-.labelView form input[type="text"] {
+.labelView .inputForm input[type="text"] {
     font-size: 15px;
     border: 1px solid grey;
     width: 80%;
@@ -22,7 +23,7 @@
     border-right: none;
 }
 
-.labelView form button {
+.labelView .inputForm button {
     width: 20%;
     background-color: #def6fe;
     color: black;
@@ -31,11 +32,11 @@
     border-left: none;
 }
 
-.labelView form button:hover {
+.labelView .inputForm button:hover {
     background: #00a9ff;
 }
 
-.labelView form::after {
+.labelView .inputForm::after {
     content: "";
     clear: both;
     display: table;
@@ -84,6 +85,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
 }
 
 .labelView .statusContainer .radio-item label:hover {
@@ -107,6 +109,7 @@
 .labelView .labelContainer .labelButton {
     height: 5%;
     max-height: 5%;
+    min-height: 5%;
     width: 100%;
     max-width: 100%;
     display: flex;
@@ -115,6 +118,8 @@
 
 .labelView .labelContainer .labelButton:hover {
     background-color: #def6fe;
+    border-top: 1px solid #00a9ff;
+    border-bottom: 1px solid #00a9ff;
 }
 
 .labelView .labelContainer .labelButton .colorBox {
@@ -134,4 +139,9 @@
     display: flex;
     align-items: center;
     margin-left: 5px;
+    cursor: pointer;
+}
+
+.selected {
+    background-color: #00a9ff;
 }
