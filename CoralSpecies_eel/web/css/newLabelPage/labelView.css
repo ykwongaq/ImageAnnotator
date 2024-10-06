@@ -2,6 +2,7 @@
     border: 1px solid #f8f8f8;
     display: flex;
     flex-direction: column;
+    min-width: 280px;
 }
 
 .labelView form {

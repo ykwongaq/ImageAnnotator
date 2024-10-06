@@ -4,17 +4,14 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Label Page</title>
-        <!-- <link
-            rel="stylesheet"
-            href="css/fontawesome-free-6.6.0-web/css/fontawesome.min.css"
-        /> -->
         <link
             rel="stylesheet"
             href="css/fontawesome-free-6.6.0-web/css/all.min.css"
         />
+        <link rel="stylesheet" href="css/page.css" />
+        <link rel="stylesheet" href="css/dropdownMenu.css" />
         <link rel="stylesheet" href="css/topNavigationBar.css" />
         <link rel="stylesheet" href="css/bottomNavigationBar.css" />
-        <!-- <link rel="stylesheet" href="css/newLabelPage/radioButton.css" /> -->
         <link rel="stylesheet" href="css/newLabelPage/modeView.css" />
         <link rel="stylesheet" href="css/newLabelPage/sliderView.css" />
         <link rel="stylesheet" href="css/newLabelPage/middleContentView.css" />
@@ -31,109 +28,148 @@
             <button onclick="navigateTo('main_page.html')">
                 Back To Main Page
             </button>
-            <button>File</button>
-            <button class="active">Label</button>
-            <button>Statistic</button>
-            <button>Setting</button>
+            <button id="file-button">File</button>
+            <button id="label-button" class="active">Label</button>
+            <button id="statistic-button">Statistic</button>
+            <button id="setting-button">Setting</button>
         </div>
-        <div class="contentView">
-            <div class="modeView">
-                <div class="radioContainer">
-                    <div class="radio-section">
-                        <div class="radio-item">
-                            <input
-                                name="radio"
-                                id="radio1"
-                                type="radio"
-                            /><label for="radio1">Label Mask</label>
+
+        <div id="file-dropdown-menu" class="dropdown-content">
+            <button id="load-project-button">Load Project</button>
+            <button id="export-coco-button">Export COCO</button>
+            <button id="export-excel-button">Export Excel</button>
+            <button id="export-graph-button">Export Graph</button>
+        </div>
+
+        <div id="annotationPage" class="page active-page">
+            <div class="contentView">
+                <div class="modeView">
+                    <div class="radioContainer">
+                        <div class="radio-section">
+                            <div class="radio-item">
+                                <input
+                                    name="editMode"
+                                    id="label-mask-button"
+                                    type="radio"
+                                /><label for="label-mask-button"
+                                    >Label Mask</label
+                                >
+                            </div>
+                            <div class="radio-item">
+                                <input
+                                    name="editMode"
+                                    id="add-mask-button"
+                                    type="radio"
+                                /><label for="add-mask-button">Add Mask</label>
+                            </div>
+                            <div class="radio-item">
+                                <input
+                                    name="editMode"
+                                    id="remove-mask-button"
+                                    type="radio"
+                                />
+                                <label for="remove-mask-button"
+                                    >Remove Mask</label
+                                >
+                            </div>
                         </div>
-                        <div class="radio-item">
-                            <input
-                                name="radio"
-                                id="radio2"
-                                type="radio"
-                            /><label for="radio2">Add Mask</label>
-                        </div>
-                        <div class="radio-item">
-                            <input name="radio" id="radio3" type="radio" />
-                            <label for="radio3">Remove Mask</label>
+                    </div>
+                    <div id="actionContainer" class="actionContainer">
+                        <div id="undo-button" class="actionButton">Undo</div>
+                        <div id="reset-button" class="actionButton">Reset</div>
+                        <div id="confirm-button" class="actionButton">
+                            Confirm
                         </div>
                     </div>
                 </div>
-                <div class="actionContainer">
-                    <div class="actionButton">Undo</div>
-                    <div class="actionButton">Reset</div>
-                    <div class="actionButton">Confirm</div>
-                </div>
-            </div>
-            <div class="sliderView">
-                <div class="text">Mask</div>
-                <div class="text">Solid</div>
-                <div class="slider">
-                    <input id="mask-opacity-silder" type="range" />
-                </div>
-                <div class="text">Transparent</div>
-            </div>
-            <div class="middleContentView">
-                <div class="info">Image Name (0/0)</div>
-                <div class="progress-container round-xlarge">
-                    <div
-                        id="image-progress-bar"
-                        class="progressbar round-xlarge"
-                        style="width: 0%"
-                    ></div>
-                </div>
-                <canvas class="canvas"></canvas>
-            </div>
-            <div class="labelView">
-                <form>
-                    <input type="text" placeholder="Search ..." name="search" />
-                    <button type="submit"><i class="fa fa-search"></i></button>
-                </form>
-                <form>
-                    <input type="text" placeholder="Add ..." name="add" />
-                    <button type="submit">
-                        <i class="fa-solid fa-plus"></i>
-                    </button>
-                </form>
-                <div class="bar"></div>
-                <div class="statusContainer">
-                    <div class="radio-item">
-                        <input
-                            name="status"
-                            id="status-1-button"
-                            type="radio"
-                        /><label for="status-1-button">Healthy</label>
+                <div class="sliderView">
+                    <div class="text">Mask</div>
+                    <div class="text">Solid</div>
+                    <div class="slider">
+                        <input id="mask-opacity-silder" type="range" />
                     </div>
-                    <div class="radio-item">
-                        <input
-                            name="status"
-                            id="status-2-button"
-                            type="radio"
-                        /><label for="status-2-button">Bleached</label>
+                    <div class="text">Transparent</div>
+                </div>
+                <div class="middleContentView">
+                    <div id="progress-info" class="info">Image Name (0/0)</div>
+                    <div class="progress-container round-xlarge">
+                        <div
+                            id="progress-bar"
+                            class="progressbar round-xlarge"
+                            style="width: 0%"
+                        ></div>
                     </div>
-                    <div class="radio-item">
+                    <canvas id="canvas" class="canvas"></canvas>
+                </div>
+                <div class="labelView">
+                    <form>
                         <input
-                            name="status"
-                            id="status-3-button"
-                            type="radio"
+                            id="serach-input"
+                            type="text"
+                            placeholder="Search ..."
+                            name="search"
                         />
-                        <label for="status-3-button">Dead</label>
+                        <button id="search-button" type="submit">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </form>
+                    <form>
+                        <input
+                            id="add-category-input"
+                            type="text"
+                            placeholder="Add ..."
+                            name="add"
+                        />
+                        <button id="add-category-button" type="submit">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </form>
+                    <div class="bar"></div>
+                    <div class="statusContainer">
+                        <div class="radio-item">
+                            <input
+                                name="status"
+                                id="status-1-button"
+                                type="radio"
+                            /><label for="status-1-button">Healthy</label>
+                        </div>
+                        <div class="radio-item">
+                            <input
+                                name="status"
+                                id="status-2-button"
+                                type="radio"
+                            /><label for="status-2-button">Bleached</label>
+                        </div>
+                        <div class="radio-item">
+                            <input
+                                name="status"
+                                id="status-3-button"
+                                type="radio"
+                            />
+                            <label for="status-3-button">Dead</label>
+                        </div>
                     </div>
-                </div>
-                <div class="bar"></div>
-                <div class="labelContainer">
-                    <div class="labelButton">
-                        <div class="colorBox"></div>
-                        <div class="labelText">Label 1</div>
-                    </div>
-                    <div class="labelButton">
-                        <div class="colorBox"></div>
-                        <div class="labelText">Label 2</div>
+                    <div class="bar"></div>
+                    <div class="labelContainer">
+                        <div class="labelButton">
+                            <div class="colorBox"></div>
+                            <div class="labelText">Label 1</div>
+                        </div>
+                        <div class="labelButton">
+                            <div class="colorBox"></div>
+                            <div class="labelText">Label 2</div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+        <div id="statisticPage" class="page">
+            <h1>Statistic Page</h1>
+        </div>
+        <div id="settingPage" class="page">
+            <h1>Setting Page</h1>
+        </div>
+
         <div class="bottomnav">
             <button>Prev Image (A)</button>
             <button>Reset View Point (W)</button>
@@ -153,5 +189,15 @@
         <script src="js/label/canvas.js"></script>
         <script src="js/label/statisticView.js"></script>
         <script src="js/label/labelPage.js"></script> -->
+        <!-- <script src="/eel.js"></script> -->
+        <script src="js/newLabel/canvas.js"></script>
+        <script src="js/newLabel/config.js"></script>
+        <script src="js/newLabel/dataset.js"></script>
+        <script src="js/newLabel/label.js"></script>
+        <script src="js/newLabel/LabelView.js"></script>
+        <script src="js/newLabel/modeView.js"></script>
+        <script src="js/newLabel/topNavigationBar.js"></script>
+        <script src="js/newLabel/bottomNavigationBar.js"></script>
+        <script src="js/newLabel/labelPage.js"></script>
     </body>
 </html>
