@@ -1,4 +1,8 @@
 class LabelView {
+    HEALTHY_STATUS = 0;
+    BLEACHED_STATUS = 1;
+    DEAD_STATUS = 2;
+
     constructor() {
         if (LabelView.instance instanceof LabelView) {
             return LabelView.instance;
@@ -19,6 +23,7 @@ class LabelView {
 
         this.labelDropdown = document.getElementById("label-dropdown-menu");
         this.deleteLabelButton = document.getElementById("delete-label-button");
+        this.currentStatus = LabelView.HEALTHY_STATUS;
 
         this.selectedDeleteId = null;
 
@@ -31,6 +36,25 @@ class LabelView {
         this.enableAddCategoryButton();
         this.enableDeleteAction();
         this.enableDocument();
+        this.enableStatesButtons();
+    }
+
+    enableStatesButtons() {
+        let statusRadios = document.querySelectorAll("input[name='status']");
+        for (const radio of statusRadios) {
+            const value = parseInt(radio.value);
+            radio.addEventListener("change", () => {
+                if (value === LabelView.HEALTHY_STATUS) {
+                    this.currentStatus = LabelView.HEALTHY_STATUS;
+                } else if (value === LabelView.BLEACHED_STATUS) {
+                    this.currentStatus = LabelView.BLEACHED_STATUS;
+                } else if (value === LabelView.DEAD_STATUS) {
+                    this.currentStatus = LabelView.DEAD_STATUS;
+                } else {
+                    console.error("Invalid status value: ", value);
+                }
+            });
+        }
     }
 
     enableSearchButton() {
@@ -93,8 +117,21 @@ class LabelView {
 
     updateButtons() {
         this.clearButtonContainer();
-        for (const labelId in LabelManager.labels) {
-            const labelName = LabelManager.labels[labelId];
+        const labels = LabelManager.getLabels();
+        let labelIds = null;
+        if (this.currentStatus === LabelView.HEALTHY_STATUS) {
+            labelIds = LabelManager.getHealthyCoralIdxes();
+        } else if (this.currentStatus === LabelView.BLEACHED_STATUS) {
+            labelIds = LabelManager.getBleachedCoralIdxes();
+        } else if (this.currentStatus === LabelView.DEAD_STATUS) {
+            labelIds = LabelManager.getDeadCoralIdxes();
+        } else {
+            console.error("Invalid status value: ", this.currentStatus);
+            return;
+        }
+
+        for (const labelId in labelIds) {
+            const labelName = labels[labelId];
 
             // Create the label button from template
             const labelButton = this.createLabelButton();
@@ -105,7 +142,8 @@ class LabelView {
             const color = LabelManager.getColorById(labelId);
             labelText.innerHTML = `${labelId}. ${labelName}`;
             colorBox.style.backgroundColor = color;
-            colorBox.style.borderColor = color;
+            const borderColor = LabelManager.getBorderColorById(labelId);
+            colorBox.style.borderColor = borderColor;
 
             // Add listeners to the label button
             colorBox.addEventListener("click", () =>

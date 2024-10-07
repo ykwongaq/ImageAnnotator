@@ -159,26 +159,17 @@ class ModeView {
 
     showConfirmButton() {
         this.confirmButton.classList.remove("hidden");
-        // this.confirmButton.style.display = "block";
     }
 
     showActionButtons() {
         this.undoButton.classList.remove("hidden");
         this.resetButton.classList.remove("hidden");
         this.confirmButton.classList.remove("hidden");
-
-        // this.undoButton.style.display = "block";
-        // this.resetButton.style.display = "block";
-        // this.confirmButton.style.display = "block";
     }
 
     hideActionButtons() {
         this.undoButton.classList.add("hidden");
         this.resetButton.classList.add("hidden");
         this.confirmButton.classList.add("hidden");
-
-        // this.undoButton.style.display = "none";
-        // this.resetButton.style.display = "none";
-        // this.confirmButton.style.display = "none";
     }
 }

@@ -1,5 +1,6 @@
 import logging
 
+
 # Initialize logging
 def setup_logging(log_file="log.log"):
     # Define a custom format for the log messages
@@ -33,20 +34,21 @@ setup_logging()
 
 import copy
 import os
+from tkinter import Tk, filedialog
 
 import eel
 import numpy as np
 from PIL import Image
-from tkinter import Tk
-from tkinter import filedialog
-
 from server.dataset import Data, DataFilter, Dataset
 from server.embedding import EmbeddingGenerator
 from server.maskEiditor import MaskEidtor
 from server.segmentation import CoralSegmentation
 from server.util.coco import coco_mask_to_rle, encode_to_coco_mask
-from server.util.general import (decode_image_url, get_resource_path,
-                                 remove_image_url_header)
+from server.util.general import (
+    decode_image_url,
+    get_resource_path,
+    remove_image_url_header,
+)
 from server.util.json import gen_image_json, gen_mask_json, save_json
 
 
@@ -144,7 +146,8 @@ class PreprocessServer:
         project_file = os.path.join(output_folder, "project.json")
         project_info = {}
         project_info["project_path"] = os.path.abspath(projectPath)
-        project_info["labels"] = {0: "coral"}
+        # project_info["labels"] = {0: "coral"}
+        project_info["labels"] = {}
         self.save_json(project_info, project_file)
 
         return image, embedding, output_json, project_info
@@ -447,45 +450,54 @@ def check_valid_folder(path):
 
     return return_item
 
-@eel.expose
-def select_folder():
-	root = Tk()
-	root.withdraw()
-	root.wm_attributes('-topmost', 1)
-	folder = filedialog.askdirectory()
-	return folder
 
 @eel.expose
-def load_project(project_path:str):
+def select_folder():
+    root = Tk()
+    root.withdraw()
+    root.wm_attributes("-topmost", 1)
+    folder = filedialog.askdirectory()
+    return folder
+
+
+@eel.expose
+def load_project(project_path: str):
     print(f"Loading project: {project_path}")
     dataset = server.get_dataset()
     error_message = dataset.load_project(project_path)
     return error_message
+
 
 @eel.expose
 def get_data_size():
     dataset = server.get_dataset()
     return dataset.get_size()
 
+
 @eel.expose
 def get_current_image_idx():
     dataset = server.get_dataset()
     return dataset.get_current_data_idx()
+
 
 @eel.expose
 def get_label_list():
     dataset = server.get_dataset()
     return dataset.get_label_list()
 
+
 @eel.expose
 def have_mask_belong_to_category(category_idx):
     dataset = server.get_dataset()
-    has_mask_belong_to_category, image_idx = dataset.have_mask_belong_to_category(category_idx)
+    has_mask_belong_to_category, image_idx = dataset.have_mask_belong_to_category(
+        category_idx
+    )
 
     response = {}
     response["has_mask_belong_to_category"] = has_mask_belong_to_category
     response["image_idx"] = image_idx
     return response
+
 
 @eel.expose
 def is_valid_project_folder(project_folder):
@@ -497,11 +509,12 @@ def is_valid_project_folder(project_folder):
     response["error_message"] = error_message
     return response
 
+
 if __name__ == "__main__":
     print("Please wait for the tool to be ready ...")
     eel.init("web")
     print(f"About to start the server ...")
     server = Server()
     print(f"Server initialized ...")
-    eel.start('main_page.html', size=(1200, 800))
+    eel.start("main_page.html", size=(1200, 800))
     print(f"Server started ...")

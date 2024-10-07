@@ -67,7 +67,7 @@ class Core {
                     if (labelList.size === 0) {
                         return;
                     }
-                    LabelManager.labels = labelList;
+                    LabelManager.loadLabels(labelList);
 
                     const labelView = new LabelView();
                     labelView.updateButtons();
@@ -122,7 +122,6 @@ class Core {
         const currentData = dataset.getCurrentData();
         const currentDataIdx = dataset.currentDataIdx;
         const json_item = currentData.exportJson();
-        const filename = currentData.imageFileName;
         eel.save_data(json_item, currentDataIdx, LabelManager.labels);
     }
 }

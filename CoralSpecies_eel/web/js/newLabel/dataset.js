@@ -276,6 +276,7 @@ class Dataset {
     }
 
     getData(callbackFunction = null) {
+        console.log("this.currentDataIdx", this.currentDataIdx);
         eel.get_data(this.currentDataIdx)(callbackFunction);
     }
 
