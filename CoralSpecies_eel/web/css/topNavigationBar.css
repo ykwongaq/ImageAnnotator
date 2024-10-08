@@ -7,14 +7,17 @@
     background-color: #a0e9ff;
     display: flex;
     justify-content: flex-start;
-    min-height: 5%;
+    min-height: 50px;
 }
 
 .topnav .icon-container {
     height: 100%;
-    width: 5%;
+    /* width: 5%; */
     max-height: 100%;
-    max-width: 62px;
+    min-width: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .topnav .icon-text {
@@ -28,6 +31,7 @@
     align-items: center; /* Center text vertically */
     color: white;
     max-width: 120px;
+    min-width: 120px;
 }
 
 .topnav .icon-container img {
@@ -123,4 +127,22 @@
 }
 .topnav .dropdown:hover .dropdown-content {
     display: block;
+}
+
+.loading-animation {
+    width: 30px; /* Adjust size as needed */
+    height: 30px;
+    border: 8px solid rgba(0, 0, 0, 0.1);
+    border-left-color: #00a9ff; /* Color of the spinner */
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }

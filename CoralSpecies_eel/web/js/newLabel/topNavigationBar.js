@@ -5,6 +5,11 @@ class TopNavigationBar {
         }
 
         TopNavigationBar.instance = this;
+        this.iconContainer = document.getElementById("icon");
+
+        this.backToMainPageButton = document.getElementById(
+            "back-to-main-page-button"
+        );
 
         this.labelButton = document.getElementById("label-button");
         this.statisticButton = document.getElementById("statistic-button");
@@ -42,21 +47,25 @@ class TopNavigationBar {
     }
 
     enableButtons() {
+        const core = new Core();
         this.labelButton.addEventListener("click", () => {
-            this.showPage("annotationPage");
+            core.showPage("annotationPage");
             this.clearActiveState();
             this.labelButton.classList.add("active");
         });
         this.statisticButton.addEventListener("click", () => {
-            this.showPage("statisticPage");
+            core.showPage("statisticPage");
             this.clearActiveState();
             this.statisticButton.classList.add("active");
         });
 
         this.settingButton.addEventListener("click", () => {
-            this.showPage("settingPage");
+            core.showPage("settingPage");
             this.clearActiveState();
             this.settingButton.classList.add("active");
+        });
+        this.backToMainPageButton.addEventListener("click", () => {
+            core.setProjectLoaded(false);
         });
     }
 
@@ -77,16 +86,6 @@ class TopNavigationBar {
                 dropDownMenu.style.display = "none";
             }
         });
-    }
-
-    showPage(pageId) {
-        const pages = document.querySelectorAll(".page");
-        pages.forEach((page) => {
-            page.classList.remove("active-page");
-        });
-
-        const page = document.getElementById(pageId);
-        page.classList.add("active-page");
     }
 
     enableLoadProjectButton() {
@@ -118,5 +117,23 @@ class TopNavigationBar {
         this.exportAllButton.addEventListener("click", () => {
             console.error("Not implemented yet");
         });
+    }
+
+    showLoadingIcon() {
+        const loadingDiv = document.createElement("div");
+        loadingDiv.classList.add("loading-animation");
+
+        this.iconContainer.innerHTML = "";
+        this.iconContainer.appendChild(loadingDiv);
+    }
+
+    restoreIcon() {
+        this.iconContainer.innerHTML = "";
+
+        const image = document.createElement("img");
+        image.src = "images/coralscan_icon.png";
+        image.alt = "icon";
+
+        this.iconContainer.appendChild(image);
     }
 }

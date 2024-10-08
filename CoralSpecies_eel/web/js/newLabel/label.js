@@ -5,7 +5,7 @@ class LabelManager {
     static removeColor = "#00FF00"; // green
     static defaultColor = "#FF0000"; // red
 
-    static bleachedBorderColor = "#FFFFFF"; // white
+    static bleachedBorderColor = "#D3D3D3";
     static deadBorderColor = "#000000"; // black
 
     static deadCoralIdxes = new Set();
@@ -68,9 +68,11 @@ class LabelManager {
             return this.deadBorderColor;
         } else if (this.isHealthyCoral(id)) {
             return this.getColorById(id);
+        } else if (id === null) {
+            return this.defaultColor;
         } else {
-            console.error("Invalid label id: ", id);
-            return null;
+            console.error("Invalid label id: ", id, typeof id);
+            return this.default;
         }
     }
 
@@ -293,8 +295,6 @@ class LabelManager {
     }
 
     static removeLabel_(labelId) {
-        console.log("Remove lable: ", labelId);
-
         const oldLabelsCopy = { ...LabelManager.labels };
         const newLabels = {};
         newLabels[0] = "Dead Coral";

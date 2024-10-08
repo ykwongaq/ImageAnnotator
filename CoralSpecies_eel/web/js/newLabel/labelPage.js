@@ -24,7 +24,8 @@ function main() {
     labelPage.enable();
 
     document.addEventListener("DOMContentLoaded", () => {
-        labelPage.topNavigationBar.showPage("annotationPage");
+        const core = new Core();
+        core.showPage("annotationPage");
     });
 }
 

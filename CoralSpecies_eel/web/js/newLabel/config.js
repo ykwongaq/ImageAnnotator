@@ -1,6 +1,6 @@
 class LabelConfig {
     static DEFAULT_MIN_AREA_PRECENTAGE = 0.001;
-    static DEFAULT_MAX_IOU = 0.5;
+    static DEFAULT_MAX_IOU = 0.3;
     static DEFAULT_MIN_CONFIDENCE = 0.5;
 
     constructor() {

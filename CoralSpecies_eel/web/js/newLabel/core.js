@@ -5,13 +5,28 @@ class Core {
         }
 
         Core.instance = this;
+
+        this.projectIsLoaded = false;
+        this.defaultPage = document.getElementById("defaultPage");
+
         return this;
     }
 
+    setProjectLoaded(isLoaded) {
+        this.projectIsLoaded = isLoaded;
+    }
+
+    isProjectLoaded() {
+        return this.projectIsLoaded;
+    }
+
     setCurrentDataByIdx(idx) {
+        console.log("Current Data Idx: ", idx);
         const dataset = new Dataset();
         dataset.setCurrentDataIdx(idx);
 
+        const topNavigationBar = new TopNavigationBar();
+        topNavigationBar.showLoadingIcon();
         dataset.getData((response) => {
             const imageUrl = response["image"];
             const jsonItem = response["json_item"];
@@ -20,8 +35,8 @@ class Core {
 
             if ("filter_config" in response) {
                 const filter_config = response["filter_config"];
-
-                // TODO: Update setting page
+                const settingPage = new SettingPage();
+                settingPage.loadConfig(filter_config);
             }
 
             const data = new Data(imageUrl, jsonItem, imageFileName);
@@ -50,6 +65,8 @@ class Core {
             // TODO: Update statistic report
 
             this.updateProgressInfo(imageFileName, idx, dataset.totalImages);
+
+            topNavigationBar.restoreIcon();
         });
     }
 
@@ -107,6 +124,8 @@ class Core {
                         }
 
                         this.autoStart();
+                        this.setProjectLoaded(true);
+                        this.showPage("annotationPage");
                     });
                 } else {
                     const errorMessage = response["error_message"];
@@ -122,5 +141,24 @@ class Core {
         const currentDataIdx = dataset.currentDataIdx;
         const json_item = currentData.exportJson();
         eel.save_data(json_item, currentDataIdx, LabelManager.getLabels());
+    }
+
+    showPage(pageId) {
+        const pages = document.querySelectorAll(".page");
+        pages.forEach((page) => {
+            page.classList.remove("active-page");
+        });
+
+        if (this.isProjectLoaded()) {
+            const page = document.getElementById(pageId);
+            page.classList.add("active-page");
+
+            if (pageId === "annotationPage") {
+                const canvas = new Canvas();
+                canvas.resetViewpoint();
+            }
+        } else {
+            this.defaultPage.classList.add("active-page");
+        }
     }
 }
