@@ -196,6 +196,20 @@ class Data:
         data_url = f"data:image/png;base64,{image_str}"
         return data_url
 
+    def find_key_by_value(self, dict: Dict, value):
+        for k, v in dict.items():
+            if v == value:
+                return k
+        return None
+
+    def update_annotation_id(self, new_labels: Dict):
+        for annotation in self.json_item["annotations"]:
+            if "category_name" in annotation:
+                category_name = annotation["category_name"]
+                new_category_id = self.find_key_by_value(new_labels, category_name)
+                if new_category_id is not None:
+                    annotation["category_id"] = new_category_id
+
 
 class Dataset:
     def __init__(self, output_dir: str = "."):
@@ -480,16 +494,17 @@ class Dataset:
         data = self.get_data(idx)
 
         if data is None:
+            self.logger.error(f"Data not found for index {idx}")
             return
 
         data.set_json_item(annotation)
 
-        # # Overwrite the annotation file
-        # project_path = self.project_info["project_path"]
-        # output_annotation_folder = os.path.join(project_path, self.annotation_folder)
-        # filename = data.get_filename()
-        # output_path = os.path.join(output_annotation_folder, f"{filename}.json")
-        # save_json(annotation, output_path)
+        # Overwrite the annotation file
+        project_path = self.project_info["project_path"]
+        output_annotation_folder = os.path.join(project_path, self.annotation_folder)
+        filename = data.get_filename()
+        output_path = os.path.join(output_annotation_folder, f"{filename}.json")
+        save_json(annotation, output_path)
 
         # # Save coco json to outputs folder
         # coco_json = self.process_json_to_coco_json(annotation)
@@ -498,14 +513,18 @@ class Dataset:
         # output_path = os.path.join(output_fodler, f"{data.get_filename()}.json")
         # save_json(coco_json, output_path)
 
-        # # Update last image idx to project.json
-        # self.project_info["last_image_idx"] = idx
-        # if "filter_config" not in self.project_info:
-        #     self.project_info["filter_config"] = {}
-        # self.project_info["filter_config"][str(idx)] = DataFilter().export_config()
-        # self.project_info["labels"] = labels_list
+        # Save project info
+        self.logger.info(f"Saving labels: {labels_list}")
+        self.project_info["last_image_idx"] = idx
+        if "filter_config" not in self.project_info:
+            self.project_info["filter_config"] = {}
+        self.project_info["filter_config"][str(idx)] = DataFilter().export_config()
+        self.project_info["labels"] = labels_list
+        data_folder = os.path.join(project_path, "data")
+        project_path = os.path.join(data_folder, "project.json")
+        save_json(self.project_info, project_path)
 
-        # # Save project.json
-        # data_folder = os.path.join(project_path, "data")
-        # project_path = os.path.join(data_folder, "project.json")
-        # save_json(self.project_info, project_path)
+    def update_annotation_id(self, new_labels):
+        self.logger.info("Update annotation id")
+        for data in self.data_list:
+            data.update_annotation_id(new_labels)

@@ -13,7 +13,6 @@ class Core {
         dataset.setCurrentDataIdx(idx);
 
         dataset.getData((response) => {
-            console.log(response);
             const imageUrl = response["image"];
             const jsonItem = response["json_item"];
             const imageFileName = response["filename"];
@@ -122,6 +121,6 @@ class Core {
         const currentData = dataset.getCurrentData();
         const currentDataIdx = dataset.currentDataIdx;
         const json_item = currentData.exportJson();
-        eel.save_data(json_item, currentDataIdx, LabelManager.labels);
+        eel.save_data(json_item, currentDataIdx, LabelManager.getLabels());
     }
 }

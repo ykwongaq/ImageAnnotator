@@ -239,6 +239,26 @@ class Data {
 
         return categoryJson;
     }
+
+    findKeyByValue(dict, value) {
+        for (const [key, val] of Object.entries(dict)) {
+            if (val === value) {
+                return key;
+            }
+        }
+        return null;
+    }
+
+    updateAnnotationId(newLabels) {
+        for (const mask of this.masks) {
+            const newId = this.findKeyByValue(
+                newLabels,
+                mask.getCategoryName()
+            );
+            mask.setCategoryId(newId);
+            mask.setColorById();
+        }
+    }
 }
 
 class Dataset {
@@ -276,9 +296,11 @@ class Dataset {
     }
 
     getData(callbackFunction = null) {
-        console.log("this.currentDataIdx", this.currentDataIdx);
         eel.get_data(this.currentDataIdx)(callbackFunction);
     }
 
-    haveMaskBelongToCategory(categoryId) {}
+    updateAnnotationId(newLabels) {
+        this.currentData.updateAnnotationId(newLabels);
+        eel.update_annotation_id(newLabels);
+    }
 }

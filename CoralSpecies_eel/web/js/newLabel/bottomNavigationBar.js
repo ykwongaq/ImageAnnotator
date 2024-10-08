@@ -45,8 +45,6 @@ class BottomNavigationBar {
             core.saveData();
 
             const dataset = new Dataset();
-            console.log("dataset.currentDataIdx", dataset.currentDataIdx);
-            console.log("dataset.totalImages", dataset.totalImages);
             if (dataset.currentDataIdx < dataset.totalImages - 1) {
                 core.setCurrentDataByIdx(dataset.currentDataIdx + 1);
             }

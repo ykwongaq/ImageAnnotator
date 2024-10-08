@@ -1,7 +1,7 @@
 class LabelView {
-    HEALTHY_STATUS = 0;
-    BLEACHED_STATUS = 1;
-    DEAD_STATUS = 2;
+    static HEALTHY_STATUS = 0;
+    static BLEACHED_STATUS = 1;
+    static DEAD_STATUS = 2;
 
     constructor() {
         if (LabelView.instance instanceof LabelView) {
@@ -42,8 +42,8 @@ class LabelView {
     enableStatesButtons() {
         let statusRadios = document.querySelectorAll("input[name='status']");
         for (const radio of statusRadios) {
-            const value = parseInt(radio.value);
             radio.addEventListener("change", () => {
+                const value = parseInt(radio.value);
                 if (value === LabelView.HEALTHY_STATUS) {
                     this.currentStatus = LabelView.HEALTHY_STATUS;
                 } else if (value === LabelView.BLEACHED_STATUS) {
@@ -53,6 +53,7 @@ class LabelView {
                 } else {
                     console.error("Invalid status value: ", value);
                 }
+                this.updateButtons();
             });
         }
     }
@@ -130,7 +131,7 @@ class LabelView {
             return;
         }
 
-        for (const labelId in labelIds) {
+        for (const labelId of labelIds) {
             const labelName = labels[labelId];
 
             // Create the label button from template
@@ -205,7 +206,6 @@ class LabelView {
         for (const mask of selectedMasks) {
             mask.setCategoryId(parseInt(labelId));
             mask.setCategoryName(labelName);
-            console.log;
         }
         Annotator.clearSelection();
 

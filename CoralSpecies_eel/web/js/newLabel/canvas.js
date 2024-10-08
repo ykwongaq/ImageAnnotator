@@ -186,18 +186,83 @@ class Canvas {
                     const y = Math.floor(i / this.imageWidth);
                     const index = (y * this.imageWidth + x) * 4;
 
-                    // Set pixel color with alpha transparency
-                    data[index] = r; // Red
-                    data[index + 1] = g; // Green
-                    data[index + 2] = b; // Blue
-                    // data[index + 3] = Math.floor(this.maskOpacity * 255); // Alpha (0.5 transparency -> 128)
-                    data[index + 3] = 255; // Alpha (0.5 transparency -> 128)
+                    if (LabelManager.isBleachCoral(mask.getCategoryId())) {
+                        // Use mosaic effect to show bleach coral
+
+                        const mosaicSize = Math.floor(
+                            Math.min(this.imageWidth, this.imageHeight) * 0.03
+                        );
+                        const isMosaicBox =
+                            (Math.floor(x / mosaicSize) +
+                                Math.floor(y / mosaicSize)) %
+                                2 ===
+                            0;
+                        if (isMosaicBox) {
+                            data[index] = 255; // Red
+                            data[index + 1] = 255; // Green
+                            data[index + 2] = 255; // Blue
+                            data[index + 3] = 255; // Alpha
+                        } else {
+                            // Set pixel color with alpha transparency
+                            data[index] = r; // Red
+                            data[index + 1] = g; // Green
+                            data[index + 2] = b; // Blue
+                            data[index + 3] = 255; // Alpha
+                        }
+                    } else {
+                        // Set pixel color with alpha transparency
+                        data[index] = r; // Red
+                        data[index + 1] = g; // Green
+                        data[index + 2] = b; // Blue
+                        // data[index + 3] = Math.floor(this.maskOpacity * 255); // Alpha (0.5 transparency -> 128)
+                        data[index + 3] = 255; // Alpha (0.5 transparency -> 128)
+                    }
                 }
             }
         }
 
         // Put the modified image data back to the canvas
         maskCtx.putImageData(imageData, 0, 0);
+
+        const radius = Math.min(this.imageWidth, this.imageHeight) * 0.005;
+        // Draw the border
+        // for (const mask of masks) {
+        //     if (!mask.getShouldDisplay()) {
+        //         continue;
+        //     }
+
+        //     if (!LabelManager.isBleachCoral(mask.getCategoryId())) {
+        //         continue;
+        //     }
+
+        //     const maskData = mask.getDecodedMask();
+
+        //     for (let i = 0; i < maskData.length; i++) {
+        //         if (maskData[i] === 1) {
+        //             const x = i % this.imageWidth;
+        //             const y = Math.floor(i / this.imageWidth);
+
+        //             // Check if this pixel is on the border by checking its neighbors
+        //             const isBorder = [
+        //                 maskData[i - 1], // Left
+        //                 maskData[i + 1], // Right
+        //                 maskData[i - this.imageWidth], // Top
+        //                 maskData[i + this.imageWidth], // Bottom
+        //             ].some(
+        //                 (neighbor) => neighbor === 0 || neighbor === undefined
+        //             );
+
+        //             if (isBorder) {
+        //                 maskCtx.beginPath();
+        //                 maskCtx.arc(x, y, radius, 0, 2 * Math.PI); // 2.5 radius for 5px diameter
+        //                 maskCtx.fillStyle = LabelManager.getBorderColorById(
+        //                     mask.getCategoryId()
+        //                 );
+        //                 maskCtx.fill();
+        //             }
+        //         }
+        //     }
+        // }
 
         // Draw the text labels after the masks are applied
         for (const mask of masks) {

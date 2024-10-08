@@ -146,8 +146,7 @@ class PreprocessServer:
         project_file = os.path.join(output_folder, "project.json")
         project_info = {}
         project_info["project_path"] = os.path.abspath(projectPath)
-        # project_info["labels"] = {0: "coral"}
-        project_info["labels"] = {}
+        project_info["labels"] = {0: "Dead Coral"}
         self.save_json(project_info, project_file)
 
         return image, embedding, output_json, project_info
@@ -419,7 +418,6 @@ def save_data(json_item, idx, labels_list):
     """
     Save the data to the dataset
     """
-
     dataset = server.get_dataset()
     dataset.save_annotation(idx, json_item, labels_list)
 
@@ -508,6 +506,12 @@ def is_valid_project_folder(project_folder):
     response["success"] = sucess
     response["error_message"] = error_message
     return response
+
+
+@eel.expose
+def update_annotation_id(new_labels):
+    dataset = server.get_dataset()
+    dataset.update_annotation_id(new_labels)
 
 
 if __name__ == "__main__":
