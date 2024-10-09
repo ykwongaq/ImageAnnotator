@@ -20,6 +20,7 @@
         <link rel="stylesheet" href="css/newLabelPage/labelView.css" />
         <link rel="stylesheet" href="css/newLabelPage/contentView.css" />
         <link rel="stylesheet" href="css/newLabelPage/labelPage.css" />
+        <link rel="stylesheet" href="css/newLabelPage/statisticPage.css" />
 
         <!-- Setting Page -->
         <link rel="stylesheet" href="css/newLabelPage/settingPage.css" />
@@ -180,8 +181,19 @@
             </div>
         </div>
 
-        <div id="statisticPage" class="page">
-            <h1>Statistic Page</h1>
+        <div id="statisticPage" class="page statistic-page">
+            <div class="statistic-content-container">
+                <section class="chart-group">
+                    <h2 class="group-title">Current Image</h2>
+                    <div id="current-image-grid" class="charts-grid"></div>
+                </section>
+            </div>
+            <template id="chart-item-template">
+                <div class="chart-item">
+                    <div class="chart"></div>
+                    <button class="download-btn">Download PNG</button>
+                </div>
+            </template>
         </div>
         <div id="settingPage" class="page">
             <div class="setting-container">
@@ -288,5 +300,7 @@
         <script src="js/newLabel/core.js"></script>
         <script src="js/newLabel/settingPage.js"></script>
         <script src="js/newLabel/labelPage.js"></script>
+        <script src="js/newLabel/chart.js"></script>
+        <script src="js/newLabel/statisticPage.js"></script>
     </body>
 </html>

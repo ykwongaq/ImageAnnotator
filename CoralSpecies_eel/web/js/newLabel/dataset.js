@@ -212,7 +212,7 @@ class Data {
             annotations.push(maskJson);
         }
         jsonItem["annotations"] = annotations;
-        // jsonItem["categories"] = this.extractCategoryJson();
+        jsonItem["categories"] = LabelManager.exportJson();
 
         return jsonItem;
     }
@@ -297,6 +297,14 @@ class Dataset {
 
     getData(callbackFunction = null) {
         eel.get_data(this.currentDataIdx)(callbackFunction);
+    }
+
+    getAllData(callbackFunction = null) {
+        eel.get_all_data()(callbackFunction);
+    }
+
+    getDataById(dataIdx, callbackFunction = null) {
+        eel.get_data(dataIdx)(callbackFunction);
     }
 
     updateAnnotationId(newLabels) {

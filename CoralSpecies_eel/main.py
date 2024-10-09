@@ -51,7 +51,6 @@ from server.util.general import (
 )
 from server.util.json import gen_image_json, gen_mask_json, save_json
 
-
 class PreprocessServer:
     DEFAULT_CONFIG = {
         "output_dir": ".",
@@ -72,6 +71,8 @@ class PreprocessServer:
         self.coral_segmentation = CoralSegmentation(coral_model_path, "vit_b")
 
         self.config = PreprocessServer.DEFAULT_CONFIG
+
+        self.data_filter = DataFilter()
 
     def update_config(self, config):
         self.config.update(config)
@@ -147,6 +148,8 @@ class PreprocessServer:
         project_info = {}
         project_info["project_path"] = os.path.abspath(projectPath)
         project_info["labels"] = {0: "Dead Coral"}
+        # Set the first image to default filter config
+        project_info["filter_config"] = {0: self.data_filter.export_config()} 
         self.save_json(project_info, project_file)
 
         return image, embedding, output_json, project_info
@@ -513,6 +516,14 @@ def update_annotation_id(new_labels):
     dataset = server.get_dataset()
     dataset.update_annotation_id(new_labels)
 
+@eel.expose
+def get_all_data():
+    dataset = server.get_dataset()
+    return_list = []
+    for idx in range(dataset.get_size()):
+        data = get_data(idx)
+        return_list.append(data)
+    return return_list
 
 if __name__ == "__main__":
     print("Please wait for the tool to be ready ...")

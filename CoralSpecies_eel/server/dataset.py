@@ -18,13 +18,17 @@ from .util.json import load_json, save_json
 class DataFilter:
     _instance = None
 
+    default_area_limit = 0.001
+    default_iou_limit = 0.3
+    default_predict_iou_limit = 0.5
+
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
             cls._instance = super(DataFilter, cls).__new__(cls)
         return cls._instance
 
     def __init__(
-        self, area_limit: int = 0.001, iou_limit: float = 0.5, predict_iou_limit=0.5
+        self, area_limit: int = default_area_limit, iou_limit: float = default_iou_limit, predict_iou_limit=default_predict_iou_limit
     ):
         if not hasattr(self, "initialized"):
             self.logger = logging.getLogger(self.__class__.__name__)

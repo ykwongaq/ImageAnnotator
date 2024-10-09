@@ -135,12 +135,20 @@ class Core {
         });
     }
 
-    saveData() {
+    saveData(callback = null) {
         const dataset = new Dataset();
         const currentData = dataset.getCurrentData();
         const currentDataIdx = dataset.currentDataIdx;
         const json_item = currentData.exportJson();
-        eel.save_data(json_item, currentDataIdx, LabelManager.getLabels());
+        eel.save_data(
+            json_item,
+            currentDataIdx,
+            LabelManager.getLabels()
+        )(() => {
+            if (callback) {
+                callback();
+            }
+        });
     }
 
     showPage(pageId) {
@@ -156,6 +164,9 @@ class Core {
             if (pageId === "annotationPage") {
                 const canvas = new Canvas();
                 canvas.resetViewpoint();
+            } else if (pageId === "statisticPage") {
+                const statisticPage = new StatisticPage();
+                statisticPage.update();
             }
         } else {
             this.defaultPage.classList.add("active-page");

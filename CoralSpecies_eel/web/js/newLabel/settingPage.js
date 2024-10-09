@@ -57,6 +57,7 @@ class SettingPage {
     enableSaveButton() {
         this.saveButton.addEventListener("click", () => {
             const configJson = this.config.exportJson();
+            // console.log("Save Config: ", configJson);
             eel.update_filter_config(configJson)(() => {
                 const core = new Core();
                 const dataset = new Dataset();

@@ -12,6 +12,10 @@ class LabelManager {
     static healthyCoralIdxes = new Set();
     static bleachCoralIdxees = new Set();
 
+    static deadCoralId = 0;
+    static deadCoralName = "Dead Coral";
+    static bleachedPrefix = "Bleached ";
+
     static labels = {};
 
     static colorList = [
@@ -61,6 +65,27 @@ class LabelManager {
         return this.colorList[colorNumber];
     }
 
+    static exportJson() {
+        const category = [];
+        for (const key in LabelManager.labels) {
+            const id = parseInt(key);
+            const name = LabelManager.labels[key];
+            let superCategory = name;
+            if (LabelManager.isBleachCoral(id)) {
+                const healthyCoralName =
+                    LabelManager.bleachedCoralNameToCoralName(name);
+                superCategory = healthyCoralName;
+            }
+
+            category.push({
+                id: id,
+                name: name,
+                supercategory: superCategory,
+            });
+        }
+        return category;
+    }
+
     static getBorderColorById(id) {
         if (this.isBleachCoral(id)) {
             return this.bleachedBorderColor;
@@ -89,7 +114,7 @@ class LabelManager {
         }
 
         // Ensure that the first label is the Dead Coral label
-        if (labels[0] !== "Dead Coral") {
+        if (labels[0] !== LabelManager.deadCoralName) {
             alert("The first label must be Dead Coral");
             return;
         }
@@ -123,7 +148,7 @@ class LabelManager {
         }
 
         LabelManager.deadCoralIdxes = new Set();
-        LabelManager.deadCoralIdxes.add(0);
+        LabelManager.deadCoralIdxes.add(LabelManager.deadCoralId);
 
         LabelManager.healthyCoralIdxes = new Set();
         for (let i = 1; i <= healthyCoralLength; i++) {
@@ -143,7 +168,7 @@ class LabelManager {
     }
 
     static bleachedCoralNameToCoralName(bleachedCoralName) {
-        return bleachedCoralName.replace("Bleached ", "");
+        return bleachedCoralName.replace(LabelManager.bleachedPrefix, "");
     }
 
     static addLabel(newLabelName) {
@@ -153,7 +178,7 @@ class LabelManager {
         }
 
         // Ensure that the label name does not start with "Bleached "
-        if (newLabelName.startsWith("Bleached ")) {
+        if (newLabelName.startsWith(LabelManager.bleachedPrefix)) {
             alert("Label name cannot start with 'Bleached '");
             return;
         }
@@ -167,7 +192,7 @@ class LabelManager {
 
         const oldLabelsCopy = { ...LabelManager.labels };
         const newLables = {};
-        newLables[0] = "Dead Coral";
+        newLables[LabelManager.deadCoralId] = LabelManager.deadCoralName;
 
         let newLabelId = 1;
         for (const key in oldLabelsCopy) {
@@ -297,7 +322,7 @@ class LabelManager {
     static removeLabel_(labelId) {
         const oldLabelsCopy = { ...LabelManager.labels };
         const newLabels = {};
-        newLabels[0] = "Dead Coral";
+        newLabels[LabelManager.deadCoralId] = LabelManager.deadCoralName;
 
         let newLabelId = 1;
         for (const key in oldLabelsCopy) {
@@ -380,6 +405,30 @@ class LabelManager {
             );
             return null;
         }
+    }
+
+    static isBleachedCoralName(coralName) {
+        if (coralName === null) {
+            return false;
+        }
+        return coralName.startsWith(LabelManager.bleachedPrefix);
+    }
+
+    static isDeadCoralName(coralName) {
+        if (coralName === null) {
+            return false;
+        }
+        return coralName === LabelManager.deadCoralName;
+    }
+
+    static isHealthyCoralName(coralName) {
+        if (coralName === null) {
+            return false;
+        }
+        return (
+            !LabelManager.isBleachedCoralName(coralName) &&
+            !LabelManager.isDeadCoralName(coralName)
+        );
     }
 }
 

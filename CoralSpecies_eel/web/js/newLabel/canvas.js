@@ -196,43 +196,7 @@ class Canvas {
                     data[index] = r; // Red
                     data[index + 1] = g; // Green
                     data[index + 2] = b; // Blue
-                    // data[index + 3] = Math.floor(this.maskOpacity * 255); // Alpha (0.5 transparency -> 128)
                     data[index + 3] = 255; // Alpha (0.5 transparency -> 128)
-                    // if (LabelManager.isBleachCoral(mask.getCategoryId())) {
-                    //     // Use mosaic effect to show bleach coral
-                    //     const borderColor = LabelManager.getBorderColorById(
-                    //         mask.getCategoryId()
-                    //     );
-                    //     const [br, bg, bb] = this.hexToRGB(borderColor);
-
-                    //     const lineHeight = Math.floor(
-                    //         Math.min(this.imageWidth, this.imageHeight) * 0.01
-                    //     );
-
-                    //     // Determine the line position
-                    //     const isColorLine =
-                    //         Math.floor(y / lineHeight) % 2 === 0;
-
-                    //     if (isColorLine) {
-                    //         // Original color
-                    //         data[index] = r;
-                    //         data[index + 1] = g;
-                    //         data[index + 2] = b;
-                    //     } else {
-                    //         // Light gray color
-                    //         data[index] = br;
-                    //         data[index + 1] = bg;
-                    //         data[index + 2] = bb;
-                    //     }
-                    //     data[index + 3] = 255; // Fully opaque
-                    // } else {
-                    //     // Set pixel color with alpha transparency
-                    //     data[index] = r; // Red
-                    //     data[index + 1] = g; // Green
-                    //     data[index + 2] = b; // Blue
-                    //     // data[index + 3] = Math.floor(this.maskOpacity * 255); // Alpha (0.5 transparency -> 128)
-                    //     data[index + 3] = 255; // Alpha (0.5 transparency -> 128)
-                    // }
                 }
             }
         }
@@ -282,6 +246,10 @@ class Canvas {
 
         // Draw the text labels after the masks are applied
         for (const mask of masks) {
+            if (!mask.getShouldDisplay()) {
+                continue;
+            }
+
             const middle_pixel = mask.getMiddlePoint();
             const label_id = mask.getCategoryId();
             if (label_id !== null) {
