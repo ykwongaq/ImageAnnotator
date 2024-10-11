@@ -160,17 +160,7 @@ class Data {
         }
         this.imageFileName = imageFileName;
         this.imageId = jsonItem["image"]["image_id"];
-
-        // this.filteredIndices = [];
     }
-
-    // setFilteredIndices(indices) {
-    //     this.filteredIndices = indices;
-    // }
-
-    // getFilteredIndices() {
-    //     return this.filteredIndices;
-    // }
 
     getImageUrl() {
         return this.imageDataUrl;
@@ -222,7 +212,7 @@ class Data {
             annotations.push(maskJson);
         }
         jsonItem["annotations"] = annotations;
-        // jsonItem["categories"] = this.extractCategoryJson();
+        jsonItem["categories"] = LabelManager.exportJson();
 
         return jsonItem;
     }
@@ -248,6 +238,32 @@ class Data {
         }
 
         return categoryJson;
+    }
+
+    findKeyByValue(dict, value) {
+        for (const [key, val] of Object.entries(dict)) {
+            if (val === value) {
+                return key;
+            }
+        }
+        return null;
+    }
+
+    updateAnnotationId(newLabels) {
+        for (const mask of this.masks) {
+            const newId = this.findKeyByValue(
+                newLabels,
+                mask.getCategoryName()
+            );
+            console.log(
+                "original id: ",
+                mask.getCategoryId(),
+                " to new id: ",
+                newId
+            );
+            mask.setCategoryId(newId);
+            mask.setColorById();
+        }
     }
 }
 
@@ -289,5 +305,16 @@ class Dataset {
         eel.get_data(this.currentDataIdx)(callbackFunction);
     }
 
-    haveMaskBelongToCategory(categoryId) {}
+    getAllData(callbackFunction = null) {
+        eel.get_all_data()(callbackFunction);
+    }
+
+    getDataById(dataIdx, callbackFunction = null) {
+        eel.get_data(dataIdx)(callbackFunction);
+    }
+
+    updateAnnotationId(newLabels) {
+        this.currentData.updateAnnotationId(newLabels);
+        eel.update_annotation_id(newLabels);
+    }
 }

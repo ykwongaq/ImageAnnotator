@@ -4,239 +4,303 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Label Page</title>
-        <link rel="stylesheet" href="css/pageInfo.css" />
-        <link rel="stylesheet" href="css/fileUploader.css" />
-        <link rel="stylesheet" href="css/labelPage/labelPage.css" />
-        <link rel="stylesheet" href="css/labelPage/sceneInfo.css" />
-        <link rel="stylesheet" href="css/labelPage/categoryView.css" />
-        <link rel="stylesheet" href="css/button.css" />
-        <link rel="stylesheet" href="css/labelPage/maskMode.css" />
-        <link rel="stylesheet" href="css/labelPage/maskOpacity.css" />
-        <link rel="stylesheet" href="css/labelPage/statisticView.css" />
-        <link rel="stylesheet" href="css/config.css" />
-        <link rel="stylesheet" href="css/loadingIcon.css" />
-        <link rel="stylesheet" href="css/labelPage/mainView.css" />
+        <link
+            rel="stylesheet"
+            href="css/fontawesome-free-6.6.0-web/css/all.min.css"
+        />
+        <link rel="stylesheet" href="css/util.css" />
+        <link rel="stylesheet" href="css/page.css" />
+        <link rel="stylesheet" href="css/labelPage/defaultPage.css" />
+        <link rel="stylesheet" href="css/dropdownMenu.css" />
         <link rel="stylesheet" href="css/topNavigationBar.css" />
+        <link rel="stylesheet" href="css/bottomNavigationBar.css" />
+        <link rel="stylesheet" href="css/labelPage/modeView.css" />
+        <link rel="stylesheet" href="css/labelPage/sliderView.css" />
+        <link rel="stylesheet" href="css/labelPage/middleContentView.css" />
+        <link rel="stylesheet" href="css/labelPage/labelView.css" />
+        <link rel="stylesheet" href="css/labelPage/contentView.css" />
+        <link rel="stylesheet" href="css/labelPage/labelPage.css" />
+        <link rel="stylesheet" href="css/labelPage/statisticPage.css" />
+
+        <!-- Setting Page -->
+        <link rel="stylesheet" href="css/labelPage/settingPage.css" />
     </head>
     <body>
         <div class="topnav" id="myTopnav">
-            <button onclick="navigateTo('main_page.html')">
+            <div id="icon" class="icon-container">
+                <img src="images/coralscan_icon.png" alt="icon" />
+            </div>
+            <div class="icon-text">CoralSCAN</div>
+            <button
+                id="back-to-main-page-button"
+                onclick="navigateTo('main_page.html')"
+            >
                 Back To Main Page
             </button>
-            <button>File</button>
-            <button class="active">Label</button>
-            <button>Statistic</button>
-            <button>Setting</button>
+            <button id="file-button">File</button>
+            <button id="label-button" class="active">Label</button>
+            <button id="statistic-button">Statistic</button>
+            <button id="setting-button">Setting</button>
         </div>
 
-        <div id="loading-icon" class="loading-icon"></div>
-        <!-- <div class="page-info">
-            <button class="button" onclick="navigateTo('main_page.html')">
-                Back to Main Menu
-            </button>
-            <h1>Label Page</h1>
-        </div> -->
-        <!-- <div id="drop-area" class="drop-area">
-            Drop your image folder here or
-            <span id="select-link"> select </span> the folder
-            <input type="file" id="file-input" webkitdirectory directory />
-        </div> -->
-        <div id="scene-info" class="scene-info">
-            <div id="image-name-text" class="image-name-text">Image Name</div>
-            <div class="progressbar-view">
-                <div id="image-progress-text" class="progress-text">
-                    Image: (0 / 0)
-                </div>
-                <div class="progress-container round-xlarge">
-                    <div
-                        id="image-progress-bar"
-                        class="progressbar round-xlarge"
-                        style="width: 0%"
-                    ></div>
-                </div>
-            </div>
+        <div id="file-dropdown-menu" class="dropdown-content">
+            <button id="load-project-button">Load Project</button>
+            <button id="export-coco-button">Export COCO</button>
+            <button id="export-excel-button">Export Excel</button>
+            <button id="export-graph-button">Export Graph</button>
+            <button id="export-all-button">Export All</button>
         </div>
-        <div id="category-view" class="category-view">
-            <input
-                type="text"
-                id="category-search-input"
-                class="category-search-input"
-                placeholder="Search category"
-            />
-            <div
-                id="category-button-container"
-                class="category-button-container"
-            ></div>
-            <div class="add-category-view">
-                <input
-                    id="add-category-input"
-                    type="text"
-                    class="add-category-input"
-                    placeholder="Add Category"
-                />
-                <button id="add-category-button" class="button-28">Add</button>
-            </div>
+
+        <div id="label-dropdown-menu" class="dropdown-content">
+            <button id="delete-label-button">Delete Label</button>
         </div>
-        <div id="main-view" class="main-view">
-            <div class="mask-mode-view">
-                <div class="mask-mode-radio-container">
-                    <div class="ratio-option">
-                        <input
-                            type="radio"
-                            id="label-mask-button"
-                            name="mask-mode"
-                            value="0"
-                            checked
-                        />
-                        <label for="label-mask-button">Label Mask</label>
+
+        <div id="annotationPage" class="page active-page">
+            <div class="contentView">
+                <div class="modeView">
+                    <div class="radioContainer">
+                        <div class="radio-section">
+                            <div class="radio-item">
+                                <input
+                                    name="editMode"
+                                    id="label-mask-button"
+                                    type="radio"
+                                    value="0"
+                                    checked
+                                /><label for="label-mask-button"
+                                    >Label Mask</label
+                                >
+                            </div>
+                            <div class="radio-item">
+                                <input
+                                    name="editMode"
+                                    id="add-mask-button"
+                                    type="radio"
+                                    value="1"
+                                /><label for="add-mask-button">Add Mask</label>
+                            </div>
+                            <div class="radio-item">
+                                <input
+                                    name="editMode"
+                                    id="remove-mask-button"
+                                    type="radio"
+                                    value="2"
+                                />
+                                <label for="remove-mask-button"
+                                    >Remove Mask</label
+                                >
+                            </div>
+                        </div>
                     </div>
-
-                    <div class="ratio-option">
-                        <input
-                            type="radio"
-                            id="add-mask-button"
-                            name="mask-mode"
-                            value="1"
-                        />
-                        <label for="add-mask-button">Add Mask</label>
-                    </div>
-
-                    <div class="ratio-option">
-                        <input
-                            type="radio"
-                            id="remove-mask-button"
-                            name="mask-mode"
-                            value="2"
-                        />
-                        <label for="remove-mask-button">Remove Mask</label>
+                    <div id="actionContainer" class="actionContainer">
+                        <div id="undo-button" class="actionButton hidden">
+                            Undo
+                        </div>
+                        <div id="reset-button" class="actionButton hidden">
+                            Reset
+                        </div>
+                        <div id="confirm-button" class="actionButton hidden">
+                            Confirm
+                        </div>
                     </div>
                 </div>
-                <div class="edit-mask-button-container">
-                    <button id="edit-mask-undo-button" class="button-28">
-                        Undo
-                    </button>
-                    <button id="edit-mask-reset-button" class="button-28">
-                        Reset
-                    </button>
-                    <button id="edit-mask-confirm-button" class="button-28">
-                        Confirm
-                    </button>
+                <div class="sliderView">
+                    <div class="text">Mask</div>
+                    <div class="text">Solid</div>
+                    <div class="slider">
+                        <input id="mask-opacity-silder" type="range" />
+                    </div>
+                    <div class="text">Transparent</div>
                 </div>
-            </div>
-            <div class="mask-opacity-view">
-                <div class="text">Mask</div>
-                <div class="text">Solid</div>
-                <div class="mask-silder">
-                    <input id="mask-opacity-silder" type="range" />
-                </div>
-                <div class="text">Transparent</div>
-            </div>
-            <canvas id="canvas" class="canvas"></canvas>
-            <div class="statistic-view">
-                <div class="statistic-title">Statistic Report</div>
-                <div
-                    id="statistic-box-container"
-                    class="statistic-box-container"
-                ></div>
-            </div>
-        </div>
-        <div id="bottom-button-container" class="bottom-button-container">
-            <button id="prev-image-button" class="button-28">
-                Prev Image (A)
-            </button>
-            <button id="load-project-button" class="button-28">
-                Load Project
-            </button>
-            <button id="reset-viewpoint-button" class="button-28">
-                Reset Viewpoint (W)
-            </button>
-            <!-- <button id="show_mask_button" class="button-28">
-                Add Mask (S)
-            </button> -->
-            <button id="next-image-button" class="button-28">
-                Next Image (D)
-            </button>
-        </div>
-
-        <div id="delete-context-menu" class="delete-context-menu">
-            <ul>
-                <li id="delete-action">Delete Category</li>
-            </ul>
-        </div>
-
-        <template id="statistic-box-template">
-            <div class="statistic-box">
-                <div class="info">Something (1/2) 50%</div>
-                <div class="statistic-process-bar-container">
+                <div class="middleContentView">
+                    <div id="progress-info" class="info">Image Name (0/0)</div>
                     <div class="progress-container round-xlarge">
                         <div
+                            id="progress-bar"
                             class="progressbar round-xlarge"
-                            style="width: 50%"
+                            style="width: 0%"
                         ></div>
+                    </div>
+                    <canvas id="canvas" class="canvas"></canvas>
+                </div>
+                <div class="labelView">
+                    <div class="inputForm">
+                        <input
+                            id="search-input"
+                            type="text"
+                            placeholder="Search ..."
+                            name="search"
+                        />
+                        <button id="search-button" type="submit">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+                    <div class="inputForm">
+                        <input
+                            id="add-category-input"
+                            type="text"
+                            placeholder="Add ..."
+                            name="add"
+                        />
+                        <button id="add-category-button" type="submit">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+                    <div class="bar"></div>
+                    <div class="statusContainer">
+                        <div class="radio-item">
+                            <input
+                                name="status"
+                                id="status-1-button"
+                                type="radio"
+                                value="0"
+                                checked
+                            /><label for="status-1-button">Healthy</label>
+                        </div>
+                        <div class="radio-item">
+                            <input
+                                name="status"
+                                id="status-2-button"
+                                type="radio"
+                                value="1"
+                            /><label for="status-2-button">Bleached</label>
+                        </div>
+                        <div class="radio-item">
+                            <input
+                                name="status"
+                                id="status-3-button"
+                                type="radio"
+                                value="2"
+                            />
+                            <label for="status-3-button">Dead</label>
+                        </div>
+                    </div>
+                    <div class="bar"></div>
+                    <div id="label-container" class="labelContainer"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="statisticPage" class="page statistic-page">
+            <div class="statistic-content-container">
+                <section class="chart-group">
+                    <h2 class="group-title">Current Image</h2>
+                    <div id="current-image-grid" class="charts-grid"></div>
+                </section>
+            </div>
+            <template id="chart-item-template">
+                <div class="chart-item">
+                    <div class="chart"></div>
+                    <button class="download-btn">Download PNG</button>
+                </div>
+            </template>
+        </div>
+        <div id="settingPage" class="page">
+            <div class="setting-container">
+                <button id="save-setting-button" class="save-button">
+                    Save Settings
+                </button>
+                <div class="settings-group">
+                    <div class="group-header">Mask Display</div>
+                    <p>Filter out the unwanted masks generated by model.</p>
+
+                    <div class="setting-item">
+                        <label id="min-area-text" for="min-area-slider"
+                            >Min Area:</label
+                        >
+                        <input
+                            type="range"
+                            id="min-area-slider"
+                            name="min-area"
+                            min="0"
+                            max="20"
+                            step="0.1"
+                        />
+                        <div class="setting-description">
+                            Filter out the masks that is too small. (in % of
+                            pixel area of the image). Range (0-20)
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <label
+                            id="min-confidence-text"
+                            for="min-confidence-slider"
+                            >Min Confidence</label
+                        >
+                        <input
+                            type="range"
+                            id="min-confidence-slider"
+                            name="min-confidence"
+                            min="0"
+                            max="100"
+                        />
+                        <div class="setting-description">
+                            Filter out the masks that is too low confidence. It
+                            can increase the reliability of the annotation. (in
+                            %).
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <label id="max-overlap-text" for="max-overlap-slider"
+                            >Max Overlap</label
+                        >
+                        <input
+                            type="range"
+                            id="max-overlap-slider"
+                            name="max-overlap"
+                            min="0"
+                            max="100"
+                        />
+                        <div class="setting-description">
+                            Filter out the masks that overlap too much with
+                            other masks. It overlaps is measured using
+                            Intersection over Union (IoU). (in %).
+                        </div>
                     </div>
                 </div>
             </div>
-        </template>
-
-        <div class="sidebar" id="mask-configuration-page">
-            <h2>Configuration</h2>
-            <div class="form-group">
-                <label id="min-area-text" for="min-area-slider"
-                    >Min Area (%)</label
-                >
-                <input
-                    type="range"
-                    id="min-area-slider"
-                    min="0"
-                    max="20"
-                    step="0.1"
-                    value="0.1"
-                />
-            </div>
-            <div class="form-group">
-                <label id="min-confidence-text" for="min-confidence-slider"
-                    >Min Confidence (%)</label
-                >
-                <input
-                    type="range"
-                    id="min-confidence-slider"
-                    min="0"
-                    max="100"
-                    value="50"
-                />
-            </div>
-            <div class="form-group">
-                <label id="max-overlap-text" for="max-overlap-slider"
-                    >Max Overlap (%)</label
-                >
-                <input
-                    type="range"
-                    id="max-overlap-slider"
-                    min="0"
-                    max="100"
-                    value="50"
-                />
-            </div>
-            <button id="save-button" class="save-button">
-                Save Configuration
-            </button>
         </div>
-        <!-- <button id="configuration-page-button" class="toggle-button">
-            Setting
-        </button> -->
 
-        <script src="/eel.js"></script>
-        <script src="js/loadingIconManager.js"></script>
-        <script src="js/label/config.js"></script>
-        <script src="js/label/Label.js"></script>
-        <script src="js/label/categoryView.js"></script>
-        <script src="js/label/dataset.js"></script>
+        <div id="defaultPage" class="page">
+            <div class="default-div">
+                <img
+                    src="images/coralscan_icon.png"
+                    alt="icon"
+                    class="defualt-img"
+                />
+            </div>
+        </div>
+
+        <div class="bottomnav">
+            <button id="prev-image-button">Prev Image (A)</button>
+            <button id="reset-viewpoint-button">Reset View Point (W)</button>
+            <button id="next-image-button">Next Image (D)</button>
+        </div>
+
+        <template id="label-button-template">
+            <div class="labelButton">
+                <div class="colorBox"></div>
+                <div class="labelText">New Label</div>
+            </div>
+        </template>
+        <script src="./eel.js"></script>
         <script src="js/navigate.js"></script>
-        <script src="js/dropArea.js"></script>
-        <script src="js/label/configPage.js"></script>
-        <script src="js/label/annotator.js"></script>
         <script src="js/label/canvas.js"></script>
-        <script src="js/label/statisticView.js"></script>
+        <script src="js/label/config.js"></script>
+        <script src="js/label/dataset.js"></script>
+        <script src="js/label/label.js"></script>
+        <script src="js/label/LabelView.js"></script>
+        <script src="js/label/modeView.js"></script>
+        <script src="js/label/topNavigationBar.js"></script>
+        <script src="js/label/opacityView.js"></script>
+        <script src="js/label/progressInfoView.js"></script>
+        <script src="js/label/bottomNavigationBar.js"></script>
+        <script src="js/label/core.js"></script>
+        <script src="js/label/settingPage.js"></script>
         <script src="js/label/labelPage.js"></script>
+        <script src="js/label/chart.js"></script>
+        <script src="js/label/statisticPage.js"></script>
     </body>
 </html>

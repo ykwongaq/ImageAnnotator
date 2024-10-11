@@ -8,14 +8,14 @@ class AnnotationProcesser {
 
     process(data_url, imageFile, projectPath, callBack = null) {
         console.log("Processing", imageFile);
-        const loadingIconManager = new LoadingIconManager();
-        loadingIconManager.showLoadingIcon();
+        const topNav = new TopNavigationBar();
+        topNav.showLoadingIcon();
         eel.preprocess(
             data_url,
             imageFile,
             projectPath
         )((result) => {
-            loadingIconManager.hideLoadingIcon();
+            topNav.restoreIcon();
             if (callBack) {
                 callBack(result);
             }

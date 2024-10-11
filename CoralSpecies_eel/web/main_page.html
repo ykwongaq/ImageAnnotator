@@ -5,11 +5,14 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Main Page</title>
         <!-- <link rel="stylesheet" href="css/mainPage/mainPage.css" /> -->
+        <link rel="stylesheet" href="css/topNavigationBar.css" />
+        <link rel="stylesheet" href="css/bottomNavigationBar.css" />
         <style>
             body {
                 font-family: Arial, sans-serif;
                 text-align: center;
-                margin-top: 50px;
+                margin: 0;
+                height: 100vh;
             }
             p {
                 width: 70%;
@@ -20,7 +23,7 @@
                 display: inline-block;
                 padding: 10px 20px;
                 margin: 10px;
-                font-size: 16px;
+                font-size: 25px;
                 cursor: pointer;
                 text-decoration: none;
                 color: white;
@@ -31,20 +34,52 @@
             .button:hover {
                 background-color: #0056b3;
             }
+            .icon-container {
+                max-height: 50%;
+                height: 50%;
+            }
+            .icon {
+                object-fit: cover;
+                max-height: 100%;
+            }
+            .content {
+                height: 90%;
+            }
         </style>
     </head>
     <body>
-        <h1>CoralSCAN: Segment and Classify coral in ANy image</h1>
+        <div class="topnav">
+            <div id="icon" class="icon-container">
+                <img src="images/coralscan_icon.png" alt="icon" />
+            </div>
+            <div class="icon-text">CoralSCAN</div>
+        </div>
+        <div class="content">
+            <div class="icon-container">
+                <img
+                    class="icon"
+                    src="images/coralscan_icon.png"
+                    alt="CoralSCAN"
+                />
+            </div>
+            <h1>
+                Coral<span style="color: aqua">S</span
+                ><span style="color: aquamarine">C</span
+                ><span style="color: deeppink">AN</span>:
+                <span style="color: aqua">Segment</span> and
+                <span style="color: aquamarine">Classify</span> coral in
+                <span style="color: deeppink">AN</span>y image
+            </h1>
 
-        <button class="button" onclick="navigateTo('preprocess.html')">
-            Create New Project
-        </button>
-        <button class="button" onclick="navigateTo('new_label.html')">
-            Load Existing Project
-        </button>
-        <!-- 
-        <a href="preprocess.html" class="button">Preprocess Data</a>
-        <a href="label.html" class="button">Label Data</a> -->
+            <button class="button" onclick="navigateTo('preprocess.html')">
+                Create New Project
+            </button>
+            <button class="button" onclick="navigateTo('label.html')">
+                Load Existing Project
+            </button>
+        </div>
+
+        <div class="bottomnav"></div>
 
         <script src="/eel.js"></script>
         <script src="js/navigate.js"></script>

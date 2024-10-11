@@ -3,6 +3,7 @@ class DropArea {
         this.dropArea = dropArea;
         this.selectLink = this.dropArea.querySelector("#select-link");
         this.fileInput = this.dropArea.querySelector("#file-input");
+        this.dropText = this.dropArea.querySelector("#drop-text");
     }
 
     enable() {
@@ -40,6 +41,10 @@ class DropArea {
         this.fileInput.addEventListener("change", (e) => {
             this.handleClick(e);
         });
+    }
+
+    getDropText() {
+        return this.dropText;
     }
 
     handleDrop(e) {

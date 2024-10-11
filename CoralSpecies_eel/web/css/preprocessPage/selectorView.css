@@ -10,12 +10,22 @@
     max-width: 80%;
     display: flex;
     flex-direction: column;
-
+    text-align: center;
     border: 1px solid black;
     border-radius: 5px 5px 5px 5px;
-
+    margin: 0 auto;
     justify-content: center;
     align-items: center;
+}
+
+.image-view span {
+    color: blue;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.image-view input {
+    display: none;
 }
 
 .selected-image-view {
@@ -74,6 +84,7 @@
     flex-direction: column;
     width: 200px;
     height: 230px;
+    margin: 5px;
 }
 
 .gallery-item:hover {

@@ -26,8 +26,6 @@ class ImageSelector {
     addData(image, imageTag) {
         this.images.push(image);
         this.imageTags[image] = imageTag;
-        console.log("imageTags", this.imageTags);
-        console.log("images", this.images);
     }
 
     getImageTagByFilename(image) {

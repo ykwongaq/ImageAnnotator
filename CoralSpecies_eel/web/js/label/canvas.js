@@ -1,13 +1,13 @@
 class Canvas {
-    constructor(canvas) {
+    constructor() {
         if (Canvas.instance) {
             return Canvas.instance;
         }
 
         Canvas.instance = this;
 
-        this.canvas = canvas;
-        this.ctx = canvas.getContext("2d");
+        this.canvas = document.getElementById("canvas");
+        this.ctx = this.canvas.getContext("2d");
 
         this.data = null;
         this.imageUrl = null;
@@ -27,6 +27,7 @@ class Canvas {
         this.enableZoom();
         this.enableDrag();
         this.enableEditting();
+        this.enableWindowResize();
 
         // Image
         this.imageWidth = 0;
@@ -45,6 +46,12 @@ class Canvas {
 
     getEdittingMask() {
         return this.edittingMask;
+    }
+
+    enableWindowResize() {
+        window.addEventListener("resize", () => {
+            this.resetViewpoint();
+        });
     }
 
     updateEditingResult(edittingMask, selected_points, labels) {
@@ -102,7 +109,6 @@ class Canvas {
         maskCtx.putImageData(imageData, 0, 0);
 
         const pointRadius = Math.min(this.imageWidth, this.imageHeight) * 0.01;
-        console.log("pointRadius", pointRadius);
 
         for (let i = 0; i < selected_points.length; i++) {
             const [imageX, imageY] = selected_points[i];
@@ -186,12 +192,10 @@ class Canvas {
                     const x = i % this.imageWidth;
                     const y = Math.floor(i / this.imageWidth);
                     const index = (y * this.imageWidth + x) * 4;
-
                     // Set pixel color with alpha transparency
                     data[index] = r; // Red
                     data[index + 1] = g; // Green
                     data[index + 2] = b; // Blue
-                    // data[index + 3] = Math.floor(this.maskOpacity * 255); // Alpha (0.5 transparency -> 128)
                     data[index + 3] = 255; // Alpha (0.5 transparency -> 128)
                 }
             }
@@ -200,8 +204,52 @@ class Canvas {
         // Put the modified image data back to the canvas
         maskCtx.putImageData(imageData, 0, 0);
 
+        const radius = Math.min(this.imageWidth, this.imageHeight) * 0.003;
+        // Draw the border
+        for (const mask of masks) {
+            if (!mask.getShouldDisplay()) {
+                continue;
+            }
+
+            if (!LabelManager.isBleachCoral(mask.getCategoryId())) {
+                continue;
+            }
+
+            const maskData = mask.getDecodedMask();
+
+            for (let i = 0; i < maskData.length; i++) {
+                if (maskData[i] === 1) {
+                    const x = i % this.imageWidth;
+                    const y = Math.floor(i / this.imageWidth);
+
+                    // Check if this pixel is on the border by checking its neighbors
+                    const isBorder = [
+                        maskData[i - 1], // Left
+                        maskData[i + 1], // Right
+                        maskData[i - this.imageWidth], // Top
+                        maskData[i + this.imageWidth], // Bottom
+                    ].some(
+                        (neighbor) => neighbor === 0 || neighbor === undefined
+                    );
+
+                    if (isBorder) {
+                        maskCtx.beginPath();
+                        maskCtx.arc(x, y, radius, 0, 2 * Math.PI); // 2.5 radius for 5px diameter
+                        maskCtx.fillStyle = LabelManager.getBorderColorById(
+                            mask.getCategoryId()
+                        );
+                        maskCtx.fill();
+                    }
+                }
+            }
+        }
+
         // Draw the text labels after the masks are applied
         for (const mask of masks) {
+            if (!mask.getShouldDisplay()) {
+                continue;
+            }
+
             const middle_pixel = mask.getMiddlePoint();
             const label_id = mask.getCategoryId();
             if (label_id !== null) {
@@ -394,7 +442,6 @@ class Canvas {
                 canvasX,
                 canvasY
             );
-
             if (Annotator.getCurrentMode() === Annotator.LABEL_MASK) {
                 if (this.isInsideImageBoundary(canvasX, canvasY)) {
                     const clickedMasks = this.getClickedMasks(imageX, imageY);

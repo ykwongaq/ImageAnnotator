@@ -28,7 +28,10 @@ class DataFilter:
         return cls._instance
 
     def __init__(
-        self, area_limit: int = default_area_limit, iou_limit: float = default_iou_limit, predict_iou_limit=default_predict_iou_limit
+        self,
+        area_limit: int = default_area_limit,
+        iou_limit: float = default_iou_limit,
+        predict_iou_limit=default_predict_iou_limit,
     ):
         if not hasattr(self, "initialized"):
             self.logger = logging.getLogger(self.__class__.__name__)
@@ -355,6 +358,9 @@ class Dataset:
             self.logger.error(f"Number of embedding files: {len(embedding_files)}")
             error_message = "Number of files do not match"
             return error_message
+
+        # Set the project path
+        self.project_info["project_path"] = project_path
 
         for imaeg_filename, embedding_filename, annotation_filename in zip(
             image_files, embedding_files, annotation_files

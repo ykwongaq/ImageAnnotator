@@ -10,7 +10,7 @@ class PreprocessPage {
         this.deselectedGallery = document.getElementById("deselected-gallery");
         this.selectedGallery = document.getElementById("selected-gallery");
 
-        this.dropAreaDom = document.getElementById("drop-area");
+        this.dropAreaDom = document.getElementById("deselected-gallery");
 
         this.selectAllButton = document.getElementById("select-all-button");
         this.deselectAllButton = document.getElementById("deselect-all-button");
@@ -87,6 +87,7 @@ class PreprocessPage {
                     this.loadImage(file);
                 }
             });
+            dropArea.getDropText().style.display = "none";
         };
 
         dropArea.handleDrop = (e) => {
@@ -109,6 +110,7 @@ class PreprocessPage {
                     }
                 }
             }
+            dropArea.getDropText().style.display = "none";
         };
         dropArea.enable();
     }

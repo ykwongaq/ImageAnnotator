@@ -1,22 +1,17 @@
 html,
 body {
-    height: 100%;
+    height: 100vh;
     margin: 0;
     padding: 0;
 }
 
-* {
-    margin: 5px;
-}
-
-body {
+.content {
+    height: 90%;
+    max-height: 90%;
     width: 100%;
     max-width: 100%;
-    margin: 0 auto;
     display: flex;
     flex-direction: column;
-    margin-top: 10px;
-    margin-bottom: 10px;
 }
 
 .drop-area {
@@ -36,8 +31,8 @@ body {
 .selector-view {
     width: 100%;
     max-width: 100%;
-    height: 75%;
-    max-height: 75%;
+    height: 95%;
+    max-height: 95%;
 }
 
 .process-view {
