@@ -243,7 +243,7 @@ class Data {
     findKeyByValue(dict, value) {
         for (const [key, val] of Object.entries(dict)) {
             if (val === value) {
-                return key;
+                return parseInt(key);
             }
         }
         return null;
@@ -251,15 +251,10 @@ class Data {
 
     updateAnnotationId(newLabels) {
         for (const mask of this.masks) {
+            let oldId = mask.getCategoryId();
             const newId = this.findKeyByValue(
                 newLabels,
                 mask.getCategoryName()
-            );
-            console.log(
-                "original id: ",
-                mask.getCategoryId(),
-                " to new id: ",
-                newId
             );
             mask.setCategoryId(newId);
             mask.setColorById();
