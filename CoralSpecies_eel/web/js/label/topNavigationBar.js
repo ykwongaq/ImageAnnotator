@@ -14,6 +14,7 @@ class TopNavigationBar {
         this.labelButton = document.getElementById("label-button");
         this.statisticButton = document.getElementById("statistic-button");
         this.settingButton = document.getElementById("setting-button");
+        this.labelTutorialButton = document.getElementById("label-tutorial-button");
 
         this.loadProjectButton = document.getElementById("load-project-button");
         this.exportCOCOButton = document.getElementById("export-coco-button");
@@ -25,6 +26,7 @@ class TopNavigationBar {
             this.labelButton,
             this.statisticButton,
             this.settingButton,
+            this.labelTutorialButton,
         ];
 
         return this;
@@ -66,6 +68,11 @@ class TopNavigationBar {
         });
         this.backToMainPageButton.addEventListener("click", () => {
             core.setProjectLoaded(false);
+        });
+        this.labelTutorialButton.addEventListener("click", () => {
+            core.showPage("labelTutorialPage");
+            this.clearActiveState();
+            this.labelTutorialButton.classList.add("active");
         });
     }
 

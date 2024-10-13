@@ -1,0 +1,39 @@
+.tutorial-page {
+    overflow: auto;
+}
+
+.tutorial-page * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.tutorial-container {
+    margin: 30px;
+}
+
+.markdown-toc {
+    border-left: 1px solid #aaa;
+    text-align: left;
+    font-size: .875rem;
+}
+
+.markdown-toc a {
+    color: #111;
+    display: block;
+    margin: 0 2px;
+    text-decoration: none;
+}
+
+.markdown-toc a:hover {
+    color: #ff6600 !important;
+}
+
+.markdown-toc ul li>:first-child {
+    font-weight: bolder;
+    margin-bottom: 8px;
+}
+
+.markdown-toc ul li ul li>:first-child {
+    font-weight: normal;
+}

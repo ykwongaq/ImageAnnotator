@@ -14,6 +14,10 @@
         <link rel="stylesheet" href="css/topNavigationBar.css" />
         <link rel="stylesheet" href="css/bottomNavigationBar.css" />
         <link rel="stylesheet" href="css/preprocessPage/projectPath.css" />
+
+        <link rel="stylesheet" href="css/page.css" />
+        <link rel="stylesheet" href="css/tutorial.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.1.0/github-markdown-light.min.css">
         <title>Preprocess Page</title>
     </head>
     <body>
@@ -25,57 +29,68 @@
             <button onclick="navigateTo('main_page.html')">
                 Back To Main Page
             </button>
+            <button id="preprocess-page-button">Preprocess</button>
             <button onclick="navigateTo('label.html')">Continue</button>
+            <button id="preprocess-tutorial-button">Tutorial</button>
         </div>
         <div class="content">
-            <div class="selector-view">
-                <div class="image-view">
-                    <div id="deselected-gallery" class="gallery-view">
-                        <div id="drop-text">
-                            Drop your image folder here or
-                            <span id="select-link">select</span> the folder
+            <div id="preprocess-page" class="page active-page">
+                <div class="selector-view">
+                    <div class="image-view">
+                        <div id="deselected-gallery" class="gallery-view">
+                            <div id="drop-text">
+                                Drop your image folder here or
+                                <span id="select-link">select</span> the folder
+                            </div>
+                            <input
+                                type="file"
+                                id="file-input"
+                                webkitdirectory
+                                directory
+                                style="display: none"
+                            />
                         </div>
-                        <input
-                            type="file"
-                            id="file-input"
-                            webkitdirectory
-                            directory
-                            style="display: none"
-                        />
+                        <div
+                            id="select-all-button"
+                            class="gallery-button-container"
+                        >
+                            Select All
+                        </div>
                     </div>
-                    <div
-                        id="select-all-button"
-                        class="gallery-button-container"
-                    >
-                        Select All
+                    <div class="selected-image-view">
+                        <div id="selected-gallery" class="gallery-view"></div>
+                        <div
+                            id="deselect-all-button"
+                            class="gallery-button-container"
+                        >
+                            Deselect All
+                        </div>
                     </div>
                 </div>
-                <div class="selected-image-view">
-                    <div id="selected-gallery" class="gallery-view"></div>
-                    <div
-                        id="deselect-all-button"
-                        class="gallery-button-container"
-                    >
-                        Deselect All
+                <div class="process-view">
+                    <div id="selected-image-count-text" class="process-text">
+                        Selected Images: 0
+                    </div>
+                    <div class="progressbar-view">
+                        <div id="progress-text" class="progressbar-text">
+                            Process: (0 %)
+                        </div>
+                        <div class="progress-container round-xlarge">
+                            <div
+                                id="image-progress-bar"
+                                class="progressbar round-xlarge"
+                                style="width: 0%"
+                            ></div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="process-view">
-                <div id="selected-image-count-text" class="process-text">
-                    Selected Images: 0
-                </div>
-                <div class="progressbar-view">
-                    <div id="progress-text" class="progressbar-text">
-                        Process: (0 %)
-                    </div>
-                    <div class="progress-container round-xlarge">
-                        <div
-                            id="image-progress-bar"
-                            class="progressbar round-xlarge"
-                            style="width: 0%"
-                        ></div>
-                    </div>
-                </div>
+
+            <div id="preprocessTutorialPage" class="page tutorial-page">
+                <div id="preprocess-tutorial-container" class="tutorial-container">
+                    <div id="preprocess-tutorial-body" class="markdown-body"></div>
+                    <div id="preprocess-tutorial-toc" class="markdown-toc"></div>
+                </div>            
             </div>
         </div>
         <div class="bottomnav">
@@ -92,5 +107,7 @@
         <script src="js/preprocess/config.js"></script>
         <script src="js/preprocess/configPage.js"></script>
         <script src="js/preprocess/preprocessPage.js"></script>
+        <script src="js/preprocess/tutorial.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     </body>
 </html>

@@ -525,6 +525,23 @@ def get_all_data():
         return_list.append(data)
     return return_list
 
+@eel.expose
+def get_tutorial(markdown_path):
+    print("===load label tutorial===")
+    
+    with open(markdown_path) as f:
+        data = f.read()
+    return data
+
+# import base64
+# @eel.expose
+# def get_screenshot(imgPath):
+#     with open(imgPath,'rb') as f:
+#         data = base64.b64encode(f.read())
+#         # print(imgPath)
+#         # print(data)
+#     return data
+
 if __name__ == "__main__":
     print("Please wait for the tool to be ready ...")
     eel.init("web")

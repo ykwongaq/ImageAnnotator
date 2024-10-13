@@ -21,7 +21,10 @@
         <link rel="stylesheet" href="css/labelPage/contentView.css" />
         <link rel="stylesheet" href="css/labelPage/labelPage.css" />
         <link rel="stylesheet" href="css/labelPage/statisticPage.css" />
-
+        
+        <!-- <link rel="stylesheet" href="https://cdn.bootcss.com/github-markdown-css/3.0.1/github-markdown.css" /> -->
+        <link rel="stylesheet" href="css/tutorial.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.1.0/github-markdown-light.min.css">
         <!-- Setting Page -->
         <link rel="stylesheet" href="css/labelPage/settingPage.css" />
     </head>
@@ -41,6 +44,7 @@
             <button id="label-button" class="active">Label</button>
             <button id="statistic-button">Statistic</button>
             <button id="setting-button">Setting</button>
+            <button id="label-tutorial-button">Tutorial</button>
         </div>
 
         <div id="file-dropdown-menu" class="dropdown-content">
@@ -262,6 +266,12 @@
                 </div>
             </div>
         </div>
+        <div id="labelTutorialPage" class="page tutorial-page">
+            <div id="label-tutorial-container" class="tutorial-container">
+                <div id="label-tutorial-body" class="markdown-body"></div>
+                <div id="label-tutorial-toc" class="markdown-toc"></div>
+            </div>            
+        </div>
 
         <div id="defaultPage" class="page">
             <div class="default-div">
@@ -302,5 +312,8 @@
         <script src="js/label/labelPage.js"></script>
         <script src="js/label/chart.js"></script>
         <script src="js/label/statisticPage.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+        <script src="js/label/tutorial.js"></script>
+        <script src="js/markdown-toc.js"></script>
     </body>
 </html>

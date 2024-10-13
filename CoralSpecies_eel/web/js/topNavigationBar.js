@@ -21,10 +21,15 @@ class TopNavigationBar {
         this.exportGraphButton = document.getElementById("export-graph-button");
         this.exportAllButton = document.getElementById("export-all-button");
 
+        this.preprocessPageButton = document.getElementById("preprocess-page-button");
+        this.preprocessTutorialButton = document.getElementById("preprocess-tutorial-button");
+
         this.buttons = [
             this.labelButton,
             this.statisticButton,
             this.settingButton,
+            this.preprocessPageButton,
+            this.preprocessTutorialButton,
         ];
 
         return this;
@@ -66,6 +71,16 @@ class TopNavigationBar {
         });
         this.backToMainPageButton.addEventListener("click", () => {
             core.setProjectLoaded(false);
+        });
+        this.preprocessPageButton.addEventListener("click", () => {
+            core.showPage("preprocess-page");
+            this.clearActiveState();
+            this.preprocessPageButton.classList.add("active");
+        });
+        this.preprocessTutorialButton.addEventListener("click", () => {
+            core.showPage("preprocessTutorialPage");
+            this.clearActiveState();
+            this.preprocessTutorialButton.classList.add("active");
         });
     }
 

@@ -32,6 +32,8 @@ class PreprocessPage {
         this.continueButton = document.getElementById("continue-button");
         this.galleryItems = [];
 
+        this.topNavigationBar = new TopNavigationBar();
+
         // this.projectPathInput = document.getElementById("project-path-input");
     }
 
@@ -313,6 +315,9 @@ class PreprocessPage {
 
         this.selectedGallery.appendChild(container);
     }
+    enableTopNavButton() {
+        this.topNavigationBar.enable();
+    }
 }
 
 function main() {
@@ -323,6 +328,7 @@ function main() {
     preprocessPage.enableProcessButton();
     // preprocessPage.configPage.enable();
     preprocessPage.enableChangeInGallery();
+    preprocessPage.enableTopNavButton();
 }
 
 main();
