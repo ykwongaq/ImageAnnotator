@@ -51,6 +51,7 @@ from server.util.general import (
 )
 from server.util.json import gen_image_json, gen_mask_json, save_json
 
+
 class PreprocessServer:
     DEFAULT_CONFIG = {
         "output_dir": ".",
@@ -67,7 +68,6 @@ class PreprocessServer:
 
         # Initialize the CoralSegmentation
         coral_model_path = get_resource_path("models/vit_b_coralscop.pth")
-        # key = b'lj9Srfw65OtubiNKM9kxsdHx_6xi4I8fdXGekz-qz8g='
         self.coral_segmentation = CoralSegmentation(coral_model_path, "vit_b")
 
         self.config = PreprocessServer.DEFAULT_CONFIG
@@ -106,7 +106,6 @@ class PreprocessServer:
 
         output_folder = projectPath
         output_folder = os.path.normpath(output_folder)
-        output_folder = os.path.join(output_folder, "data")
         os.makedirs(output_folder, exist_ok=True)
 
         image = decode_image_url(image_url)
@@ -149,7 +148,7 @@ class PreprocessServer:
         project_info["project_path"] = os.path.abspath(projectPath)
         project_info["labels"] = {0: "Dead Coral"}
         # Set the first image to default filter config
-        project_info["filter_config"] = {0: self.data_filter.export_config()} 
+        project_info["filter_config"] = {0: self.data_filter.export_config()}
         self.save_json(project_info, project_file)
 
         return image, embedding, output_json, project_info
@@ -248,13 +247,9 @@ class Server:
         image, embedding, json_item, project_info = self.preprocess_server.preprocess(
             image_url, image_file, projectPath
         )
-        # image_content = remove_image_url_header(image_url)
 
         filename_wihthout_ext = os.path.splitext(image_file)[0]
         data = Data(filename_wihthout_ext, image, embedding, json_item)
-        # data = Data(filename_wihthout_ext, image_content, None, None)
-        # data.set_embedding(embedding)
-        # data.set_json_item(json_item)
 
         self.dataset.add_data(data)
         self.dataset.setProjectInfo(project_info)
@@ -268,8 +263,6 @@ def preprocess(image_url: str, image_file: str, projectPath: str):
     2. Generate the image embedding
     3. Generate coral segmentation masks
     """
-    # preprocess_server = server.get_preprocess_server()
-    # preprocess_server.preprocess(image_url, image_file)
     server.preprocess(image_url, image_file, projectPath)
 
 
@@ -325,7 +318,6 @@ def get_dataset_size():
     dataset = server.get_dataset()
     return dataset.get_size()
 
-
 @eel.expose
 def get_data(idx: int):
     """
@@ -359,7 +351,7 @@ def get_data(idx: int):
         annotation["segmentation"]["counts_number"] = mask
     copied_json_item["annotations"] = annotations
 
-    filtered_indices = data_filter.filter_annotations(json_item["annotations"])
+    filtered_indices = data_filter.filter_annotations(json_item["annotations"], data)
 
     return_item["image"] = image_content
     return_item["json_item"] = copied_json_item
@@ -516,6 +508,7 @@ def update_annotation_id(new_labels):
     dataset = server.get_dataset()
     dataset.update_annotation_id(new_labels)
 
+
 @eel.expose
 def get_all_data():
     dataset = server.get_dataset()
@@ -524,6 +517,31 @@ def get_all_data():
         data = get_data(idx)
         return_list.append(data)
     return return_list
+
+
+@eel.expose
+def export_json(output_path):
+    dataset = server.get_dataset()
+    dataset.export_json(output_path)
+
+
+@eel.expose
+def gen_iou_matrix():
+    print(f"Generating all iou matrix ...")
+    dataset = server.get_dataset()
+    idx = 0
+    for data in dataset.get_data_list():
+        print(f"Generating iou matrix for index {idx} ...")
+        data.update_iou_matrix()
+        idx += 1
+
+
+@eel.expose
+def gen_iou_matrix_by_id(idx):
+    dataset = server.get_dataset()
+    data = dataset.get_data(idx)
+    data.update_iou_matrix()
+
 
 if __name__ == "__main__":
     print("Please wait for the tool to be ready ...")

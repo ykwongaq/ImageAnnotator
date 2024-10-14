@@ -8,7 +8,7 @@ class AnnotationProcesser {
 
     process(data_url, imageFile, projectPath, callBack = null) {
         console.log("Processing", imageFile);
-        const topNav = new TopNavigationBar();
+        const topNav = new PreprocessTopNavigationBar();
         topNav.showLoadingIcon();
         eel.preprocess(
             data_url,

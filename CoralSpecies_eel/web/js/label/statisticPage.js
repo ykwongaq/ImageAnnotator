@@ -103,12 +103,11 @@ class StatisticPage {
         for (const annotation of jsonItem["annotations"]) {
             let id = annotation["category_id"];
             const name = annotation["category_name"];
+            const maskId = annotation["id"];
 
-            console.log("Checking Annotation: ", annotation);
-            if (!this.isIncluded(id, filteredIndices) || name == null) {
+            if (!this.isIncluded(maskId, filteredIndices) || name == null) {
                 continue;
             }
-            console.log("Included Annotation: ", annotation);
 
             if (LabelManager.isBleachedCoralName(name)) {
                 id = id - healthyCoralCount;
@@ -190,8 +189,9 @@ class StatisticPage {
 
         let coralPixelCount = 0;
         for (const annotation of jsonItem["annotations"]) {
-            const maskIdx = annotation["category_id"];
-            if (!this.isIncluded(maskIdx, filteredIndices) || maskIdx == null) {
+            const id = annotation["category_id"];
+            const maskId = annotation["id"];
+            if (!this.isIncluded(maskId, filteredIndices) || id == null) {
                 continue;
             }
             const area = annotation["area"];
@@ -255,8 +255,9 @@ class StatisticPage {
         for (const annotation of jsonItem["annotations"]) {
             let id = annotation["category_id"];
             const name = annotation["category_name"];
+            const maskId = annotation["id"];
 
-            if (!this.isIncluded(id, filteredIndices) || name == null) {
+            if (!this.isIncluded(maskId, filteredIndices) || name == null) {
                 continue;
             }
 
@@ -342,8 +343,9 @@ class StatisticPage {
         for (const annotation of jsonItem["annotations"]) {
             let id = annotation["category_id"];
             const name = annotation["category_name"];
+            const maskId = annotation["id"];
 
-            if (!this.isIncluded(id, filteredIndices) || name == null) {
+            if (!this.isIncluded(maskId, filteredIndices) || name == null) {
                 continue;
             }
 
@@ -439,8 +441,20 @@ class StatisticPage {
         for (const annotation of jsonItem["annotations"]) {
             let id = annotation["category_id"];
             const name = annotation["category_name"];
+            const maskId = annotation["id"];
 
-            if (!this.isIncluded(id, filteredIndices) || name == null) {
+            if (!this.isIncluded(maskId, filteredIndices) || name == null) {
+                console.log(
+                    "id: ",
+                    id,
+                    "maskId: ",
+                    maskId,
+                    "name: ",
+                    name,
+                    "filteredIndices: ",
+                    filteredIndices,
+                    " not included"
+                );
                 continue;
             }
 
@@ -523,7 +537,7 @@ class StatisticPage {
     }
 
     isIncluded(maskIdx, filteredIndices) {
-        return filteredIndices.includes(maskIdx);
+        return filteredIndices.includes(parseInt(maskIdx));
     }
 
     getId2Name(jsonItem) {

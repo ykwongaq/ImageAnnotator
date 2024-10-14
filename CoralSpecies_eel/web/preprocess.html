@@ -21,11 +21,16 @@
             <div id="icon" class="icon-container">
                 <img src="images/coralscan_icon.png" alt="icon" />
             </div>
-            <div class="icon-text">CoralSCAN</div>
-            <button onclick="navigateTo('main_page.html')">
+            <div class="icon-text">CoralSCOP-UI</div>
+            <button
+                id="back-to-main-page-button"
+                onclick="navigateTo('main_page.html')"
+            >
                 Back To Main Page
             </button>
-            <button onclick="navigateTo('label.html')">Continue</button>
+            <button id="continue-button" onclick="navigateTo('label.html')">
+                Continue
+            </button>
         </div>
         <div class="content">
             <div class="selector-view">
@@ -86,7 +91,7 @@
         <script src="js/loadingIconManager.js"></script>
         <script src="js/dropArea.js"></script>
         <script src="js/navigate.js"></script>
-        <script src="js/topNavigationBar.js"></script>
+        <script src="js/preprocess/preprocessTopNavigationBar.js"></script>
         <script src="js/preprocess/annotationProcessor.js"></script>
         <script src="js/preprocess/imageSelector.js"></script>
         <script src="js/preprocess/config.js"></script>

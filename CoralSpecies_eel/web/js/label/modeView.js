@@ -122,8 +122,6 @@ class ModeView {
                     canvas.updateMasks();
 
                     this.clearEdittedMask();
-
-                    // TODO: Update Statistic Report
                 });
             } else if (Annotator.getCurrentMode() === Annotator.DELETE_MASK) {
                 const selectedMasks = Annotator.getSelectedMasks();
@@ -134,8 +132,6 @@ class ModeView {
                 Annotator.clearSelection();
                 const canvas = new Canvas(null);
                 canvas.updateMasks();
-
-                // TODO: Update Statistic Report
             }
         });
     }

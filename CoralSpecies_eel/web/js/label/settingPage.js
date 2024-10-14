@@ -71,6 +71,8 @@ class SettingPage {
     }
 
     loadConfig(configDict) {
+        this.config.importJson(configDict);
+
         this.minAreaSlider.value = configDict.minArea * 100;
         this.minConfidenceSlider.value = configDict.minConfidence * 100;
         this.maxOverlapSlider.value = configDict.maxIOU * 100;

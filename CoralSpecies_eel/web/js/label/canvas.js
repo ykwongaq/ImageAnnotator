@@ -29,6 +29,8 @@ class Canvas {
         this.enableEditting();
         this.enableWindowResize();
 
+        this.showMask = true;
+
         // Image
         this.imageWidth = 0;
         this.imageHeight = 0;
@@ -44,7 +46,18 @@ class Canvas {
         return this;
     }
 
+    setShowMask(showMask) {
+        this.showMask = showMask;
+    }
+
+    isShowingMask() {
+        return this.showMask;
+    }
+
     getEdittingMask() {
+        if (this.edittingLabel) {
+            this.edittingMask.updateLabel(this.edittingLabel);
+        }
         return this.edittingMask;
     }
 
@@ -300,9 +313,11 @@ class Canvas {
 
             this.ctx.drawImage(this.imageCache, 0, 0);
 
-            this.ctx.globalAlpha = this.maskOpacity;
-            this.ctx.drawImage(this.maskCache, 0, 0);
-            this.ctx.globalAlpha = 1.0;
+            if (this.isShowingMask()) {
+                this.ctx.globalAlpha = this.maskOpacity;
+                this.ctx.drawImage(this.maskCache, 0, 0);
+                this.ctx.globalAlpha = 1.0;
+            }
 
             if (this.edittingMask !== null) {
                 this.ctx.globalAlpha = 0.7;

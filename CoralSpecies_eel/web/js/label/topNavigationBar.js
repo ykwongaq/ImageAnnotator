@@ -97,7 +97,15 @@ class TopNavigationBar {
 
     enableExportCOCOButton() {
         this.exportCOCOButton.addEventListener("click", () => {
-            console.error("Not implemented yet");
+            eel.select_folder()((path) => {
+                if (path) {
+                    const core = new Core();
+                    core.saveData(() => {
+                        console.log("Exporting COCO format... to", path);
+                        eel.export_json(path);
+                    });
+                }
+            });
         });
     }
 

@@ -30,6 +30,9 @@ class PreprocessPage {
         this.processedCount = 0;
 
         this.continueButton = document.getElementById("continue-button");
+        this.backMainPageButton = document.getElementById(
+            "back-to-main-page-button"
+        );
         this.galleryItems = [];
 
         // this.projectPathInput = document.getElementById("project-path-input");
@@ -158,9 +161,39 @@ class PreprocessPage {
         this.processButton.style.cursor = "pointer";
     }
 
+    disableContinueButton() {
+        this.continueButton.disabled = true;
+        this.continueButton.style.borderColor = "gray";
+        this.continueButton.style.color = "gray";
+        this.continueButton.style.cursor = "not-allowed";
+    }
+
+    reEnableContinueButton() {
+        this.continueButton.disabled = false;
+        this.continueButton.style.borderColor = "black";
+        this.continueButton.style.color = "black";
+        this.continueButton.style.cursor = "pointer";
+    }
+
+    disableBackMainPageButton() {
+        this.backMainPageButton.disabled = true;
+        this.backMainPageButton.style.borderColor = "gray";
+        this.backMainPageButton.style.color = "gray";
+        this.backMainPageButton.style.cursor = "not-allowed";
+    }
+
+    reEnableBackMainPageButton() {
+        this.backMainPageButton.disabled = false;
+        this.backMainPageButton.style.borderColor = "black";
+        this.backMainPageButton.style.color = "black";
+        this.backMainPageButton.style.cursor = "pointer";
+    }
+
     enableProcessButton() {
         this.processButton.addEventListener("click", () => {
             this.disableProcessButton();
+            this.disableContinueButton();
+            this.disableBackMainPageButton();
 
             const selectedImages = this.imageSelector.getSelectedImages();
             // Sort the selected images by filename
@@ -215,6 +248,8 @@ class PreprocessPage {
                                         selectedImages.length
                                     ) {
                                         this.reEnableProcessButton();
+                                        this.reEnableContinueButton();
+                                        this.reEnableBackMainPageButton();
                                     }
                                 }
                             );
@@ -227,6 +262,8 @@ class PreprocessPage {
                                 error_message
                         );
                         this.reEnableProcessButton();
+                        this.reEnableContinueButton();
+                        this.reEnableBackMainPageButton();
                         return;
                     }
                 });
