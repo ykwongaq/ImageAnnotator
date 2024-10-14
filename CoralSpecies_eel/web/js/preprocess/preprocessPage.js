@@ -250,6 +250,9 @@ class PreprocessPage {
                                         this.reEnableProcessButton();
                                         this.reEnableContinueButton();
                                         this.reEnableBackMainPageButton();
+                                        const topNav =
+                                            new PreprocessTopNavigationBar();
+                                        topNav.restoreIcon();
                                     }
                                 }
                             );

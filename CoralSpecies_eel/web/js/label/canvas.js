@@ -272,7 +272,11 @@ class Canvas {
                 maskCtx.font = `${fontSize}px Arial`;
                 // maskCtx.fillStyle = `rgba(255, 0, 0, ${this.maskOpacity})`;
                 maskCtx.fillStyle = "red";
-                maskCtx.fillText(label_id, middle_pixel[0], middle_pixel[1]);
+                maskCtx.fillText(
+                    LabelManager.getCategoryDisplayId(label_id),
+                    middle_pixel[0],
+                    middle_pixel[1]
+                );
             }
         }
         this.maskCache = new Image();

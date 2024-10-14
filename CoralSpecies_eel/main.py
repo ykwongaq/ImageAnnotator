@@ -39,11 +39,11 @@ from tkinter import Tk, filedialog
 import eel
 import numpy as np
 from PIL import Image
-from server.dataset import Data, DataFilter, Dataset
+from server.dataset import Data, DataFilter, Dataset, calculate_iou_matrix
 from server.embedding import EmbeddingGenerator
 from server.maskEiditor import MaskEidtor
 from server.segmentation import CoralSegmentation
-from server.util.coco import coco_mask_to_rle, encode_to_coco_mask
+from server.util.coco import coco_mask_to_rle, encode_to_coco_mask, decode_coco_mask
 from server.util.general import (
     decode_image_url,
     get_resource_path,
@@ -140,6 +140,15 @@ class PreprocessServer:
         output_json = {}
         output_json["image"] = image_json
         output_json["annotations"] = annotations
+
+        # Initialize the iou matrix
+        masks = []
+        for annotation in annotations:
+            mask = decode_coco_mask(annotation["segmentation"])
+            masks.append(mask)
+        iou_matrix = calculate_iou_matrix(masks)
+        output_json["iou_matrix"] = iou_matrix.tolist()
+        
         self.save_json(output_json, annotation_output_file)
 
         # Geenrate project file
@@ -149,6 +158,8 @@ class PreprocessServer:
         project_info["labels"] = {0: "Dead Coral"}
         # Set the first image to default filter config
         project_info["filter_config"] = {0: self.data_filter.export_config()}
+ 
+        
         self.save_json(project_info, project_file)
 
         return image, embedding, output_json, project_info
@@ -254,9 +265,8 @@ class Server:
         self.dataset.add_data(data)
         self.dataset.setProjectInfo(project_info)
 
-
 @eel.expose
-def preprocess(image_url: str, image_file: str, projectPath: str):
+def preprocess(image_url: str, image_file: str, projectPath: str): 
     """
     Preprocess the data:
     1. Save the image to the image folder

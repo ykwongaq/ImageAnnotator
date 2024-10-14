@@ -47,10 +47,8 @@ class Core {
                 const maskIdx = mask.getMaskId();
                 if (filteredIndics.includes(maskIdx)) {
                     mask.setShouldDisplay(true);
-                    console.log("Display mask: ", maskIdx);
                 } else {
                     mask.setShouldDisplay(false);
-                    console.log("Hide mask: ", maskIdx);
                 }
                 // maskIdx++;
             }
@@ -168,12 +166,19 @@ class Core {
             const page = document.getElementById(pageId);
             page.classList.add("active-page");
 
+            const bottomBar = new BottomNavigationBar();
             if (pageId === "annotationPage") {
                 const canvas = new Canvas();
                 canvas.resetViewpoint();
+                bottomBar.reEnable();
             } else if (pageId === "statisticPage") {
                 const statisticPage = new StatisticPage();
                 statisticPage.update();
+                bottomBar.disable();
+            } else if (pageId === "settingPage") {
+                const settingPage = new SettingPage();
+                settingPage.displayConfig();
+                bottomBar.disable();
             }
         } else {
             this.defaultPage.classList.add("active-page");

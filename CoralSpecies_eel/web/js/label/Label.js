@@ -329,6 +329,13 @@ class LabelManager {
         });
     }
 
+    static getCategoryDisplayId(categoryId) {
+        if (LabelManager.isBleachCoral(categoryId)) {
+            return `${LabelManager.getHealthyLabelIdOf(categoryId)}B`;
+        }
+        return `${categoryId}`;
+    }
+
     static removeLabel_(labelId) {
         const oldLabelsCopy = { ...LabelManager.labels };
         const newLabels = {};

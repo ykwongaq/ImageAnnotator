@@ -72,6 +72,11 @@ class SettingPage {
 
     loadConfig(configDict) {
         this.config.importJson(configDict);
+        this.displayConfig();
+    }
+
+    displayConfig() {
+        const configDict = this.config.exportJson();
 
         this.minAreaSlider.value = configDict.minArea * 100;
         this.minConfidenceSlider.value = configDict.minConfidence * 100;

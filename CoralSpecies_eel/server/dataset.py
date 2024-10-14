@@ -14,11 +14,31 @@ from .util.coco import decode_coco_mask
 from .util.general import time_it
 from .util.json import load_json, save_json
 
+
+def calculate_iou_matrix(masks):
+    n = len(masks)
+    masks = np.array(masks)  # Convert list to a NumPy array
+    iou_mat = np.zeros((n, n))
+
+    # Calculate intersection and union
+    intersection = np.zeros((n, n))
+    union = np.zeros((n, n))
+
+    for i in range(n):
+        intersection[i] = np.sum(masks[i] & masks, axis=(1, 2))
+        union[i] = np.sum(masks[i] | masks, axis=(1, 2))
+
+    # Avoid division by zero
+    union[union == 0] = 1e-10  # Small epsilon to prevent division by zero
+
+    iou_mat = intersection / union
+    return iou_mat
+
 class DataFilter:
     _instance = None
 
     default_area_limit = 0.001
-    default_iou_limit = 0.3
+    default_iou_limit = 0.1
     default_predict_iou_limit = 0.5
 
     def __new__(cls, *args, **kwargs):
@@ -99,21 +119,22 @@ class DataFilter:
         return filtered_index
 
     def filter_masks_by_iou(
-        self, iou_matrix: np.ndarray, threshold: float
+        self, iou_matrix: np.ndarray, threshold: float, areas: List[int]
     ) -> List[int]:
 
         n = iou_matrix.shape[0]
-        # Initialize a list to collect indices of masks to keep
-        filtered_indices = []
+        filtered_indices = set()
 
-        # Keep track of which masks are already included
+        # Create a list of all indices sorted by area in descending order
+        sorted_indices = sorted(range(n), key=lambda idx: areas[idx], reverse=True)
+
         keep_mask = np.zeros(n, dtype=bool)
 
-        for i in range(n):
-            if not keep_mask[i]:  # If this mask has not been kept
-                filtered_indices.append(i)
+        for idx in sorted_indices:
+            if not keep_mask[idx]:
+                filtered_indices.add(idx)
                 # Mark all masks with IoU > threshold as kept
-                keep_mask[iou_matrix[i] > threshold] = True
+                keep_mask[iou_matrix[idx] > threshold] = True
 
         return filtered_indices
 
@@ -132,7 +153,9 @@ class DataFilter:
             data.update_iou_matrix()
             iou_matrix = data.get_iou_matrix()
 
-        filtered_indices = self.filter_masks_by_iou(iou_matrix, iou_limit)
+        areas = [annotation["area"] for annotation in annotations]
+
+        filtered_indices = self.filter_masks_by_iou(iou_matrix, iou_limit, areas)
 
         keep = set()
         for filtered_index in filtered_indices:
@@ -162,7 +185,7 @@ class DataFilter:
 
     @time_it
     def filter_annotations(
-        self, annotations: List[Dict], data: Type["Data"]
+        self, annotations: List[Dict], data: Type["Data"] = None
     ) -> List[Dict]:
         filtered_indices_by_area = self.filter_by_area(annotations, self.area_limit)
         filtered_indices_by_iou = self.filtered_by_predicted_iou(
@@ -199,33 +222,15 @@ class Data:
         self.json_item = json_item
         self.filename = filename
 
-        self.iou_matrix = None
-
-    def calculate_iou_matrix(self, masks):
-        n = len(masks)
-        masks = np.array(masks)  # Convert list to a NumPy array
-        iou_mat = np.zeros((n, n))
-
-        # Calculate intersection and union
-        intersection = np.zeros((n, n))
-        union = np.zeros((n, n))
-
-        for i in range(n):
-            intersection[i] = np.sum(masks[i] & masks, axis=(1, 2))
-            union[i] = np.sum(masks[i] | masks, axis=(1, 2))
-
-        # Avoid division by zero
-        union[union == 0] = 1e-10  # Small epsilon to prevent division by zero
-
-        iou_mat = intersection / union
-        return iou_mat
+        self.iou_matrix = np.array(json_item["iou_matrix"], dtype=np.float32)
 
     def update_iou_matrix(self):
+    
         masks = []
         for annotation in self.json_item["annotations"]:
             mask = decode_coco_mask(annotation["segmentation"])
             masks.append(mask)
-        self.iou_matrix = self.calculate_iou_matrix(masks)
+        self.iou_matrix = calculate_iou_matrix(masks)
 
     def get_iou_matrix(self):
         return self.iou_matrix
@@ -244,6 +249,8 @@ class Data:
 
     def set_json_item(self, json_item: Dict):
         self.json_item = json_item
+        self.update_iou_matrix()
+        self.json_item["iou_matrix"] = self.iou_matrix.tolist()
 
     def have_mask_belong_to_category(self, category_id):
         for annotation in self.json_item["annotations"]:
@@ -598,7 +605,7 @@ class Dataset:
         output_annotation_folder = os.path.join(project_path, self.annotation_folder)
         filename = data.get_filename()
         output_path = os.path.join(output_annotation_folder, f"{filename}.json")
-        save_json(annotation, output_path)
+        save_json(data.get_json_item(), output_path)
 
         # Save project info
         self.logger.info(f"Saving labels: {labels_list}")

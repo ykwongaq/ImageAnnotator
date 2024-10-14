@@ -15,7 +15,6 @@ class AnnotationProcesser {
             imageFile,
             projectPath
         )((result) => {
-            topNav.restoreIcon();
             if (callBack) {
                 callBack(result);
             }
