@@ -1,81 +1,62 @@
-from typing import List
-import numpy as np
+import json
+from openpyxl import Workbook
 
-def filter_masks_by_iou_and_area(
-    iou_matrix: np.ndarray, threshold: float, areas: List[float]
-) -> set:
-    n = iou_matrix.shape[0]
-    filtered_indices = set()
+def insert_data_to_excel(coco_data, file_path):
+    # Create a new workbook and select the active worksheet
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "COCO Data"
 
-    # Create a list of all indices sorted by area in descending order
-    sorted_indices = sorted(range(n), key=lambda idx: areas[idx], reverse=True)
+    # Set specific values in A1 and A2
+    ws['A1'] = "Image Name"
+    ws['A2'] = "Image Pixel"
 
-    keep_mask = np.zeros(n, dtype=bool)
+    # Example coral data
+    coral_data = [
+        ["Coral", "No. of Pixels", "No. of Healthy Pixel", "No. of Bleached Pixel",
+         "Coral Coverage", "Healthy Coverage", "Bleached Coverage",
+         "Healthy Distribution", "Bleached Distribution", "No. of Colony"],
+        ["Coral 1", 3, 4, 5, 6, 788, 9, 0, 2, 3],
+        ["Coral 2", 3, 4, 5, 6, 788, 9, 0, 2, 3]
+    ]
 
-    for idx in sorted_indices:
-        if not keep_mask[idx]:
-            filtered_indices.add(idx)
-            # Mark all masks with IoU > threshold as kept
-            keep_mask[iou_matrix[idx] > threshold] = True
+    # Insert coral data
+    for row in coral_data:
+        ws.append(row)
 
-    return filtered_indices
+    # Insert a blank row for separation
+    ws.append([])
 
-# Test cases
-def test_filter_masks_by_iou_and_area():
-    # Test case 1: Simple case with no overlaps
-    iou_matrix1 = np.array([
-        [1.0, 0.2, 0.1],
-        [0.2, 1.0, 0.3],
-        [0.1, 0.3, 1.0]
-    ])
-    areas1 = [10, 20, 30]
-    threshold1 = 0.5
-    result1 = filter_masks_by_iou_and_area(iou_matrix1, threshold1, areas1)
-    assert result1 == {0, 1, 2}, f"Test case 1 failed: {result1}"
+    # Insert category information from COCO data
+    category_headers = ["Category ID", "Name"]
+    ws.append(category_headers)
+    for category in coco_data.get('categories', []):
+        row = [category.get('id', ""), category.get('name', "")]
+        ws.append(row)
 
-    # Test case 2: One overlap, choose larger area
-    iou_matrix2 = np.array([
-        [1.0, 0.6],
-        [0.6, 1.0]
-    ])
-    areas2 = [10, 20]
-    threshold2 = 0.5
-    result2 = filter_masks_by_iou_and_area(iou_matrix2, threshold2, areas2)
-    assert result2 == {1}, f"Test case 2 failed: {result2}"
+    # Save the workbook to the specified location
+    wb.save(file_path)
 
-    # Test case 3: Multiple overlaps with different areas
-    iou_matrix3 = np.array([
-        [1.0, 0.6, 0.2],
-        [0.6, 1.0, 0.7],
-        [0.2, 0.7, 1.0]
-    ])
-    areas3 = [15, 25, 35]
-    threshold3 = 0.5
-    result3 = filter_masks_by_iou_and_area(iou_matrix3, threshold3, areas3)
-    assert result3 == {2, 0}, f"Test case 3 failed: {result3}"
+# Load COCO JSON data
+coco_json = """
+{
+    "images": [
+        {"id": 1, "file_name": "image1.jpg", "width": 640, "height": 480},
+        {"id": 2, "file_name": "image2.jpg", "width": 800, "height": 600}
+    ],
+    "annotations": [
+        {"id": 1, "image_id": 1, "category_id": 1, "bbox": [100, 100, 200, 200]},
+        {"id": 2, "image_id": 2, "category_id": 2, "bbox": [150, 150, 250, 250]}
+    ],
+    "categories": [
+        {"id": 1, "name": "cat"},
+        {"id": 2, "name": "dog"}
+    ]
+}
+"""
 
-    # Test case 4: No overlaps
-    iou_matrix4 = np.array([
-        [1.0, 0.2, 0.1],
-        [0.2, 1.0, 0.1],
-        [0.1, 0.1, 1.0]
-    ])
-    areas4 = [5, 15, 25]
-    threshold4 = 0.5
-    result4 = filter_masks_by_iou_and_area(iou_matrix4, threshold4, areas4)
-    assert result4 == {0, 1, 2}, f"Test case 4 failed: {result4}"
+# Parse JSON data
+coco_data = json.loads(coco_json)
 
-    # Test case 5: All masks overlap, choose the one with the largest area
-    iou_matrix5 = np.array([
-        [1.0, 0.9, 0.8],
-        [0.9, 1.0, 0.7],
-        [0.8, 0.7, 1.0]
-    ])
-    areas5 = [50, 60, 70]
-    threshold5 = 0.5
-    result5 = filter_masks_by_iou_and_area(iou_matrix5, threshold5, areas5)
-    assert result5 == {2}, f"Test case 5 failed: {result5}"
-
-    print("All test cases passed!")
-
-test_filter_masks_by_iou_and_area()
+# Call the function with the parsed JSON and file path
+insert_data_to_excel(coco_data, "coco_data.xlsx")

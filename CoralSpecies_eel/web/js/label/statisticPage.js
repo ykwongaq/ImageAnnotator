@@ -308,7 +308,7 @@ class StatisticPage {
 
         const chart = new google.visualization.PieChart(chartContainer);
         const options = {
-            title: `Coral Species Coverage`,
+            title: `Coral Species Distribution`,
             pieHole: 0.4,
             legend: { position: "right" },
             chartArea: {
@@ -327,7 +327,7 @@ class StatisticPage {
 
         downloadButton.addEventListener("click", () => {
             const filename = response["filename"];
-            this.download(chart, `coral_species_coverage_${filename}`);
+            this.download(chart, `coral_species_distribution_${filename}`);
         });
 
         return chartItem;

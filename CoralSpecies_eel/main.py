@@ -50,6 +50,7 @@ from server.util.general import (
     remove_image_url_header,
 )
 from server.util.json import gen_image_json, gen_mask_json, save_json
+from server.statistic import StatisticGraph
 
 
 class PreprocessServer:
@@ -361,7 +362,7 @@ def get_data(idx: int):
         annotation["segmentation"]["counts_number"] = mask
     copied_json_item["annotations"] = annotations
 
-    filtered_indices = data_filter.filter_annotations(json_item["annotations"], data)
+    filtered_indices = data_filter.filter_annotations(data)
 
     return_item["image"] = image_content
     return_item["json_item"] = copied_json_item
@@ -551,6 +552,53 @@ def gen_iou_matrix_by_id(idx):
     dataset = server.get_dataset()
     data = dataset.get_data(idx)
     data.update_iou_matrix()
+
+@eel.expose
+def export_graph(path, label_colors):
+    dataset = server.get_dataset()
+
+    output_folder = os.path.join(path, "statistics")
+    os.makedirs(output_folder, exist_ok=True)
+
+    for data in dataset.get_data_list():
+        coco_json = dataset.process_json_to_coco_json(data)
+        if coco_json is None:
+            continue
+        statistic_graph = StatisticGraph(coco_json, label_colors)
+        filename = data.get_filename()
+        data_output_folder = os.path.join(output_folder, filename)
+        os.makedirs(data_output_folder, exist_ok=True)
+
+        output_path = os.path.join(data_output_folder, "coral_colony_distribution.png")
+        statistic_graph.plot_coral_colony_distribution(output_path)
+
+        output_path = os.path.join(data_output_folder, "coral_coverage.png")
+        statistic_graph.plot_coral_coverage(output_path)
+
+        output_path = os.path.join(data_output_folder, "coral_species_distribution.png")
+        statistic_graph.plot_coral_species_distribution(output_path)
+
+        output_path = os.path.join(data_output_folder, "coral_condition_distribution.png")
+        statistic_graph.plot_coral_condition_distribution(output_path)
+
+        statistic_graph.plot_coral_all_species_condition_distribution(data_output_folder)
+
+@eel.expose
+def export_excel(path):
+    dataset = server.get_dataset()
+
+    output_folder = os.path.join(path, "excel")
+    os.makedirs(output_folder, exist_ok=True)
+
+    for data in dataset.get_data_list():
+        coco_json = dataset.process_json_to_coco_json(data)
+        if coco_json is None:
+            continue
+        
+        statistic_graph = StatisticGraph(coco_json, None)
+        output_path = os.path.join(output_folder, f"{data.get_filename()}.xlsx")
+        statistic_graph.export_excel(output_path)
+            
 
 
 if __name__ == "__main__":

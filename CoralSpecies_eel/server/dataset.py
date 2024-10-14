@@ -185,8 +185,9 @@ class DataFilter:
 
     @time_it
     def filter_annotations(
-        self, annotations: List[Dict], data: Type["Data"] = None
+        self, data: Type["Data"]
     ) -> List[Dict]:
+        annotations = data.get_json_item()["annotations"]
         filtered_indices_by_area = self.filter_by_area(annotations, self.area_limit)
         filtered_indices_by_iou = self.filtered_by_predicted_iou(
             annotations, self.predict_iou_limit
@@ -224,8 +225,8 @@ class Data:
 
         self.iou_matrix = np.array(json_item["iou_matrix"], dtype=np.float32)
 
+    @time_it
     def update_iou_matrix(self):
-    
         masks = []
         for annotation in self.json_item["annotations"]:
             mask = decode_coco_mask(annotation["segmentation"])
@@ -241,7 +242,7 @@ class Data:
     def get_embedding(self):
         return self.embedding
 
-    def get_json_item(self):
+    def get_json_item(self) -> Dict:
         return self.json_item
 
     def get_filename(self):
@@ -501,7 +502,7 @@ class Dataset:
         self.current_data_idx = idx
         return self.data_list[idx]
 
-    def get_data_list(self):
+    def get_data_list(self) -> List[Type["Data"]]:
         return self.data_list
 
     def is_in_embedding_folder(self, file_path):
@@ -546,11 +547,19 @@ class Dataset:
         self.project_info.update(new_info)
         self.logger.info(f"Updated project info: {self.project_info}")
 
-    def process_json_to_coco_json(self, json_item):
+    def process_json_to_coco_json(self, data:Data) -> Dict:
         category_dict = {}
+
+        data_filter = DataFilter()
+        json_item = data.get_json_item()
+        filtered_index = data_filter.filter_annotations(data)
         for annotation in json_item["annotations"]:
             if "category_id" not in annotation:
                 continue
+
+            if annotation["id"] not in filtered_index:
+                continue
+
             category_id = annotation["category_id"]
             category_name = annotation["category_name"]
             if category_id is not None and category_name is not None:
@@ -562,6 +571,10 @@ class Dataset:
         output_annotations = []
         for annotation in json_item["annotations"]:
             category_id = annotation["category_id"]
+
+            if annotation["id"] not in filtered_index:
+                continue
+
             if category_id is not None:
                 annotation_copy = copy.deepcopy(annotation)
                 del annotation_copy["category_name"]
@@ -632,8 +645,8 @@ class Dataset:
         self.logger.info(f"Exporting jsons to {json_folder} ...")
 
         coco_json_list = []
-        for data in self.data_list:
-            coco_json = self.process_json_to_coco_json(data.get_json_item())
+        for data in self.get_data_list():
+            coco_json = self.process_json_to_coco_json(data)
 
             if coco_json is None:
                 continue
