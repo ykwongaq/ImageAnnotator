@@ -525,11 +525,22 @@ def get_all_data():
         return_list.append(data)
     return return_list
 
+import sys
+def get_resource_path(relative_path):
+    """ Get the absolute path to a resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temporary folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
 @eel.expose
 def get_tutorial(markdown_path):
-    print("===load label tutorial===")
-    
-    with open(markdown_path) as f:
+    print("===load tutorial file===")
+    file_path = get_resource_path(markdown_path)
+    with open(file_path) as f:
         data = f.read()
     return data
 

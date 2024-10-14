@@ -32,7 +32,11 @@ class PreprocessPage {
         this.continueButton = document.getElementById("continue-button");
         this.galleryItems = [];
 
-        this.topNavigationBar = new TopNavigationBar();
+        this.preprocessPageButton = document.getElementById("preprocess-page-button");
+        this.preprocessTutorialButton = document.getElementById("preprocess-tutorial-button");
+
+        this.preprocessContent = document.getElementById("preprocessContent");
+        this.preprocessTutorial = document.getElementById("preprocessTutorialPage");
 
         // this.projectPathInput = document.getElementById("project-path-input");
     }
@@ -316,7 +320,22 @@ class PreprocessPage {
         this.selectedGallery.appendChild(container);
     }
     enableTopNavButton() {
-        this.topNavigationBar.enable();
+        this.preprocessPageButton.addEventListener("click", () => {
+            // show button
+            this.preprocessTutorialButton.classList.remove("active");
+            this.preprocessPageButton.classList.add("active");
+            // show page
+            this.preprocessTutorial.classList.remove("active-page");
+            this.preprocessContent.classList.add("active-page");
+        });
+        this.preprocessTutorialButton.addEventListener("click", () => {
+            // show button
+            this.preprocessPageButton.classList.remove("active");
+            this.preprocessTutorialButton.classList.add("active");
+            // show page
+            this.preprocessContent.classList.remove("active-page");
+            this.preprocessTutorial.classList.add("active-page");
+        });
     }
 }
 

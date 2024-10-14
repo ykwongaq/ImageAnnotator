@@ -25,7 +25,6 @@ class preprocessTutorialPage {
 
         });
     }
-
 }
 
 function main() {

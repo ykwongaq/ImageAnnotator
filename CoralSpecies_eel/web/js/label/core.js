@@ -157,7 +157,7 @@ class Core {
             page.classList.remove("active-page");
         });
 
-        if (this.isProjectLoaded()) {
+        if (this.isProjectLoaded() || pageId == "labelTutorialPage") {
             const page = document.getElementById(pageId);
             page.classList.add("active-page");
 
