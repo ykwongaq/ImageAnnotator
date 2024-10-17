@@ -59,12 +59,9 @@ class LabelManager {
 
         let id_ = id;
         if (LabelManager.isBleachCoral(id_)) {
-            console.log(`Bleached coral id: ${id_}`);
             id_ = LabelManager.getHealthyLabelIdOf(id_);
-            console.log(`Changed coral id: ${id_}`);
         }
         const colorNumber = id_ % this.colorList.length;
-        console.log("Id: ", id_, "Color: ", this.colorList[colorNumber]);
         return this.colorList[colorNumber];
     }
 
@@ -204,14 +201,14 @@ class LabelManager {
                 newLabelId++;
             }
         }
-        newLables[newLabelId++] = newLabelName;
+        newLables[newLabelId] = newLabelName;
 
         LabelManager.healthyCoralIdxes = new Set();
-        for (let i = 1; i < newLabelId; i++) {
+        for (let i = 1; i <= newLabelId; i++) {
             LabelManager.healthyCoralIdxes.add(i);
         }
 
-        const healthyCoralLength = newLabelId - 1;
+        const healthyCoralLength = newLabelId;
 
         LabelManager.bleachCoralIdxees = new Set();
         for (let i = 1; i <= healthyCoralLength; i++) {
@@ -272,6 +269,11 @@ class LabelManager {
             return false;
         }
 
+        if (labelId_2 === 0) {
+            alert("Cannot remove Dead Coral label");
+            return false;
+        }
+
         // Check if the labelId exists in current image
         const dataset = new Dataset();
         const data = dataset.getCurrentData();
@@ -325,6 +327,13 @@ class LabelManager {
                 });
             }
         });
+    }
+
+    static getCategoryDisplayId(categoryId) {
+        if (LabelManager.isBleachCoral(categoryId)) {
+            return `${LabelManager.getHealthyLabelIdOf(categoryId)}B`;
+        }
+        return `${categoryId}`;
     }
 
     static removeLabel_(labelId) {

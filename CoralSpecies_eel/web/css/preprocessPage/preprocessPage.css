@@ -42,12 +42,3 @@ body {
     max-height: 5%;
 }
 
-.page {
-    display: none;
-    height: 100%;
-    max-height: 100%;
-}
-
-.active-page {
-    display: block;
-}

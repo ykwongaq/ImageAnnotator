@@ -24,6 +24,15 @@ class Mask {
         this.shouldDisplay = true;
     }
 
+    setMaskId(maskId) {
+        this.maskId = parseInt(maskId);
+        this.annotation["id"] = this.maskId;
+    }
+
+    setImageId(imageId) {
+        this.annotation["image_id"] = imageId;
+    }
+
     setConfidence(confidence) {
         this.annotation["predicted_iou"] = confidence;
     }
@@ -81,6 +90,11 @@ class Mask {
 
     getCategoryId() {
         return this.categoryId;
+    }
+
+    updateLabel(label) {
+        this.categoryId = label.getLabelId();
+        this.categoryName = label.getLabelName();
     }
 
     getCategoryName() {
@@ -191,9 +205,12 @@ class Data {
     }
 
     addMask(mask) {
-        mask["id"] = this.masks.length;
-        mask["image_id"] = this.imageId;
-
+        let maxId = 0;
+        for (const m of this.masks) {
+            maxId = Math.max(maxId, m.getMaskId());
+        }
+        mask.setMaskId(maxId + 1);
+        mask.setImageId(this.imageId);
         this.masks.push(mask);
     }
 
@@ -243,7 +260,7 @@ class Data {
     findKeyByValue(dict, value) {
         for (const [key, val] of Object.entries(dict)) {
             if (val === value) {
-                return key;
+                return parseInt(key);
             }
         }
         return null;
@@ -251,15 +268,10 @@ class Data {
 
     updateAnnotationId(newLabels) {
         for (const mask of this.masks) {
+            let oldId = mask.getCategoryId();
             const newId = this.findKeyByValue(
                 newLabels,
                 mask.getCategoryName()
-            );
-            console.log(
-                "original id: ",
-                mask.getCategoryId(),
-                " to new id: ",
-                newId
             );
             mask.setCategoryId(newId);
             mask.setColorById();

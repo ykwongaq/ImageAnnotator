@@ -141,20 +141,22 @@ class LabelView {
 
             // Set the label button properties
             const color = LabelManager.getColorById(labelId);
-            labelText.innerHTML = `${labelId}. ${labelName}`;
+            labelText.innerHTML = `${LabelManager.getCategoryDisplayId(
+                labelId
+            )}. ${labelName}`;
             colorBox.style.backgroundColor = color;
             const borderColor = LabelManager.getBorderColorById(labelId);
             colorBox.style.borderColor = borderColor;
 
             // Add listeners to the label button
             colorBox.addEventListener("click", () =>
-                this.labelButtonLeftClicked(labelId, labelName, labelButton)
+                this.labelButtonLeftClicked(labelId, labelName, labelText)
             );
             labelText.addEventListener("click", () =>
-                this.labelButtonLeftClicked(labelId, labelName, labelButton)
+                this.labelButtonLeftClicked(labelId, labelName, labelText)
             );
             labelButton.addEventListener("click", () =>
-                this.labelButtonLeftClicked(labelId, labelName, labelButton)
+                this.labelButtonLeftClicked(labelId, labelName, labelText)
             );
             colorBox.addEventListener("contextmenu", (event) => {
                 this.labelButtonRightClicked(event, labelId);
@@ -208,8 +210,6 @@ class LabelView {
             mask.setCategoryName(labelName);
         }
         Annotator.clearSelection();
-
-        // TODO: Update statistic report
     }
 
     setEdittingLabel(labelId, labelName, button) {

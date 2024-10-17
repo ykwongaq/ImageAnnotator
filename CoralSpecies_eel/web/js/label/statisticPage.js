@@ -18,17 +18,6 @@ class StatisticPage {
                 this.createCurrentImageStatistic(response);
                 topNavigationBar.restoreIcon();
             });
-            // dataset.getAllData((dataList) => {
-            //     console.log("Data List: ", dataList);
-            //     this.createCurrentImageStatistic(
-            //         dataList[dataset.getCurrentDataIdx()]
-            //     );
-            //     topNavigationBar.restoreIcon();
-            //     const end = new Date().getTime();
-            //     console.log(
-            //         `Statistic Page Update Time: ${end - start} milliseconds`
-            //     );
-            // });
         });
     }
 
@@ -45,19 +34,29 @@ class StatisticPage {
     createCurrentImageStatistic(response) {
         const coralDistributionChartItem =
             this.createCoralColonyDistributionChartItem(response);
-        this.currentImageGrid.appendChild(coralDistributionChartItem);
+        if (coralDistributionChartItem != null) {
+            this.currentImageGrid.appendChild(coralDistributionChartItem);
+        }
 
         const coralCoverageChartItem =
             this.createCoralCoverageChartItem(response);
-        this.currentImageGrid.appendChild(coralCoverageChartItem);
+        if (coralCoverageChartItem != null) {
+            this.currentImageGrid.appendChild(coralCoverageChartItem);
+        }
 
         const coralSpeciesCoverageChartItem =
             this.createCoralSpeciesCoverageChartItem(response);
-        this.currentImageGrid.appendChild(coralSpeciesCoverageChartItem);
+        if (coralSpeciesCoverageChartItem != null) {
+            this.currentImageGrid.appendChild(coralSpeciesCoverageChartItem);
+        }
 
         const coralConditionDistributionChartItem =
             this.createCoralConditionDistributionChartItem(response);
-        this.currentImageGrid.appendChild(coralConditionDistributionChartItem);
+        if (coralConditionDistributionChartItem != null) {
+            this.currentImageGrid.appendChild(
+                coralConditionDistributionChartItem
+            );
+        }
 
         const jsonItem = response["json_item"];
         for (const category of jsonItem["categories"]) {
@@ -103,12 +102,11 @@ class StatisticPage {
         for (const annotation of jsonItem["annotations"]) {
             let id = annotation["category_id"];
             const name = annotation["category_name"];
+            const maskId = annotation["id"];
 
-            console.log("Checking Annotation: ", annotation);
-            if (!this.isIncluded(id, filteredIndices) || name == null) {
+            if (!this.isIncluded(maskId, filteredIndices) || name == null) {
                 continue;
             }
-            console.log("Included Annotation: ", annotation);
 
             if (LabelManager.isBleachedCoralName(name)) {
                 id = id - healthyCoralCount;
@@ -120,6 +118,10 @@ class StatisticPage {
 
             coralColonyDict[id] += 1;
             totalCoralColonyCount += 1;
+        }
+
+        if (totalCoralColonyCount == 0) {
+            return null;
         }
 
         var dataTable = [];
@@ -190,12 +192,17 @@ class StatisticPage {
 
         let coralPixelCount = 0;
         for (const annotation of jsonItem["annotations"]) {
-            const maskIdx = annotation["category_id"];
-            if (!this.isIncluded(maskIdx, filteredIndices) || maskIdx == null) {
+            const id = annotation["category_id"];
+            const maskId = annotation["id"];
+            if (!this.isIncluded(maskId, filteredIndices) || id == null) {
                 continue;
             }
             const area = annotation["area"];
             coralPixelCount += area;
+        }
+
+        if (coralPixelCount == 0) {
+            return null;
         }
 
         const nonCoralPixelCount = totalPixelCount - coralPixelCount;
@@ -255,8 +262,9 @@ class StatisticPage {
         for (const annotation of jsonItem["annotations"]) {
             let id = annotation["category_id"];
             const name = annotation["category_name"];
+            const maskId = annotation["id"];
 
-            if (!this.isIncluded(id, filteredIndices) || name == null) {
+            if (!this.isIncluded(maskId, filteredIndices) || name == null) {
                 continue;
             }
 
@@ -270,6 +278,10 @@ class StatisticPage {
 
             coralAreaDict[id] += annotation["area"];
             totalCoralArea += annotation["area"];
+        }
+
+        if (totalCoralArea == 0) {
+            return null;
         }
 
         var dataTable = [];
@@ -296,7 +308,7 @@ class StatisticPage {
 
         const chart = new google.visualization.PieChart(chartContainer);
         const options = {
-            title: `Coral Species Coverage`,
+            title: `Coral Species Distribution`,
             pieHole: 0.4,
             legend: { position: "right" },
             chartArea: {
@@ -315,7 +327,7 @@ class StatisticPage {
 
         downloadButton.addEventListener("click", () => {
             const filename = response["filename"];
-            this.download(chart, `coral_species_coverage_${filename}`);
+            this.download(chart, `coral_species_distribution_${filename}`);
         });
 
         return chartItem;
@@ -342,8 +354,9 @@ class StatisticPage {
         for (const annotation of jsonItem["annotations"]) {
             let id = annotation["category_id"];
             const name = annotation["category_name"];
+            const maskId = annotation["id"];
 
-            if (!this.isIncluded(id, filteredIndices) || name == null) {
+            if (!this.isIncluded(maskId, filteredIndices) || name == null) {
                 continue;
             }
 
@@ -366,7 +379,9 @@ class StatisticPage {
             totalCoralArea += annotation["area"];
         }
 
-        console.log("Coral Area Dict: ", coralAreaDict);
+        if (totalCoralArea == 0) {
+            return null;
+        }
 
         var dataTable = [];
         var colors = [];
@@ -439,8 +454,9 @@ class StatisticPage {
         for (const annotation of jsonItem["annotations"]) {
             let id = annotation["category_id"];
             const name = annotation["category_name"];
+            const maskId = annotation["id"];
 
-            if (!this.isIncluded(id, filteredIndices) || name == null) {
+            if (!this.isIncluded(maskId, filteredIndices) || name == null) {
                 continue;
             }
 
@@ -523,7 +539,7 @@ class StatisticPage {
     }
 
     isIncluded(maskIdx, filteredIndices) {
-        return filteredIndices.includes(maskIdx);
+        return filteredIndices.includes(parseInt(maskIdx));
     }
 
     getId2Name(jsonItem) {

@@ -42,14 +42,15 @@ class Core {
             const data = new Data(imageUrl, jsonItem, imageFileName);
 
             // Decide which mask to display based on the filtered indices
-            let maskIdx = 0;
+            // let maskIdx = 0;
             for (const mask of data.getMasks()) {
+                const maskIdx = mask.getMaskId();
                 if (filteredIndics.includes(maskIdx)) {
                     mask.setShouldDisplay(true);
                 } else {
                     mask.setShouldDisplay(false);
                 }
-                maskIdx++;
+                // maskIdx++;
             }
 
             dataset.setCurrentData(data);
@@ -61,8 +62,6 @@ class Core {
             eel.set_editting_image_by_idx(idx);
 
             this.clearEdittedMask();
-
-            // TODO: Update statistic report
 
             this.updateProgressInfo(imageFileName, idx, dataset.totalImages);
 
@@ -76,7 +75,11 @@ class Core {
                 const dataset = new Dataset();
                 dataset.setTotalImages(size);
                 eel.get_current_image_idx()((idx) => {
-                    this.setCurrentDataByIdx(idx);
+                    const topNavigationBar = new TopNavigationBar();
+                    topNavigationBar.showLoadingIcon();
+                    eel.gen_iou_matrix_by_id(idx)(() => {
+                        this.setCurrentDataByIdx(idx);
+                    });
                 });
 
                 eel.get_label_list()((labelList) => {
@@ -99,6 +102,8 @@ class Core {
             canvas.setEdittingLabel(null);
 
             // TODO: Update Label View
+            const labelView = new LabelView();
+            labelView.removeSelectedColor();
         });
     }
 
@@ -161,12 +166,19 @@ class Core {
             const page = document.getElementById(pageId);
             page.classList.add("active-page");
 
+            const bottomBar = new BottomNavigationBar();
             if (pageId === "annotationPage") {
                 const canvas = new Canvas();
                 canvas.resetViewpoint();
+                bottomBar.reEnable();
             } else if (pageId === "statisticPage") {
                 const statisticPage = new StatisticPage();
                 statisticPage.update();
+                bottomBar.disable();
+            } else if (pageId === "settingPage") {
+                const settingPage = new SettingPage();
+                settingPage.displayConfig();
+                bottomBar.disable();
             }
         } else {
             this.defaultPage.classList.add("active-page");

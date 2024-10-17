@@ -104,25 +104,94 @@ class TopNavigationBar {
 
     enableExportCOCOButton() {
         this.exportCOCOButton.addEventListener("click", () => {
-            console.error("Not implemented yet");
+            const core = new Core();
+            if (!core.isProjectLoaded()) {
+                alert("Please load a project first!");
+                return;
+            }
+            eel.select_folder()((path) => {
+                if (path) {
+                    core.saveData(() => {
+                        console.log("Exporting COCO format... to", path);
+                        eel.export_json(path);
+                    });
+                }
+            });
         });
     }
 
     enableExportExcelButton() {
         this.exportExcelButton.addEventListener("click", () => {
-            console.error("Not implemented yet");
+            const core = new Core();
+            if (!core.isProjectLoaded()) {
+                alert("Please load a project first!");
+                return;
+            }
+            eel.select_folder()((path) => {
+                if (path) {
+                    this.showLoadingIcon();
+                    core.saveData(() => {
+                        console.log("Exporting excel ... to", path);
+                        eel.export_excel(path)(() => {
+                            this.restoreIcon();
+                        });
+                    });
+                }
+            });
         });
     }
 
     enableExportGraphButton() {
         this.exportGraphButton.addEventListener("click", () => {
-            console.error("Not implemented yet");
+            const core = new Core();
+            if (!core.isProjectLoaded()) {
+                alert("Please load a project first!");
+                return;
+            }
+            eel.select_folder()((path) => {
+                if (path) {
+                    this.showLoadingIcon();
+                    core.saveData(() => {
+                        console.log("Exporting graph... to", path);
+                        eel.export_graph(
+                            path,
+                            LabelManager.colorList
+                        )(() => {
+                            this.restoreIcon();
+                        });
+                    });
+                }
+            });
         });
     }
 
     enableExportAllButton() {
         this.exportAllButton.addEventListener("click", () => {
-            console.error("Not implemented yet");
+            const core = new Core();
+            if (!core.isProjectLoaded()) {
+                alert("Please load a project first!");
+                return;
+            }
+
+            eel.select_folder()((path) => {
+                if (path) {
+                    this.showLoadingIcon();
+                    core.saveData(() => {
+                        console.log("Exporting graph... to", path);
+                        eel.export_graph(
+                            path,
+                            LabelManager.colorList
+                        )(() => {
+                            console.log("Exporting excel ... to", path);
+                            eel.export_excel(path)(() => {
+                                eel.export_json(path)(() => {
+                                    this.restoreIcon();
+                                });
+                            });
+                        });
+                    });
+                }
+            });
         });
     }
 

@@ -39,6 +39,7 @@ def gen_mask_json(mask:np.ndarray) -> Dict:
     mask_json["id"] = -1
     mask_json["image_id"] = -1
     mask_json["iscrowd"] = 0
+    mask_json["predicted_iou"] = 1.0
 
     return mask_json    
 

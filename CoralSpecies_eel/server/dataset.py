@@ -5,7 +5,7 @@ import os
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from io import BytesIO
-from typing import Dict, List, Set
+from typing import Dict, List, Set, Type
 
 import numpy as np
 from PIL import Image
@@ -15,11 +15,30 @@ from .util.general import time_it
 from .util.json import load_json, save_json
 
 
+def calculate_iou_matrix(masks):
+    n = len(masks)
+    masks = np.array(masks)  # Convert list to a NumPy array
+    iou_mat = np.zeros((n, n))
+
+    # Calculate intersection and union
+    intersection = np.zeros((n, n))
+    union = np.zeros((n, n))
+
+    for i in range(n):
+        intersection[i] = np.sum(masks[i] & masks, axis=(1, 2))
+        union[i] = np.sum(masks[i] | masks, axis=(1, 2))
+
+    # Avoid division by zero
+    union[union == 0] = 1e-10  # Small epsilon to prevent division by zero
+
+    iou_mat = intersection / union
+    return iou_mat
+
 class DataFilter:
     _instance = None
 
     default_area_limit = 0.001
-    default_iou_limit = 0.3
+    default_iou_limit = 0.1
     default_predict_iou_limit = 0.5
 
     def __new__(cls, *args, **kwargs):
@@ -73,11 +92,6 @@ class DataFilter:
             area = np.sum(mask)
             return area
 
-        with ThreadPoolExecutor() as executor:
-            futures = [
-                executor.submit(decode_and_compute_area, ann) for ann in annotations
-            ]
-
         image_size = annotations[0]["segmentation"]["size"]
         image_height = int(image_size[0])
         image_width = int(image_size[1])
@@ -85,9 +99,10 @@ class DataFilter:
         min_area = total_area * area_limit
 
         filtered_index = set()
-        for idx, future in enumerate(futures):
-            area = future.result()
-            if area > min_area:
+        for annotation in annotations:
+            idx = annotation["id"]
+            area = decode_and_compute_area(annotation)
+            if area >= min_area:
                 filtered_index.add(idx)
 
         self.logger.info(f"Filtered index: {filtered_index}")
@@ -98,56 +113,101 @@ class DataFilter:
         self, annotations: List, predicted_iou_limit: float
     ) -> Set:
         filtered_index = set()
-        for idx, annotation in enumerate(annotations):
+        for annotation in annotations:
             if annotation["predicted_iou"] > predicted_iou_limit:
-                filtered_index.add(idx)
+                filtered_index.add(annotation["id"])
         return filtered_index
 
+    def filter_masks_by_iou(
+        self, iou_matrix: np.ndarray, threshold: float, areas: List[int]
+    ) -> List[int]:
+
+        n = iou_matrix.shape[0]
+        filtered_indices = set()
+
+        # Create a list of all indices sorted by area in descending order
+        sorted_indices = sorted(range(n), key=lambda idx: areas[idx], reverse=True)
+
+        keep_mask = np.zeros(n, dtype=bool)
+
+        for idx in sorted_indices:
+            if not keep_mask[idx]:
+                filtered_indices.add(idx)
+                # Mark all masks with IoU > threshold as kept
+                keep_mask[iou_matrix[idx] > threshold] = True
+
+        return filtered_indices
+
     @time_it
-    def filtered_by_iou(self, annotations: List, iou_limit: float) -> Set:
+    def filtered_by_iou(
+        self, annotations: List, iou_limit: float, data: Type["Data"]
+    ) -> Set:
         def decode_mask(annotation):
             return decode_coco_mask(annotation["segmentation"])
 
-        with ThreadPoolExecutor() as executor:
-            masks = list(executor.map(decode_mask, annotations))
+        # with ThreadPoolExecutor() as executor:
+        #     masks = list(executor.map(decode_mask, annotations))
 
-        M = np.array([mask.flatten() for mask in masks], dtype=np.int32)
-        areas = M.sum(axis=1)
+        iou_matrix = data.get_iou_matrix()
+        if iou_matrix is None:
+            data.update_iou_matrix()
+            iou_matrix = data.get_iou_matrix()
 
-        intersection = M @ M.T
-        union = areas[:, None] + areas[None, :] - intersection
+        areas = [annotation["area"] for annotation in annotations]
 
-        # Compute IoU matrix
-        iou_matrix = intersection / union
+        filtered_indices = self.filter_masks_by_iou(iou_matrix, iou_limit, areas)
 
-        # Apply Non-Maximum Suppression (NMS)
-        indices = np.argsort(-areas)
-        suppressed = np.zeros(len(areas), dtype=bool)
         keep = set()
+        for filtered_index in filtered_indices:
+            keep.add(annotations[filtered_index]["id"])
+        # M = np.array([mask.flatten() for mask in masks], dtype=np.int32)
+        # areas = M.sum(axis=1)
 
-        for i in indices:
-            if suppressed[i]:
-                continue
-            keep.add(i)
-            # Suppress indices with IoU > limit, excluding index i
-            suppressed |= (iou_matrix[i] > iou_limit) & (np.arange(len(areas)) != i)
+        # intersection = M @ M.T
+        # union = areas[:, None] + areas[None, :] - intersection
+
+        # # Compute IoU matrix
+        # iou_matrix = intersection / union
+
+        # # Apply Non-Maximum Suppression (NMS)
+        # indices = np.argsort(-areas)
+        # suppressed = np.zeros(len(areas), dtype=bool)
+        # keep = set()
+
+        # for i in indices:
+        #     if suppressed[i]:
+        #         continue
+        #     keep.add(i)
+        #     # Suppress indices with IoU > limit, excluding index i
+        #     suppressed |= (iou_matrix[i] > iou_limit) & (np.arange(len(areas)) != i)
 
         return keep
 
     @time_it
-    def filter_annotations(self, annotations: List[Dict]) -> List[Dict]:
+    def filter_annotations(
+        self, data: Type["Data"]
+    ) -> List[Dict]:
+        annotations = data.get_json_item()["annotations"]
         filtered_indices_by_area = self.filter_by_area(annotations, self.area_limit)
         filtered_indices_by_iou = self.filtered_by_predicted_iou(
             annotations, self.predict_iou_limit
         )
         filtered_indices_by_predicted_iou = self.filtered_by_iou(
-            annotations, self.iou_limit
+            annotations, self.iou_limit, data
         )
         filtered_indices = (
             filtered_indices_by_area
             & filtered_indices_by_iou
             & filtered_indices_by_predicted_iou
         )
+
+        self.logger.info(f"all indices: {set([annotation['id'] for annotation in annotations])}")
+        self.logger.info(f"filtered by area: {filtered_indices_by_area}")
+        self.logger.info(f"filtered by iou: {filtered_indices_by_iou}")
+        self.logger.info(
+            f"filtered by predicted iou: {filtered_indices_by_predicted_iou}"
+        )
+
 
         filtered_indices = list(filtered_indices)
         filtered_indices = [int(idx) for idx in filtered_indices]
@@ -163,13 +223,26 @@ class Data:
         self.json_item = json_item
         self.filename = filename
 
+        self.iou_matrix = np.array(json_item["iou_matrix"], dtype=np.float32)
+
+    @time_it
+    def update_iou_matrix(self):
+        masks = []
+        for annotation in self.json_item["annotations"]:
+            mask = decode_coco_mask(annotation["segmentation"])
+            masks.append(mask)
+        self.iou_matrix = calculate_iou_matrix(masks)
+
+    def get_iou_matrix(self):
+        return self.iou_matrix
+
     def get_image(self):
         return self.image
 
     def get_embedding(self):
         return self.embedding
 
-    def get_json_item(self):
+    def get_json_item(self) -> Dict:
         return self.json_item
 
     def get_filename(self):
@@ -177,6 +250,8 @@ class Data:
 
     def set_json_item(self, json_item: Dict):
         self.json_item = json_item
+        self.update_iou_matrix()
+        self.json_item["iou_matrix"] = self.iou_matrix.tolist()
 
     def have_mask_belong_to_category(self, category_id):
         for annotation in self.json_item["annotations"]:
@@ -232,7 +307,7 @@ class Dataset:
         self.data_list = []
 
         self.output_dir = output_dir
-        self.data_folder = "data"
+        self.data_folder = "."
         self.image_folder = os.path.join(self.data_folder, "images")
         self.embedding_folder = os.path.join(self.data_folder, "embeddings")
         self.annotation_folder = os.path.join(self.data_folder, "annotations")
@@ -262,7 +337,7 @@ class Dataset:
         self.data_list.append(data)
 
     def is_valid_project_folder(self, project_path):
-        data_folder = os.path.join(project_path, "data")
+        data_folder = project_path
         image_folder = os.path.join(data_folder, "images")
         embedding_folder = os.path.join(data_folder, "embeddings")
         annotation_folder = os.path.join(data_folder, "annotations")
@@ -316,7 +391,7 @@ class Dataset:
         self.logger.info(f"Loading project from {project_path} ...")
         self.clear()
 
-        data_folder = os.path.join(project_path, "data")
+        data_folder = project_path
         image_folder = os.path.join(data_folder, "images")
         embedding_folder = os.path.join(data_folder, "embeddings")
         annotation_folder = os.path.join(data_folder, "annotations")
@@ -427,6 +502,9 @@ class Dataset:
         self.current_data_idx = idx
         return self.data_list[idx]
 
+    def get_data_list(self) -> List[Type["Data"]]:
+        return self.data_list
+
     def is_in_embedding_folder(self, file_path):
         normalized_path = os.path.normpath(file_path)
         return self.embedding_folder in normalized_path
@@ -469,28 +547,54 @@ class Dataset:
         self.project_info.update(new_info)
         self.logger.info(f"Updated project info: {self.project_info}")
 
-    def process_json_to_coco_json(self, json_item):
-
+    def process_json_to_coco_json(self, data:Data) -> Dict:
         category_dict = {}
+
+        data_filter = DataFilter()
+        json_item = data.get_json_item()
+        filtered_index = data_filter.filter_annotations(data)
         for annotation in json_item["annotations"]:
+            if "category_id" not in annotation:
+                continue
+
+            if annotation["id"] not in filtered_index:
+                continue
+
             category_id = annotation["category_id"]
             category_name = annotation["category_name"]
             if category_id is not None and category_name is not None:
                 category_dict[category_id] = category_name
 
+        if category_dict == {}:
+            return None
+
         output_annotations = []
         for annotation in json_item["annotations"]:
             category_id = annotation["category_id"]
+
+            if annotation["id"] not in filtered_index:
+                continue
+
             if category_id is not None:
                 annotation_copy = copy.deepcopy(annotation)
                 del annotation_copy["category_name"]
                 output_annotations.append(annotation_copy)
 
-        json_copy = copy.deepcopy(json_item)
+        json_copy = {}
+        json_copy["images"] = [json_item["image"]]
         json_copy["annotations"] = output_annotations
         json_copy["categories"] = []
         for category_id, category_name in category_dict.items():
-            json_copy["categories"].append({"id": category_id, "name": category_name})
+            supercategory = category_name
+            if category_name.startswith("Bleached "):
+                supercategory = category_name.replace("Bleached ", "")
+            json_copy["categories"].append(
+                {
+                    "id": category_id,
+                    "name": category_name,
+                    "supercategory": supercategory,
+                }
+            )
 
         return json_copy
 
@@ -514,14 +618,7 @@ class Dataset:
         output_annotation_folder = os.path.join(project_path, self.annotation_folder)
         filename = data.get_filename()
         output_path = os.path.join(output_annotation_folder, f"{filename}.json")
-        save_json(annotation, output_path)
-
-        # # Save coco json to outputs folder
-        # coco_json = self.process_json_to_coco_json(annotation)
-        # output_fodler = os.path.join(project_path, "data", "outputs")
-        # os.makedirs(output_fodler, exist_ok=True)
-        # output_path = os.path.join(output_fodler, f"{data.get_filename()}.json")
-        # save_json(coco_json, output_path)
+        save_json(data.get_json_item(), output_path)
 
         # Save project info
         self.logger.info(f"Saving labels: {labels_list}")
@@ -530,7 +627,7 @@ class Dataset:
             self.project_info["filter_config"] = {}
         self.project_info["filter_config"][str(idx)] = DataFilter().export_config()
         self.project_info["labels"] = labels_list
-        data_folder = os.path.join(project_path, "data")
+        data_folder = os.path.join(project_path, ".")
         project_path = os.path.join(data_folder, "project.json")
         save_json(self.project_info, project_path)
 
@@ -538,3 +635,40 @@ class Dataset:
         self.logger.info("Update annotation id")
         for data in self.data_list:
             data.update_annotation_id(new_labels)
+
+    def export_json(self, output_path):
+        os.makedirs(output_path, exist_ok=True)
+
+        json_folder = os.path.join(output_path, "jsons")
+        os.makedirs(json_folder, exist_ok=True)
+
+        self.logger.info(f"Exporting jsons to {json_folder} ...")
+
+        coco_json_list = []
+        for data in self.get_data_list():
+            coco_json = self.process_json_to_coco_json(data)
+
+            if coco_json is None:
+                continue
+
+            output_path = os.path.join(json_folder, f"{data.get_filename()}.json")
+            save_json(coco_json, output_path)
+            coco_json_list.append(coco_json)
+
+        # Combine all the jsons into one
+        combined_json = {"images": [], "annotations": [], "categories": []}
+        for image_idx, coco_json in enumerate(coco_json_list):
+            image = coco_json["images"][0]
+            image["image_id"] = image_idx
+            combined_json["images"].append(image)
+
+            for annotation in coco_json["annotations"]:
+                annotation["image_id"] = image_idx
+                combined_json["annotations"].append(annotation)
+
+            for category in coco_json["categories"]:
+                if category not in combined_json["categories"]:
+                    combined_json["categories"].append(category)
+
+        combined_json_path = os.path.join(json_folder, "project.json")
+        save_json(combined_json, combined_json_path)

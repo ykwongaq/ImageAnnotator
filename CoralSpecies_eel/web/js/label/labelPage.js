@@ -23,8 +23,8 @@ function main() {
     const labelPage = new LabelPage();
     labelPage.enable();
 
+    const core = new Core();
     document.addEventListener("DOMContentLoaded", () => {
-        const core = new Core();
         core.showPage("annotationPage");
     });
 }
