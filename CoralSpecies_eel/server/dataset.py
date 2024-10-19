@@ -17,22 +17,21 @@ from .util.json import load_json, save_json
 
 def calculate_iou_matrix(masks):
     n = len(masks)
-    masks = np.array(masks)  # Convert list to a NumPy array
-    iou_mat = np.zeros((n, n))
+    masks = np.array(masks)
 
-    # Calculate intersection and union
-    intersection = np.zeros((n, n))
-    union = np.zeros((n, n))
+    # Flatten masks for easier broadcasting
+    masks_flat = masks.reshape(n, -1)
 
-    for i in range(n):
-        intersection[i] = np.sum(masks[i] & masks, axis=(1, 2))
-        union[i] = np.sum(masks[i] | masks, axis=(1, 2))
+    intersection = np.dot(masks_flat, masks_flat.T)
+    area = np.sum(masks_flat, axis=1)
+    union = area[:, None] + area[None, :] - intersection
 
     # Avoid division by zero
-    union[union == 0] = 1e-10  # Small epsilon to prevent division by zero
+    union[union == 0] = 1e-10
 
     iou_mat = intersection / union
     return iou_mat
+
 
 class DataFilter:
     _instance = None
@@ -184,9 +183,7 @@ class DataFilter:
         return keep
 
     @time_it
-    def filter_annotations(
-        self, data: Type["Data"]
-    ) -> List[Dict]:
+    def filter_annotations(self, data: Type["Data"]) -> List[Dict]:
         annotations = data.get_json_item()["annotations"]
         filtered_indices_by_area = self.filter_by_area(annotations, self.area_limit)
         filtered_indices_by_iou = self.filtered_by_predicted_iou(
@@ -201,13 +198,14 @@ class DataFilter:
             & filtered_indices_by_predicted_iou
         )
 
-        self.logger.info(f"all indices: {set([annotation['id'] for annotation in annotations])}")
+        self.logger.info(
+            f"all indices: {set([annotation['id'] for annotation in annotations])}"
+        )
         self.logger.info(f"filtered by area: {filtered_indices_by_area}")
         self.logger.info(f"filtered by iou: {filtered_indices_by_iou}")
         self.logger.info(
             f"filtered by predicted iou: {filtered_indices_by_predicted_iou}"
         )
-
 
         filtered_indices = list(filtered_indices)
         filtered_indices = [int(idx) for idx in filtered_indices]
@@ -547,7 +545,7 @@ class Dataset:
         self.project_info.update(new_info)
         self.logger.info(f"Updated project info: {self.project_info}")
 
-    def process_json_to_coco_json(self, data:Data) -> Dict:
+    def process_json_to_coco_json(self, data: Data) -> Dict:
         category_dict = {}
 
         data_filter = DataFilter()
