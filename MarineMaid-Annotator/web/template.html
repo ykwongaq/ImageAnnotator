@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <style>
+            body {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+                overflow: hidden;
+                flex-direction: column;
+            }
+            .gallery-container {
+                position: relative;
+                width: 300px;
+                overflow: hidden;
+                margin-bottom: 20px;
+            }
+            .gallery {
+                display: flex;
+                transition: transform 0.5s ease-in-out;
+            }
+            .gallery div {
+                min-width: 100%;
+                box-sizing: border-box;
+                padding: 20px;
+                background-color: #f0f0f0;
+                border: 1px solid #ccc;
+                text-align: center;
+            }
+            .buttons {
+                position: absolute;
+                top: 50%;
+                width: 100%;
+                display: flex;
+                justify-content: space-between;
+                transform: translateY(-50%);
+            }
+            button {
+                background-color: #007bff;
+                color: white;
+                border: none;
+                padding: 10px;
+                cursor: pointer;
+            }
+            button:disabled {
+                background-color: #ccc;
+            }
+            .jump-to {
+                display: flex;
+                justify-content: center;
+                margin-top: 10px;
+            }
+            input[type="number"] {
+                width: 50px;
+                margin-right: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="gallery-container">
+            <div class="gallery"></div>
+            <div class="buttons">
+                <button id="prev" disabled>Prev</button>
+                <button id="next">Next</button>
+            </div>
+        </div>
+        <div class="jump-to">
+            <input
+                type="number"
+                id="jumpInput"
+                min="1"
+                max="10"
+                placeholder="ID"
+            />
+            <button id="jump">Go</button>
+        </div>
+
+        <script>
+            const gallery = document.querySelector(".gallery");
+            const prevButton = document.getElementById("prev");
+            const nextButton = document.getElementById("next");
+            const jumpButton = document.getElementById("jump");
+            const jumpInput = document.getElementById("jumpInput");
+            let currentIndex = 0;
+
+            function createDivs(numDivs) {
+                const maxDivs = Math.min(numDivs, 10);
+                for (let i = 1; i <= maxDivs; i++) {
+                    const div = document.createElement("div");
+                    div.textContent = `Div ${i}`;
+                    gallery.appendChild(div);
+                }
+            }
+
+            function updateButtons() {
+                prevButton.disabled = currentIndex === 0;
+                nextButton.disabled =
+                    currentIndex === gallery.children.length - 1;
+            }
+
+            function scrollGallery() {
+                gallery.style.transition = "transform 0.5s ease-in-out";
+                gallery.style.transform = `translateX(-${currentIndex * 100}%)`;
+                updateButtons();
+            }
+
+            function jumpTo(index) {
+                gallery.style.transition = "none";
+                gallery.style.transform = `translateX(-${index * 100}%)`;
+                setTimeout(() => {
+                    gallery.style.transition = "transform 0.5s ease-in-out";
+                }, 0);
+                updateButtons();
+            }
+
+            prevButton.addEventListener("click", () => {
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    scrollGallery();
+                }
+            });
+
+            nextButton.addEventListener("click", () => {
+                if (currentIndex < gallery.children.length - 1) {
+                    currentIndex++;
+                    scrollGallery();
+                }
+            });
+
+            jumpButton.addEventListener("click", () => {
+                const targetIndex = parseInt(jumpInput.value, 10) - 1;
+                if (targetIndex >= 0 && targetIndex < gallery.children.length) {
+                    currentIndex = targetIndex;
+                    jumpTo(currentIndex);
+                }
+            });
+
+            createDivs(10);
+            updateButtons();
+        </script>
+    </body>
+</html>
