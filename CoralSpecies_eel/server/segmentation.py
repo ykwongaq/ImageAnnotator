@@ -21,7 +21,15 @@ class CoralSegmentation:
         self.logger.info(f"Initializing {self.__class__.__name__} ...")
 
         sam = sam_model_registry[model_type](checkpoint=model_path)
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        device = ""
+        if torch.cuda.is_available():
+            device = "cuda"
+        elif torch.backends.mps.is_available():
+            device = "mps"
+        else:
+            device = "cpu"
+
+        device = torch.device(device)
         self.logger.info(f"Using device: {device}")
         sam.to(device=device)
 
