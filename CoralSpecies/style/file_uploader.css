@@ -1,9 +1,0 @@
-.uploader {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-    border: 2px dashed #ccc;
-    width: 300px;
-    margin: 50px auto;
-}
