@@ -2,6 +2,7 @@ class Annotator {
     static LABEL_MASK = 0;
     static ADD_MASK = 1;
     static DELETE_MASK = 2;
+    static DEFINE_QUADRAT = 3;
 
     static currentMode = Annotator.LABEL_MASK;
 
@@ -81,10 +82,15 @@ class ModeView {
                 Annotator.clearSelection();
                 this.clearEdittedMask();
                 this.hideActionButtons();
+
+                const canvas = new Canvas(null);
+                canvas.setShowQuadrat(false);
                 if (mode == Annotator.ADD_MASK) {
                     this.showActionButtons();
                 } else if (mode == Annotator.DELETE_MASK) {
                     this.showConfirmButton();
+                } else if (mode == Annotator.DEFINE_QUADRAT) {
+                    canvas.setShowQuadrat(true);
                 }
             });
         });

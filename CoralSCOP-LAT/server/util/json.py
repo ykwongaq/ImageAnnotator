@@ -1,28 +1,33 @@
 import json
 import numpy as np
 
-from pycocotools import mask as coco_mask 
+from pycocotools import mask as coco_mask
 from typing import Dict, List, Tuple
 
-def save_json(data:Dict, file:str):
+
+def save_json(data: Dict, file: str):
     with open(file, "w") as f:
         json.dump(data, f, indent=4)
 
-def load_json(file:str) -> Dict:
+
+def load_json(file: str) -> Dict:
     with open(file) as f:
         data = json.load(f)
     return data
 
-def gen_image_json(image:np.ndarray, filename:str = None) -> Dict:
+
+def gen_image_json(image: np.ndarray, filename: str = None) -> Dict:
     height, width = image.shape[:2]
     image_json = {}
     image_json["width"] = width
     image_json["height"] = height
     image_json["filename"] = filename
     image_json["image_id"] = -1
+    image_json["quadrat"] = None
     return image_json
-    
-def gen_mask_json(mask:np.ndarray) -> Dict:
+
+
+def gen_mask_json(mask: np.ndarray) -> Dict:
     rle = coco_mask.encode(np.asfortranarray(mask.astype(np.uint8)))
     bbox = coco_mask.toBbox(rle)
     bbox = bbox.tolist()
@@ -41,11 +46,14 @@ def gen_mask_json(mask:np.ndarray) -> Dict:
     mask_json["iscrowd"] = 0
     mask_json["predicted_iou"] = 1.0
 
-    return mask_json    
+    return mask_json
 
-def gen_annotations(image:np.ndarray, masks:List[np.ndarray], image_file:str = None) -> Dict:
+
+def gen_annotations(
+    image: np.ndarray, masks: List[np.ndarray], image_file: str = None
+) -> Dict:
     image_id = 0
-    
+
     image_json = gen_image_json(image)
     image_json["image_id"] = image_id
     image_json["filename"] = image_file

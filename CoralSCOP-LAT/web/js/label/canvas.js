@@ -15,6 +15,7 @@ class Canvas {
         this.imageCache = new Image();
         this.maskCache = new Image();
         this.edittingMaskCache = new Image();
+        this.quadratCache = new Image();
 
         // View control
         this.scale = 1.0;
@@ -43,6 +44,12 @@ class Canvas {
         }, 0.6)`;
         this.edittingLabel = null;
 
+        this.showQuadrat = false;
+        this.drawingQuadrat = false;
+        this.quadratStart = { x: 0, y: 0 };
+        this.quadratEnd = { x: 0, y: 0 };
+        this.enableDrawingQuadrat();
+
         return this;
     }
 
@@ -64,6 +71,63 @@ class Canvas {
     enableWindowResize() {
         window.addEventListener("resize", () => {
             this.resetViewpoint();
+        });
+    }
+
+    enableDrawingQuadrat() {
+        this.canvas.addEventListener("mousedown", (event) => {
+            if (
+                event.button === 0 &&
+                Annotator.getCurrentMode() === Annotator.DEFINE_QUADRAT
+            ) {
+                this.drawingQuadrat = true;
+
+                let [canvasX, canvasY] = this.getMousePos(event);
+                canvasX = Math.floor(canvasX);
+                canvasY = Math.floor(canvasY);
+
+                let [imageX, imageY] = this.canvasPixelToImagePixel(
+                    canvasX,
+                    canvasY
+                );
+
+                this.quadratStart = { x: imageX, y: imageY };
+            }
+        });
+
+        this.canvas.addEventListener("mousemove", (event) => {
+            if (
+                this.drawingQuadrat &&
+                Annotator.getCurrentMode() === Annotator.DEFINE_QUADRAT
+            ) {
+                let [canvasX, canvasY] = this.getMousePos(event);
+                canvasX = Math.floor(canvasX);
+                canvasY = Math.floor(canvasY);
+
+                let [imageX, imageY] = this.canvasPixelToImagePixel(
+                    canvasX,
+                    canvasY
+                );
+                this.quadratEnd = { x: imageX, y: imageY };
+                this.updateQuadratCache();
+            }
+        });
+
+        this.canvas.addEventListener("mouseup", (event) => {
+            if (
+                event.button === 0 &&
+                Annotator.getCurrentMode() === Annotator.DEFINE_QUADRAT
+            ) {
+                this.drawingQuadrat = false;
+                this.updateQuadratCache();
+
+                const dataset = new Dataset();
+                const data = dataset.getCurrentData();
+                data.setQuadrat([
+                    [this.quadratStart.x, this.quadratStart.y],
+                    [this.quadratEnd.x, this.quadratEnd.y],
+                ]);
+            }
         });
     }
 
@@ -173,6 +237,58 @@ class Canvas {
         this.imageHeight = data.getImageHeight();
         this.resetViewpoint();
         this.updateMasks();
+        this.updateQuadrat();
+    }
+
+    updateQuadrat() {
+        const quadrat = this.data.getQuadrat();
+        console.log("quad", quadrat);
+        if (quadrat === null || quadrat === undefined) {
+            this.quadratStart = { x: 0, y: 0 };
+            this.quadratEnd = { x: 0, y: 0 };
+            this.updateQuadratCache();
+            return;
+        }
+
+        this.quadratStart = { x: quadrat[0][0], y: quadrat[0][1] };
+        this.quadratEnd = { x: quadrat[1][0], y: quadrat[1][1] };
+        this.updateQuadratCache();
+    }
+
+    updateQuadratCache() {
+        // const { x: x1, y: y1 } = this.rectangleStart;
+        // const { x: x2, y: y2 } = this.rectangleEnd;
+        const x1 = this.quadratStart.x;
+        const y1 = this.quadratStart.y;
+        const x2 = this.quadratEnd.x;
+        const y2 = this.quadratEnd.y;
+        console.log("Quadrat start", x1, y1, "Quadrat end", x2, y2);
+
+        const width = x2 - x1;
+        const height = y2 - y1;
+
+        const quadratCanvas = document.createElement("canvas");
+        const rectCtx = quadratCanvas.getContext("2d");
+        quadratCanvas.width = this.canvas.width;
+        quadratCanvas.height = this.canvas.height;
+
+        // rectCtx.clearRect(0, 0, quadratCanvas.width, quadratCanvas.height);
+        rectCtx.strokeStyle = "yellow";
+        rectCtx.lineWidth = Math.min(this.imageWidth, this.imageHeight) * 0.003;
+        rectCtx.strokeRect(x1, y1, width, height);
+
+        // Draw circles at the corners
+        const radius = Math.min(this.imageWidth, this.imageHeight) * 0.005;
+        rectCtx.fillStyle = "yellow";
+        rectCtx.beginPath();
+        rectCtx.arc(x1, y1, radius, 0, 2 * Math.PI);
+        rectCtx.arc(x2, y1, radius, 0, 2 * Math.PI);
+        rectCtx.arc(x1, y2, radius, 0, 2 * Math.PI);
+        rectCtx.arc(x2, y2, radius, 0, 2 * Math.PI);
+        rectCtx.fill();
+
+        this.quadratCache = new Image();
+        this.quadratCache.src = quadratCanvas.toDataURL();
     }
 
     updateMasks() {
@@ -289,6 +405,10 @@ class Canvas {
         return [(bigint >> 16) & 255, (bigint >> 8) & 255, bigint & 255];
     }
 
+    setShowQuadrat(showQuadrat) {
+        this.showQuadrat = showQuadrat;
+    }
+
     draw = () => {
         this.imageCache.onload = () => {
             this.ctx.clearRect(
@@ -329,6 +449,13 @@ class Canvas {
                 this.ctx.globalAlpha = 1.0;
             }
             window.requestAnimationFrame(this.draw);
+
+            if (this.showQuadrat) {
+                console.log("Drawing quadrat");
+                this.ctx.globalAlpha = 0.7;
+                this.ctx.drawImage(this.quadratCache, 0, 0);
+                this.ctx.globalAlpha = 1.0;
+            }
         };
         this.imageCache.src = this.imageUrl;
     };

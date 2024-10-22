@@ -174,10 +174,19 @@ class Data {
         }
         this.imageFileName = imageFileName;
         this.imageId = jsonItem["image"]["image_id"];
+        this.quadrat = jsonItem["image"]["quadrat"];
     }
 
     getImageUrl() {
         return this.imageDataUrl;
+    }
+
+    getQuadrat() {
+        return this.quadrat;
+    }
+
+    setQuadrat(quadrat) {
+        this.quadrat = quadrat;
     }
 
     getAnnotations() {
@@ -221,6 +230,7 @@ class Data {
     exportJson() {
         const jsonItem = {};
         jsonItem["image"] = this.json_item["image"];
+        jsonItem["image"]["quadrat"] = this.quadrat;
 
         const annotations = [];
         for (const mask of this.masks) {
