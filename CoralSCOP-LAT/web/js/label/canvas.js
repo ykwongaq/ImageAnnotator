@@ -242,7 +242,6 @@ class Canvas {
 
     updateQuadrat() {
         const quadrat = this.data.getQuadrat();
-        console.log("quad", quadrat);
         if (quadrat === null || quadrat === undefined) {
             this.quadratStart = { x: 0, y: 0 };
             this.quadratEnd = { x: 0, y: 0 };
@@ -262,7 +261,6 @@ class Canvas {
         const y1 = this.quadratStart.y;
         const x2 = this.quadratEnd.x;
         const y2 = this.quadratEnd.y;
-        console.log("Quadrat start", x1, y1, "Quadrat end", x2, y2);
 
         const width = x2 - x1;
         const height = y2 - y1;
@@ -451,7 +449,6 @@ class Canvas {
             window.requestAnimationFrame(this.draw);
 
             if (this.showQuadrat) {
-                console.log("Drawing quadrat");
                 this.ctx.globalAlpha = 0.7;
                 this.ctx.drawImage(this.quadratCache, 0, 0);
                 this.ctx.globalAlpha = 1.0;
