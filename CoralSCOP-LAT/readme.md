@@ -1,12 +1,38 @@
 # Installation Guide
 
-## 1. Install required packages
+## 1. Install Anaconda
+
+Install `Anaconda` from this link `https://www.anaconda.com/download`
+
+## 2. Launch Anaconda and Create Environment
+
+Launch anaconda and create `Python` Environment by executing the following command
+
+```
+conda create -n coralscop-lat python=3.8
+```
+
+Then activate it by
+
+```
+conda activate coralscop-lat
+```
+
+## 3. Install required packages
+
+Move to the source code folder:
+
+```
+cd <path to CoralSCOP-LAT>
+```
+
+Install required packages:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## 2. Download Models
+## 4. Download Models
 
 Create `models` folder
 
@@ -37,9 +63,7 @@ models
 |- vit_h_encoder_quantized.onnx
 ```
 
-
-
-# 3. Download Font Awesome 6
+# 5. Download Font Awesome 6
 
 Download `Font Awesome 6` `Free For Web` here `https://fontawesome.com/download` and extract the folder to `web/css`
 
