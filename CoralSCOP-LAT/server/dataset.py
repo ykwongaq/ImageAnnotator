@@ -5,7 +5,7 @@ import os
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from io import BytesIO
-from typing import Dict, List, Set, Type
+from typing import Dict, List, Set, Type, Set
 
 import numpy as np
 from PIL import Image
@@ -246,10 +246,25 @@ class Data:
     def get_filename(self):
         return self.filename
 
-    def set_json_item(self, json_item: Dict):
+    def update_json_item(self, json_item: Dict):
+        original_mask_ids = self.extractMaskIds(self.json_item)
         self.json_item = json_item
-        self.update_iou_matrix()
+        new_mask_ids = self.extractMaskIds(self.json_item)
+
+        # The masks have changed, update the iou matrix
+        print(f"Original mask ids: {original_mask_ids}")
+        print(f"New mask ids: {new_mask_ids}")
+        if original_mask_ids != new_mask_ids:
+            print("Updating iou matrix")
+            self.update_iou_matrix()
+
         self.json_item["iou_matrix"] = self.iou_matrix.tolist()
+
+    def extractMaskIds(self, json_item: Dict) -> Set:
+        mask_ids = set()
+        for annotation in json_item["annotations"]:
+            mask_ids.add(annotation["id"])
+        return mask_ids
 
     def have_mask_belong_to_category(self, category_id):
         for annotation in self.json_item["annotations"]:
@@ -609,7 +624,7 @@ class Dataset:
             self.logger.error(f"Data not found for index {idx}")
             return
 
-        data.set_json_item(annotation)
+        data.update_json_item(annotation)
 
         # Overwrite the annotation file
         project_path = self.project_info["project_path"]
