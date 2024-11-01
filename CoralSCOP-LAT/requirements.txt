@@ -44,9 +44,6 @@ pywin32-ctypes==0.2.3
 segment_anything @ git+https://github.com/facebookresearch/segment-anything.git@dca509fe793f601edb92606367a655c15ac00fdf
 six==1.16.0
 sympy==1.13.1
-torch==2.4.1+cu118
-torchaudio==2.4.1+cu118
-torchvision==0.19.1+cu118
 typing_extensions==4.9.0
 whichcraft==0.6.1
 zipp==3.20.2
