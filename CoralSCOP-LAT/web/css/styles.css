@@ -124,6 +124,16 @@
   --icon-icon-secondary2: var(--basic-gray400);
 }
 
+label:has(:disabled), label:has(:disabled) * {
+  cursor: not-allowed !important;
+  filter: grayscale(100%);
+}
+
+input:disabled {
+  cursor: not-allowed !important;
+  filter: grayscale(100%);
+}
+
 .circle-arrow {
   width: 30px;
   height: 30px;
@@ -132,6 +142,13 @@
   justify-content: center;
   color: var(--icon-icon-secondary2);
 }
+.circle-arrow button {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  overflow: hidden;
+}
+
 .arrow-link {
   color: var(--text-text-secondary1);
   font-size: 16px;
@@ -505,6 +522,10 @@ input[type=range]:active::-moz-range-thumb {
   font-size: 15px;
   margin-right: 15px;
 }
+.label-blk__label[contenteditable]:focus {
+  color: var(--text-text-primary2);
+  background-color: var(--surface-surface-primary3);
+}
 .label-blk__icon {
   flex-shrink: 0;
 }
@@ -524,6 +545,9 @@ input[type=range]:active::-moz-range-thumb {
   font-size: 16px;
   font-weight: 400;
   cursor: pointer;
+}
+.label-blk__btn * {
+  pointer-events: none;
 }
 .label-blk__btn:hover {
   color: #000;
@@ -806,6 +830,31 @@ input[type=range]:active::-moz-range-thumb {
   opacity: 0.8;
 }
 
+.normal-dropdown {
+  background-color: #fff;
+  border-radius: 18px;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.12);
+  z-index: 3;
+  padding: 10px 0;
+}
+.normal-dropdown__link {
+  text-align: left;
+  display: block;
+  width: 100%;
+  font-family: Roboto;
+  padding: 12px 20px;
+  font-size: 14px;
+}
+.normal-dropdown__link:hover {
+  background-color: var(--surface-surface-primary3);
+}
+
+.radio-label input {
+  opacity: 0;
+  position: absolute;
+  cursor: pointer;
+}
+
 :where(*) {
   margin: 0;
   padding: 0;
@@ -821,17 +870,26 @@ body, html {
   color: var(--text-text-primary1);
 }
 
+.hidden {
+  display: none !important;
+}
+
 a {
   text-decoration: none;
 }
 
 button {
+  cursor: pointer;
   appearance: none;
   padding: 0;
   margin: 0;
   border: 0;
   font-family: Unbounded;
   background: transparent;
+}
+
+#actionContainer, #progress-bar {
+  display: none;
 }
 
 .container {
@@ -853,13 +911,17 @@ button {
 .header {
   height: var(--header-height);
   display: flex;
+  flex-shrink: 0;
 }
 .header__main {
-  display: flex;
+  display: none;
   justify-content: center;
   align-items: center;
   flex: 1;
   padding: 10px 20px;
+}
+.wrapper.wrapper:has(#annotationPage.active-page) .header__main {
+  display: flex;
 }
 .header__main-side {
   width: 25%;
@@ -926,6 +988,9 @@ button {
   height: 100%;
   max-width: var(--logo-blk-width);
 }
+.wrapper.wrapper:has(#annotationPage.active-page) .side-bar {
+  flex: 1;
+}
 .side-bar__main {
   width: var(--nav-width);
   background-color: #fff;
@@ -938,9 +1003,12 @@ button {
   background-color: #fff;
   margin-left: 1px;
   padding-top: 20px;
-  display: flex;
+  display: none;
   flex-direction: column;
   height: calc(100vh - var(--header-height));
+}
+.wrapper:has(#annotationPage.active-page) .side-bar__sub {
+  display: flex;
 }
 .side-bar__title {
   color: var(--text-text-page-heading);
@@ -994,6 +1062,16 @@ button {
   padding: 0;
   margin: 0;
 }
+.nav-list__item {
+  position: relative;
+}
+.nav-list__item .normal-dropdown {
+  position: absolute;
+  left: calc(100% + 20px);
+  top: 0;
+  width: max-content;
+  display: none;
+}
 .nav-list__button {
   width: var(--nav-width);
   aspect-ratio: 1;
@@ -1006,7 +1084,7 @@ button {
 .nav-list__button:hover {
   background-color: #fafafa;
 }
-.nav-list__item.active .nav-list__button {
+.nav-list__item .nav-list__button.active {
   color: var(--icon-icon-secondary1);
   background: var(--surface-surface-primary1);
 }
@@ -1066,6 +1144,35 @@ button {
   padding: 20px 0px 0;
   overflow: hidden;
   position: relative;
+}
+
+.canvas-container {
+  position: absolute;
+  inset: var(--gap) var(--gap) 0;
+  overflow: hidden;
+}
+.canvas-container .canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.label-dropdown-menu {
+  position: absolute;
+  display: none;
+}
+
+#search-button {
+  display: none;
+}
+
+.page:not(.active-page) {
+  display: none;
+}
+
+.setting-container {
+  padding: 40px;
+  background-color: #fff;
+  flex-grow: 1;
 }
 
 /*# sourceMappingURL=styles.css.map */

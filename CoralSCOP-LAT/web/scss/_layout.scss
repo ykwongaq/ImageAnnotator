@@ -1,5 +1,10 @@
 @use 'sass:math';
 
+#actionContainer, #progress-bar {
+    display: none;
+}
+
+
 .container {
     min-width: 1000px;
 }
@@ -19,13 +24,18 @@
 .header {
     height: var(--header-height);
     display: flex;
+    flex-shrink: 0;
 
     &__main {
-        display: flex;
+        display: none;
         justify-content: center;
         align-items: center;
         flex: 1;
         padding: 10px 20px;
+
+        .wrapper.wrapper:has(#annotationPage.active-page) & {
+            display: flex;
+        }
 
         &-side {
             width: 25%;
@@ -109,6 +119,10 @@
     height: 100%;
     max-width: var(--logo-blk-width);
 
+    .wrapper.wrapper:has(#annotationPage.active-page) & {
+        flex: 1;
+    }
+
     &__main {
         width: var(--nav-width);
         background-color: #fff;
@@ -122,9 +136,13 @@
         background-color: #fff;
         margin-left: 1px;
         padding-top: 20px;
-        display: flex;
+        display: none;
         flex-direction: column;
         height: calc(100vh - var(--header-height));
+
+        .wrapper:has(#annotationPage.active-page)  &{
+            display: flex;
+        }
     }
 
 
@@ -200,7 +218,15 @@
     margin: 0;
 
     &__item {
+        position: relative;
 
+        .normal-dropdown {
+            position: absolute;
+            left: calc(100% + 20px);
+            top: 0;
+            width: max-content;
+            display: none;
+        }
     }
 
     &__button {
@@ -217,7 +243,7 @@
         }
     }
 
-    &__item.active &__button{
+    &__item &__button.active {
         color: var(--icon-icon-secondary1);
         background: var(--surface-surface-primary1);
     }
@@ -297,4 +323,38 @@
         overflow: hidden;
         position: relative;
     }
+}
+
+
+.canvas-container {
+
+    position: absolute;
+    inset: var(--gap) var(--gap) 0;
+    overflow: hidden;
+
+    .canvas {
+        width: 100%;
+        height: 100%;
+    }
+}
+
+.label-dropdown-menu {
+    position: absolute;
+    display: none;
+}
+
+#search-button {
+    display: none;
+}
+
+.page {
+    &:not(.active-page)  {
+        display: none;
+    }
+}
+
+.setting-container {
+    padding: 40px;
+    background-color: #fff;
+    flex-grow: 1;
 }

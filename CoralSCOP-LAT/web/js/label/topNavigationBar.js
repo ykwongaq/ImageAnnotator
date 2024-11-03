@@ -74,11 +74,8 @@ class TopNavigationBar {
         const dropDownMenu = document.getElementById("file-dropdown-menu");
 
         fileButton.addEventListener("click", () => {
-            const rect = fileButton.getBoundingClientRect();
             dropDownMenu.style.display =
                 dropDownMenu.style.display === "block" ? "none" : "block";
-            dropDownMenu.style.left = `${rect.left + window.scrollY}px`;
-            dropDownMenu.style.top = `${rect.bottom + window.scrollX}px`;
         });
 
         window.addEventListener("click", (event) => {

@@ -13,11 +13,16 @@ body, html {
     color: var(--text-text-primary1);
 }
 
+.hidden {
+    display: none !important;
+}
+
 a {
     text-decoration: none;
 }
 
 button {
+        cursor: pointer;
         appearance: none;
         padding: 0;
         margin: 0;

@@ -1,5 +1,18 @@
 @use 'sass:math';
 
+
+label:has(:disabled) {
+    &, & * {
+        cursor: not-allowed !important;
+        filter: grayscale(100%);
+    }
+}
+
+input:disabled {
+    cursor: not-allowed !important;
+    filter: grayscale(100%);
+}
+
 .circle-arrow {
 
     width: 30px;
@@ -15,6 +28,13 @@
 
     &--next {
 
+    }
+
+    button {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        overflow: hidden;
     }
 }
 
@@ -462,6 +482,13 @@ input[type="range"] {
         flex-grow: 1;
         font-size: 15px;
         margin-right: 15px;
+
+        &[contenteditable] {
+            &:focus {
+                color: var(--text-text-primary2);
+                background-color: var(--surface-surface-primary3);
+            }
+        }
     }
     &__icon {
         flex-shrink: 0;
@@ -473,6 +500,10 @@ input[type="range"] {
     }
     &__btn {
         color: var(--icon-icon-secondary2);
+
+        * {
+            pointer-events: none;
+        }
         
         background: transparent;
         display: flex;
@@ -840,4 +871,33 @@ input[type="range"] {
         &:hover {
             opacity: .8;
         }
+}
+
+.normal-dropdown {
+    
+    background-color: #fff;
+    border-radius: 18px;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, .12);
+    z-index: 3;
+    padding: 10px 0;
+    
+    &__link {
+        text-align: left;
+        display: block;
+        width: 100%;
+        font-family: Roboto;
+        padding: 12px 20px;
+        font-size: 14px;
+        &:hover {
+            background-color: var(--surface-surface-primary3);
+        }
+    }
+}
+
+.radio-label {
+    input {
+        opacity: 0;
+        position: absolute;
+        cursor: pointer;
+    }
 }

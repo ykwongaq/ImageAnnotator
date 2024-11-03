@@ -62,6 +62,7 @@ class ModeView {
         this.undoButton = document.getElementById("undo-button");
         this.resetButton = document.getElementById("reset-button");
         this.confirmButton = document.getElementById("confirm-button");
+        this.actionContainer = document.getElementById("actionContainer");
 
         return this;
     }
@@ -161,11 +162,13 @@ class ModeView {
         this.undoButton.classList.remove("hidden");
         this.resetButton.classList.remove("hidden");
         this.confirmButton.classList.remove("hidden");
+        this.actionContainer.classList.remove('hidden');
     }
 
     hideActionButtons() {
         this.undoButton.classList.add("hidden");
         this.resetButton.classList.add("hidden");
         this.confirmButton.classList.add("hidden");
+        this.actionContainer.classList.add("hidden");
     }
 }

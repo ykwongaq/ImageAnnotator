@@ -7,6 +7,10 @@
     <link rel="stylesheet" href="./css/styles.css">
 </head>
 <body>
+    <div style="display: none;" id="icon" class="icon-container">
+        <img src="images/coralscan_icon.png" alt="icon" />
+    </div>
+    <!-- dummy for old js -->
     <div class="wrapper">
         <div class="header">
             <div class="logo-blk">
@@ -16,9 +20,14 @@
             <div class="header__main">
                 <div class="header__main-side"><a href="#!" class="arrow-link arrow-link--prev"><span class="ico ico--left"></span>All Image(1,200) </a></div>
                 <div class="header__middle">
-                    <a href="#!" class="circle-arrow circle-arrow--prev"><</a>
-                    <p class="header__title">Image-Name-Sample.jpeg</p>
-                    <a href="#!" class="circle-arrow circle-arrow--next">></a>
+                    <button id="prev-image-button" class="circle-arrow circle-arrow--prev"><</button>
+                    <p class="header__title" id="progress-info">Image-Name-Sample.jpeg</p>
+                    <button id="next-image-button" class="circle-arrow circle-arrow--next">></button>
+                    <div
+                            id="progress-bar"
+                            class="progressbar round-xlarge"
+                            style="width: 0%"
+                        ></div>
                 </div>
                 <div class="header__main-side"></div>
             </div>
@@ -28,10 +37,26 @@
                 <div class="side-bar__main">
                     <ul class="nav-list top">
                         <li class="nav-list__item">
-                            <a href="./" class="nav-list__button">A</a>
+                            <a href="./" id="back-to-main-page-button" class="nav-list__button">main</a>
                         </li>
-                        <li class="nav-list__item active">
-                            <a href="./" class="nav-list__button">B</a>
+                        <li class="nav-list__item">
+                            <button id="file-button" class="nav-list__button">file</button>
+                            <div id="file-dropdown-menu" class="normal-dropdown">
+                                <button class="normal-dropdown__link" id="load-project-button">Load Project</button>
+                                <button class="normal-dropdown__link" id="export-coco-button">Export COCO</button>
+                                <button class="normal-dropdown__link" id="export-excel-button">Export Excel</button>
+                                <button class="normal-dropdown__link" id="export-graph-button">Export Graph</button>
+                                <button class="normal-dropdown__link" id="export-all-button">Export All</button>
+                            </div>
+                        </li>
+                        <li class="nav-list__item">
+                            <button id="label-button" class="nav-list__button">label</button>
+                        </li>
+                        <li class="nav-list__item">
+                            <button id="statistic-button" class="nav-list__button">stat</button>
+                        </li>
+                        <li class="nav-list__item">
+                            <button id="setting-button" class="nav-list__button">set</button>
                         </li>
                     </ul>
 
@@ -49,15 +74,15 @@
                     <div class="side-bar__blk">
                         <div class="slider-blk">
                             <div class="slider-blk__inner">
-                                <input min="0" max="100" value="0" type="range"></div>
-                                <input type="text" value="0%" >
+                                <input id="mask-opacity-silder" min="0" max="100" value="60" type="range"></div>
+                                <input type="text" value="60%" >
                         </div>
                     </div>
                     <div class="side-bar__blk">
                         <div class="toggle-blk">
                             <p class="toggle-blk__title">Show Mask</p>
                             <label class="switch">
-                            <input type="checkbox">
+                            <input type="checkbox" id="toogle-mask-button">
                             <span class="switch__slider"></span>
                             </label>
                         </div>
@@ -72,8 +97,9 @@
                                         id="status-1-button"
                                         type="radio"
                                         value="0"
+                                        checked
                                     />
-                                    <span>Bleached</span>
+                                    <span>Healthy</span>
                                 </label>
                                 <label class="radio-btn-gp__label">
                                     <input
@@ -107,81 +133,35 @@
                                     placeholder="Search label"
                                     name="search"
                                 >
+                                <button id="search-button" type="submit">
+                                    <i class="fa fa-search"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
                     <div class="side-bar__bottom">
+                        <template id="label-button-template">
+                            <div class="label-blk labelButton color-plate-list__item">
+                                <div class="label-blk__color color-plate-list__color-plate colorBox"></div>
+                                <p class="label-blk__label labelText" contenteditable="false">Staghorn Coral</p>
+                                <div class="label-blk__side">
+                                    <button class="label-blk__btn label-hide-fn"><span class="icon">1</span></button>
+                                    <button class="label-blk__btn label-menu-fn"><span class="icon">2</span></button>
+                                </div>
+                            </div>
+                        </template>
+                        <template id="label-small-btn-template">
+                            <div class="label-sm-blk color-plate-list__item toggle-color-plate-popup__list-item">
+                                <button class="label-sm-blk__btn color-plate-list__color-plate colorBox"><span class="hidden labelText label-sm-blk__text"></span></button>
+                            </div>
+                        </template>
                         <div id="label-container" class="label-container color-plate-list">
-                            <div class="label-blk color-plate-list__item">
-                                <div class="label-blk__color color-plate-list__color-plate"></div>
-                                <p class="label-blk__label">Staghorn Coral</p>
-                                <div class="label-blk__side">
-                                    <button class="label-blk__btn label-hide-fn"><span class="icon">1</span></button>
-                                    <span class="label-blk__btn label-blk__btn--drag"><span class="icon">2</span></span>
-                                </div>
-                            </div>
-                            <div class="label-blk color-plate-list__item">
-                                <div class="label-blk__color color-plate-list__color-plate"></div>
-                                <p class="label-blk__label">Staghorn Coral</p>
-                                <div class="label-blk__side">
-                                    <button class="label-blk__btn label-hide-fn"><span class="icon">1</span></button>
-                                    <span class="label-blk__btn label-blk__btn--drag"><span class="icon">2</span></span>
-                                </div>
-                            </div>
-                            <div class="label-blk color-plate-list__item">
-                                <div class="label-blk__color color-plate-list__color-plate"></div>
-                                <p class="label-blk__label">Staghorn Coral</p>
-                                <div class="label-blk__side">
-                                    <button class="label-blk__btn label-hide-fn"><span class="icon">1</span></button>
-                                    <span class="label-blk__btn label-blk__btn--drag"><span class="icon">2</span></span>
-                                </div>
-                            </div>
-                            <div class="label-blk color-plate-list__item">
-                                <div class="label-blk__color color-plate-list__color-plate"></div>
-                                <p class="label-blk__label">Staghorn Coral</p>
-                                <div class="label-blk__side">
-                                    <button class="label-blk__btn label-hide-fn"><span class="icon">1</span></button>
-                                    <span class="label-blk__btn label-blk__btn--drag"><span class="icon">2</span></span>
-                                </div>
-                            </div>
-                            <div class="label-blk color-plate-list__item">
-                                <div class="label-blk__color color-plate-list__color-plate"></div>
-                                <p class="label-blk__label">Staghorn Coral</p>
-                                <div class="label-blk__side">
-                                    <button class="label-blk__btn label-hide-fn"><span class="icon">1</span></button>
-                                    <span class="label-blk__btn label-blk__btn--drag"><span class="icon">2</span></span>
-                                </div>
-                            </div>
-                            <div class="label-blk color-plate-list__item">
-                                <div class="label-blk__color color-plate-list__color-plate"></div>
-                                <p class="label-blk__label">Staghorn Coral</p>
-                                <div class="label-blk__side">
-                                    <button class="label-blk__btn label-hide-fn"><span class="icon">1</span></button>
-                                    <span class="label-blk__btn label-blk__btn--drag"><span class="icon">2</span></span>
-                                </div>
-                            </div>
-                            <div class="label-blk color-plate-list__item">
-                                <div class="label-blk__color color-plate-list__color-plate"></div>
-                                <p class="label-blk__label">Staghorn Coral</p>
-                                <div class="label-blk__side">
-                                    <button class="label-blk__btn label-hide-fn"><span class="icon">1</span></button>
-                                    <span class="label-blk__btn label-blk__btn--drag"><span class="icon">2</span></span>
-                                </div>
-                            </div>
-                            <div class="label-blk color-plate-list__item">
-                                <div class="label-blk__color color-plate-list__color-plate"></div>
-                                <p class="label-blk__label">Staghorn Coral 2</p>
-                                <div class="label-blk__side">
-                                    <button class="label-blk__btn label-hide-fn"><span class="icon">1</span></button>
-                                    <span class="label-blk__btn label-blk__btn--drag"><span class="icon">2</span></span>
-                                </div>
-                            </div>
                         </div>
                     </div>
                     <div class="side-bar__blk">
                         <div class="toggle-input-blk toggle-fn">
                             <button class="toggle-input-blk__btn toggle-fn__btn"><span class="icon"></span><span class="text"></span></button>
-                            <div class="input-blk toggle-input-blk__hide">
+                            <div class="input-blk toggle-fn__hide">
                                 <div class="input-blk__wrap">
                                     <input
                                         type="text"
@@ -195,66 +175,192 @@
                     </div>
                 </div>
             </nav>
-            <div class="main-section">
+            <div id="annotationPage" class="main-section page">
+                <div class="canvas-container">
+                    <canvas id="canvas" class="canvas"></canvas>
+                </div>
 
                 <div class="float-bar">
                     <div class="float-bar__inner">
                         <div class="float-bar__item">
-                            <button class="float-bar__button">Add Mask</button>
+                                <label class="float-bar__button radio-label">
+                                    <input
+                                        name="editMode"
+                                        id="label-mask-button"
+                                        type="checkbox"
+                                        value="0"
+                                        checked
+                                    />
+                                    Edit
+                                </label>
                         </div>
                         <div class="float-bar__item">
-                            <button class="float-bar__button">Remove</button>
+                                <label class="float-bar__button radio-label">
+                                    <input
+                                        name="editMode"
+                                        id="add-mask-button"
+                                        type="radio"
+                                        value="1"
+                                    />
+                                    Add Mask
+                                </label>
+                        </div>
+                        <div class="float-bar__item">
+                                <label class="float-bar__button radio-label">
+                                    <input
+                                        name="editMode"
+                                        id="remove-mask-button"
+                                        type="radio"
+                                        value="2"
+                                        checked
+                                    />
+                                    Remove
+                                </label>
                         </div>
                         <div class="float-bar__item">
                             <div class="toggle-color-plate-popup toggle-fn">
                                 <div class="toggle-color-plate-popup__pop toggle-fn__hide">
                                     <p class="toggle-color-plate-popup__label">Colour</p>
-                                    <div class="color-plate-list toggle-color-plate-popup__list">
-                                        <div class="color-plate-list__item toggle-color-plate-popup__list-item">
-                                            <button class="color-plate-list__color-plate"></button>
-                                        </div>
-                                        <div class="color-plate-list__item toggle-color-plate-popup__list-item">
-                                            <button class="color-plate-list__color-plate "></button>
-                                        </div>
-                                        <div class="color-plate-list__item toggle-color-plate-popup__list-item">
-                                            <button class="color-plate-list__color-plate "></button>
-                                        </div>
-                                        <div class="color-plate-list__item toggle-color-plate-popup__list-item">
-                                            <button class="color-plate-list__color-plate "></button>
-                                        </div>
-                                        <div class="color-plate-list__item toggle-color-plate-popup__list-item">
-                                            <button class="color-plate-list__color-plate "></button>
-                                        </div>
-                                        <div class="color-plate-list__item toggle-color-plate-popup__list-item">
-                                            <button class="color-plate-list__color-plate "></button>
-                                        </div>
-                                        <div class="color-plate-list__item toggle-color-plate-popup__list-item">
-                                            <button class="color-plate-list__color-plate "></button>
-                                        </div>
+                                    <div class="color-plate-list toggle-color-plate-popup__list" id="color-selection-container">
+                                        
                                     </div>
                                 </div>
-                                <button class="toggle-fn__btn toggle-color-plate-popup__button float-bar__button"> <span class="color-blk"></span> Label</button>
+                                <button class="toggle-fn__btn toggle-color-plate-popup__button float-bar__button"> <span id="selected-label-color" class="color-blk"></span> <span id="selectedLabelColorText">Label</span></button>
                             </div>
                         </div>
-                        <div class="float-bar__item">
-                                <button class="float-bar__button">pr</button>
-                                <button class="float-bar__button">ne</button>
+                        <div id="actionContainer" class="float-bar__item actionButton">
+                                <button id="undo-button" class="float-bar__button">Undo</button>
+                                <button id="reset-button" class="float-bar__button">Reset</button>
+                                <button id="confirm-button" class="float-bar__button">Confirm</button>
                         </div>
                     </div>
                 </div>
 
                 <div class="canvas-control">
                     <button class="canvas-control__item">+</button>
-                    <p class="canvas-control__label canvas-control__item">100%</p>
+                    <button id="reset-viewpoint-button" class="canvas-control__label canvas-control__item">100%</button>
                     <button class="canvas-control__item">-</button>
                 </div>
             </div>
+            <div id="statisticPage" class="main-section page statistic-page">
+                <div class="statistic-content-container">
+                    <section class="chart-group">
+                        <h2 class="group-title">Statistic Report</h2>
+                        <div id="current-image-grid" class="charts-grid"></div>
+                    </section>
+                </div>
+                <template id="chart-item-template">
+                    <div class="chart-item">
+                        <div class="chart"></div>
+                        <button class="download-btn">Download PNG</button>
+                    </div>
+                </template>
+            </div>
+            <div id="settingPage" class="main-section page">
+                <template id="chart-item-template">
+                    <div class="chart-item">
+                        <div class="chart"></div>
+                        <button class="download-btn">Download PNG</button>
+                    </div>
+                </template>
+                <div class="setting-container">
+                <button id="save-setting-button" class="save-button">
+                    Save Settings
+                </button>
+                <div class="settings-group">
+                    <div class="group-header">Mask Display</div>
+                    <p>Filter out the unwanted masks generated by model.</p>
+
+                    <div class="setting-item">
+                        <label id="min-area-text" for="min-area-slider"
+                            >Min Area:</label
+                        >
+                        <input
+                            type="range"
+                            id="min-area-slider"
+                            name="min-area"
+                            min="0"
+                            max="20"
+                            step="0.1"
+                        />
+                        <div class="setting-description">
+                            Filter out the masks that is too small. (in % of
+                            pixel area of the image). Range (0-20)
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <label
+                            id="min-confidence-text"
+                            for="min-confidence-slider"
+                            >Min Confidence</label
+                        >
+                        <input
+                            type="range"
+                            id="min-confidence-slider"
+                            name="min-confidence"
+                            min="0"
+                            max="100"
+                        />
+                        <div class="setting-description">
+                            Filter out the masks that is too low confidence. It
+                            can increase the reliability of the annotation. (in
+                            %).
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <label id="max-overlap-text" for="max-overlap-slider"
+                            >Max Overlap</label
+                        >
+                        <input
+                            type="range"
+                            id="max-overlap-slider"
+                            name="max-overlap"
+                            min="0"
+                            max="100"
+                        />
+                        <div class="setting-description">
+                            Filter out the masks that overlap too much with
+                            other masks. It overlaps is measured using
+                            Intersection over Union (IoU). (in %).
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+            <div id="defaultPage" class="main-section page">
+                this is default
+            </div>
         </div>
     </div>
+
+    <div id="label-dropdown-menu" class="normal-dropdown label-dropdown-menu">
+            <button class="normal-dropdown__link" id="rename-label-button">Rename</button>
+            <button class="normal-dropdown__link" id="delete-label-button">Delete</button>
+        </div>
+
     <script src="./js/lib/Sortable.js"></script>
     <script src="./js/slider.js"></script>
     <script src="./js/toggle-input.js"></script>
     <script src="./js/label-reorder.js"></script>
     <script src="./js/testing.js"></script>
+    <script src="./eel.js"></script>
+    <script src="js/navigate.js"></script>
+    <script src="js/label/canvas.js"></script>
+    <script src="js/label/config.js"></script>
+    <script src="js/label/dataset.js"></script>
+    <script src="js/label/Label.js"></script>
+    <script src="js/label/LabelView-new.js"></script>
+    <script src="js/label/modeView.js"></script>
+    <script src="js/label/topNavigationBar.js"></script>
+    <script src="js/label/opacityView.js"></script>
+    <script src="js/label/progressInfoView.js"></script>
+    <script src="js/label/bottomNavigationBar.js"></script>
+    <script src="js/label/core.js"></script>
+    <script src="js/label/settingPage.js"></script>
+    <script src="js/label/labelPage.js"></script>
+    <script src="js/label/chart.js"></script>
+    <script src="js/label/statisticPage.js"></script>
 </body>
 </html>

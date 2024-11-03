@@ -29,50 +29,34 @@ class BottomNavigationBar {
 
     disablePrevImageButton() {
         this.prevImageButton.disabled = true;
-        this.prevImageButton.style.color = "gray";
-        this.prevImageButton.style.cursor = "not-allowed";
     }
 
     reEnablePrevImageButton() {
         this.prevImageButton.disabled = false;
-        this.prevImageButton.style.color = "black";
-        this.prevImageButton.style.cursor = "pointer";
     }
 
     disableNextImageButton() {
         this.nextImageButton.disabled = true;
-        this.nextImageButton.style.color = "gray";
-        this.nextImageButton.style.cursor = "not-allowed";
     }
 
     reEnableNextImageButton() {
         this.nextImageButton.disabled = false;
-        this.nextImageButton.style.color = "black";
-        this.nextImageButton.style.cursor = "pointer";
     }
 
     disableResetViewPointButton() {
         this.resetViewPoint.disabled = true;
-        this.resetViewPoint.style.color = "gray";
-        this.resetViewPoint.style.cursor = "not-allowed";
     }
 
     reEnableResetViewPointButton() {
         this.resetViewPoint.disabled = false;
-        this.resetViewPoint.style.color = "black";
-        this.resetViewPoint.style.cursor = "pointer";
     }
 
     disableToogleMaskButton() {
         this.toogleMaskButton.disabled = true;
-        this.toogleMaskButton.style.color = "gray";
-        this.toogleMaskButton.style.cursor = "not-allowed";
     }
 
     reEnableToogleMaskButton() {
         this.toogleMaskButton.disabled = false;
-        this.toogleMaskButton.style.color = "black";
-        this.toogleMaskButton.style.cursor = "pointer";
     }
 
     enablePrevImageButton() {

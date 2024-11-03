@@ -90,7 +90,9 @@ class StatisticPage {
             this.chartItemTemplate.content,
             true
         );
-        const chartContainer = chartItem.querySelector(".chart");
+        const chartContainer = chartItem.querySelector(
+          ".color-plate-list__color-plate"
+        );
         const downloadButton = chartItem.querySelector(".download-btn");
 
         let totalCoralColonyCount = 0;

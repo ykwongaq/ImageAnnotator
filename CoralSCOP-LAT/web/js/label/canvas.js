@@ -35,7 +35,7 @@ class Canvas {
         this.imageWidth = 0;
         this.imageHeight = 0;
 
-        this.maskOpacity = 0.5;
+        this.maskOpacity = 0.6;
 
         this.edittingMask = null;
         this.edittingMaskColor = `rgba (${30 / 255}, ${144 / 255}, ${

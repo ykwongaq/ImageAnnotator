@@ -371,7 +371,20 @@ class LabelManager {
     }
 
     static renameLabel(labelId) {
-        
+        if (labelId === 0) {
+          alert("Cannot rename Dead Coral label");
+          return;
+        }
+        if (LabelManager.isHealthyCoral(labelId)) {
+          labelToRemove_1 = labelId;
+          labelToRemove_2 = LabelManager.getBleachedLabelIdOf(labelId);
+        } else if (LabelManager.isBleachCoral(labelId)) {
+          labelToRemove_1 = labelId;
+          labelToRemove_2 = LabelManager.getHealthyLabelIdOf(labelId);
+        } else {
+          console.error("Invalid label id: ", labelId);
+          return;
+        }
     }
 
     static removeLabel(labelId) {

@@ -17,6 +17,10 @@ class ToggleInput {
     return this;
   }
 
+  _hide() {
+    this.container.classList.remove("open");
+  }
+
   on(eventName, handler) {
     if (!this.eventHandlers[eventName]) {
       this.eventHandlers[eventName] = [];

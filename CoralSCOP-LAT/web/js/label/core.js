@@ -157,6 +157,9 @@ class Core {
     }
 
     showPage(pageId) {
+
+
+        
         const pages = document.querySelectorAll(".page");
         pages.forEach((page) => {
             page.classList.remove("active-page");
