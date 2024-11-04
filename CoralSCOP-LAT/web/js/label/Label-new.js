@@ -275,14 +275,9 @@ class LabelManager {
       }
 
       // Check if the labelId exists in current image
-      const dataset = new Dataset();
-      const data = dataset.getCurrentData();
+      
 
-      for (const mask of data.getMasks()) {
-        if (mask.getCategoryId() == labelId_1) {
-            console.log("mask", mask);
-        }
-      }
+     
     }
 
     static tryRemoveLabel(labelId_1, labelId_2) {

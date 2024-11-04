@@ -20,6 +20,7 @@ class Canvas {
         this.scale = 1.0;
         this.origin = { x: 0, y: 0 };
         this.zoomIntensity = 0.2;
+        this.zoomStep = 0.4;
         this.image_top_left = { x: 0, y: 0 };
         this.image_bottom_right = { x: 0, y: 0 };
         this.isDragging = false;
@@ -564,5 +565,16 @@ class Canvas {
 
     setEdittingLabel(label) {
         this.edittingLabel = label;
+    }
+
+    zoomIn() {
+        this.origin.x += this.zoomStep * this.scale * (1 / this.zoomStep);
+        this.origin.y += this.zoomStep * this.scale * (1 / this.zoomStep);
+        this.scale += this.zoomStep;
+    }
+    zoomOut() {
+        this.origin.x -= this.zoomStep * this.scale * (1 / this.zoomStep);
+        this.origin.y -= this.zoomStep * this.scale * (1 / this.zoomStep);
+        this.scale -= this.zoomStep;
     }
 }

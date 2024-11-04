@@ -196,12 +196,12 @@ class LabelView {
 
       colorBoxSmallButton.style.backgroundColor = color;
       colorBoxSmallButton.style.borderColor = borderColor;
-      labelTextSmallButton.innerHTML = labelText.innerHTML;
+      labelTextSmallButton.innerHTML = LabelManager.getCategoryDisplayId(labelId);
       
       colorBoxSmallButton.addEventListener("click", (event) => {
         this.labelButtonLeftClicked(labelId, labelName, labelText);
-        this.selectedLabelColor.style.backgroundColor = color;
-        this.selectedLabelColor.style.borderColor = borderColor;
+        // this.selectedLabelColor.style.backgroundColor = color;
+        // this.selectedLabelColor.style.borderColor = borderColor;
         this.toggleLabelMask();
       });
 

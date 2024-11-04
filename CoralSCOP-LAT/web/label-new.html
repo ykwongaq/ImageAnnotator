@@ -152,7 +152,7 @@
                         </template>
                         <template id="label-small-btn-template">
                             <div class="label-sm-blk color-plate-list__item toggle-color-plate-popup__list-item">
-                                <button class="label-sm-blk__btn color-plate-list__color-plate colorBox"><span class="hidden labelText label-sm-blk__text"></span></button>
+                                <button class="label-sm-blk__btn color-plate-list__color-plate colorBox"><span class="labelText label-sm-blk__text"></span></button>
                             </div>
                         </template>
                         <div id="label-container" class="label-container color-plate-list">
@@ -237,9 +237,9 @@
                 </div>
 
                 <div class="canvas-control">
-                    <button class="canvas-control__item">+</button>
+                    <button id="zoomin-viewpoint-button" class="canvas-control__item">+</button>
                     <button id="reset-viewpoint-button" class="canvas-control__label canvas-control__item">100%</button>
-                    <button class="canvas-control__item">-</button>
+                    <button id="zoomout-viewpoint-button" class="canvas-control__item">-</button>
                 </div>
             </div>
             <div id="statisticPage" class="main-section page statistic-page">
@@ -340,10 +340,8 @@
             <button class="normal-dropdown__link" id="delete-label-button">Delete</button>
         </div>
 
-    <script src="./js/lib/Sortable.js"></script>
     <script src="./js/slider.js"></script>
     <script src="./js/toggle-input.js"></script>
-    <script src="./js/label-reorder.js"></script>
     <script src="./js/testing.js"></script>
     <script src="./eel.js"></script>
     <script src="js/navigate.js"></script>

@@ -4,6 +4,8 @@ class BottomNavigationBar {
         this.nextImageButton = document.getElementById("next-image-button");
         this.resetViewPoint = document.getElementById("reset-viewpoint-button");
         this.toogleMaskButton = document.getElementById("toogle-mask-button");
+        this.zoomInButton = document.getElementById("zoomin-viewpoint-button");
+        this.zoomOutButton = document.getElementById("zoomout-viewpoint-button");
     }
 
     enable() {
@@ -11,6 +13,9 @@ class BottomNavigationBar {
         this.enableNextImageButton();
         this.enableResetViewPointButton();
         this.enableToogleMaskButton();
+        this.enableToogleMaskButton();
+        this.enableZoomInButton();
+        this.enableZoomOutButton();
     }
 
     disable() {
@@ -18,6 +23,8 @@ class BottomNavigationBar {
         this.disableNextImageButton();
         this.disableResetViewPointButton();
         this.disableToogleMaskButton();
+        this.disableZoomInButton();
+        this.disableZoomOutButton();
     }
 
     reEnable() {
@@ -25,6 +32,8 @@ class BottomNavigationBar {
         this.reEnableNextImageButton();
         this.reEnableResetViewPointButton();
         this.reEnableToogleMaskButton();
+        this.reEnableZoomInButton();
+        this.reEnableZoomOutButton();
     }
 
     disablePrevImageButton() {
@@ -57,6 +66,22 @@ class BottomNavigationBar {
 
     reEnableToogleMaskButton() {
         this.toogleMaskButton.disabled = false;
+    }
+
+    disableZoomInButton() {
+        this.zoomInButton.disabled = true;
+    }
+
+    reEnableZoomInButton() {
+        this.zoomInButton.disabled = false;
+    }
+
+    disableZoomOutButton() {
+        this.zoomOutButton.disabled = true;
+    }
+
+    reEnableZoomOutButton() {
+        this.zoomOutButton.disabled = false;
     }
 
     enablePrevImageButton() {
@@ -163,6 +188,22 @@ class BottomNavigationBar {
                     this.toogleMaskButton.click();
                 }
             }
+        });
+    }
+
+    enableZoomInButton() {
+        this.zoomInButton.addEventListener("click", (event) => {
+            event.preventDefault();
+            const canvas = new Canvas();
+            canvas.zoomIn();
+        });
+    }
+
+    enableZoomOutButton() {
+        this.zoomOutButton.addEventListener("click", (event) => {
+            event.preventDefault();
+            const canvas = new Canvas();
+            canvas.zoomOut();
         });
     }
 }
