@@ -13,7 +13,6 @@ class BottomNavigationBar {
         this.enableNextImageButton();
         this.enableResetViewPointButton();
         this.enableToogleMaskButton();
-        this.enableToogleMaskButton();
         this.enableZoomInButton();
         this.enableZoomOutButton();
     }
