@@ -28,6 +28,7 @@ class LabelView {
     this.currentStatus = LabelView.HEALTHY_STATUS;
 
     this.selectedDeleteId = null;
+    this.hidedCategory = [];
 
     return this;
   }
@@ -161,7 +162,17 @@ class LabelView {
 
       // Add listeners to the label button
 
-      maskHideButton.addEventListener("click", (event) => {});
+      maskHideButton.addEventListener("click", (event) => {
+        event.preventDefault();
+        const index = this.hidedCategory.indexOf(labelId);
+        if (index !== -1) {
+          this.hidedCategory.splice(index, 1);
+        } else {
+          this.hidedCategory.push(labelId);
+        }
+        maskHideButton.classList.toggle('active');
+        this.toggleLabelMask();
+      });
 
       menuButton.addEventListener("click", (event) => {
         console.log("click menu", event, labelId);
@@ -191,6 +202,7 @@ class LabelView {
         this.labelButtonLeftClicked(labelId, labelName, labelText);
         this.selectedLabelColor.style.backgroundColor = color;
         this.selectedLabelColor.style.borderColor = borderColor;
+        this.toggleLabelMask();
       });
 
       this.colorSelectionContainer.appendChild(labelSmallButton);
@@ -261,5 +273,15 @@ class LabelView {
     if (selectedButton) {
       selectedButton.classList.remove("selected");
     }
+  }
+
+  toggleLabelMask() {
+    const dataset = new Dataset();
+    const data = dataset.getCurrentData();
+     for (const mask of data.getMasks()) {
+         mask.setShouldDisplay(!this.hidedCategory.includes(mask.getCategoryId()));
+     }
+     const canvas = new Canvas();
+     canvas.updateMasks();
   }
 }

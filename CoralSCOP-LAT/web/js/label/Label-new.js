@@ -262,6 +262,29 @@ class LabelManager {
         return LabelManager.setToSortedList(LabelManager.bleachCoralIdxees);
     }
 
+    static tryRenameLabel(labelId_1, labelId_2) {
+      // Ensure that the labelId is not 0
+      if (labelId_1 === 0) {
+        alert("Cannot rename Dead Coral label");
+        return false;
+      }
+
+      if (labelId_2 === 0) {
+        alert("Cannot rename Dead Coral label");
+        return false;
+      }
+
+      // Check if the labelId exists in current image
+      const dataset = new Dataset();
+      const data = dataset.getCurrentData();
+
+      for (const mask of data.getMasks()) {
+        if (mask.getCategoryId() == labelId_1) {
+            console.log("mask", mask);
+        }
+      }
+    }
+
     static tryRemoveLabel(labelId_1, labelId_2) {
         // Ensure that the labelId is not 0
         if (labelId_1 === 0) {
@@ -375,16 +398,20 @@ class LabelManager {
           alert("Cannot rename Dead Coral label");
           return;
         }
+        let labelToRename_1 = null;
+        let labelToRename_2 = null;
         if (LabelManager.isHealthyCoral(labelId)) {
-          labelToRemove_1 = labelId;
-          labelToRemove_2 = LabelManager.getBleachedLabelIdOf(labelId);
+          labelToRename_1 = labelId;
+          labelToRename_2 = LabelManager.getBleachedLabelIdOf(labelId);
         } else if (LabelManager.isBleachCoral(labelId)) {
-          labelToRemove_1 = labelId;
-          labelToRemove_2 = LabelManager.getHealthyLabelIdOf(labelId);
+          labelToRename_1 = labelId;
+          labelToRename_2 = LabelManager.getHealthyLabelIdOf(labelId);
         } else {
           console.error("Invalid label id: ", labelId);
           return;
         }
+
+        this.tryRenameLabel(labelToRename_1, labelToRename_2);
     }
 
     static removeLabel(labelId) {
