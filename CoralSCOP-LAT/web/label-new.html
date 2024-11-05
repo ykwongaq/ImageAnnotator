@@ -180,19 +180,32 @@
                     <canvas id="canvas" class="canvas"></canvas>
                 </div>
 
-                <div class="float-bar">
+                <div class="float-bar" id="default-bar">
                     <div class="float-bar__inner">
                         <div class="float-bar__item">
+                            <div class="toggle-color-plate-popup toggle-fn">
+                                <div class="toggle-color-plate-popup__pop toggle-fn__hide">
+                                    <p class="toggle-color-plate-popup__label">Colour</p>
+                                    <div class="color-plate-list toggle-color-plate-popup__list" id="color-selection-container">
+                                    </div>
+                                </div>
+                                <button class="toggle-fn__btn toggle-color-plate-popup__button float-bar__button"> <span id="selected-label-color" class="color-blk"></span> <span id="selectedLabelColorText">Label</span></button>
+                            </div>
+                        </div>
+                        <div class="float-bar__item" id="edit-btn-blk">
                                 <label class="float-bar__button radio-label">
                                     <input
                                         name="editMode"
                                         id="label-mask-button"
-                                        type="checkbox"
+                                        type="radio"
                                         value="0"
                                         checked
                                     />
                                     Edit
                                 </label>
+                        </div>
+                        <div class="float-bar__item">
+                                <button id="remove-button" class="float-bar__button">Remove</button>
                         </div>
                         <div class="float-bar__item">
                                 <label class="float-bar__button radio-label">
@@ -205,36 +218,28 @@
                                     Add Mask
                                 </label>
                         </div>
-                        <div class="float-bar__item">
-                                <label class="float-bar__button radio-label">
-                                    <input
-                                        name="editMode"
-                                        id="remove-mask-button"
-                                        type="radio"
-                                        value="2"
-                                        checked
-                                    />
-                                    Remove
-                                </label>
-                        </div>
-                        <div class="float-bar__item">
-                            <div class="toggle-color-plate-popup toggle-fn">
-                                <div class="toggle-color-plate-popup__pop toggle-fn__hide">
-                                    <p class="toggle-color-plate-popup__label">Colour</p>
-                                    <div class="color-plate-list toggle-color-plate-popup__list" id="color-selection-container">
-                                        
-                                    </div>
-                                </div>
-                                <button class="toggle-fn__btn toggle-color-plate-popup__button float-bar__button"> <span id="selected-label-color" class="color-blk"></span> <span id="selectedLabelColorText">Label</span></button>
-                            </div>
-                        </div>
-                        <div id="actionContainer" class="float-bar__item actionButton">
-                                <button id="undo-button" class="float-bar__button">Undo</button>
-                                <button id="reset-button" class="float-bar__button">Reset</button>
-                                <button id="confirm-button" class="float-bar__button">Confirm</button>
-                        </div>
+                        
+                        
+                        
                     </div>
                 </div>
+
+                <div id="actionContainer-bar" class="float-bar">
+                            <div class="float-bar__inner">
+                                <div class="float-bar__item">
+                                    <div id="actionContainer" class="float-bar__item actionButton">
+                                            <button id="undo-button" class="float-bar__button hidden">Undo</button>
+                                            <button id="reset-button" class="float-bar__button hidden">Reset</button>
+                                            <button id="confirm-button" class="float-bar__button hidden">Confirm</button>
+                                    </div>
+                                </div>
+                                <div class="float-bar__item">
+                                    <button id="back-to-edit-mode-btn" class="float-bar__button">Back</button>
+                                </div>
+                            </div>
+                        </div>
+
+                
 
                 <div class="canvas-control">
                     <button id="zoomin-viewpoint-button" class="canvas-control__item">+</button>

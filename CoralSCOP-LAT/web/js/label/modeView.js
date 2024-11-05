@@ -59,10 +59,12 @@ class ModeView {
         ModeView.instance = this;
 
         this.modeRadios = document.querySelectorAll("input[name='editMode']");
+        this.labelMaskRadio = document.getElementById("label-mask-button");
         this.undoButton = document.getElementById("undo-button");
         this.resetButton = document.getElementById("reset-button");
         this.confirmButton = document.getElementById("confirm-button");
-        this.actionContainer = document.getElementById("actionContainer");
+        this.removeButton = document.getElementById("remove-button");
+        this.backButton = document.getElementById("back-to-edit-mode-btn");
 
         return this;
     }
@@ -72,21 +74,15 @@ class ModeView {
         this.enableUndoButton();
         this.enableConfirmButton();
         this.enableResetButton();
+        this.enableBackButton();
+        this.enableRemoveButton();
     }
 
     enableRadioButtons() {
         this.modeRadios.forEach((radio) => {
             radio.addEventListener("change", (event) => {
                 const mode = parseInt(event.target.value);
-                Annotator.setMode(mode);
-                Annotator.clearSelection();
-                this.clearEdittedMask();
-                this.hideActionButtons();
-                if (mode == Annotator.ADD_MASK) {
-                    this.showActionButtons();
-                } else if (mode == Annotator.DELETE_MASK) {
-                    this.showConfirmButton();
-                }
+                this.radioChangeEventFn(mode);
             });
         });
     }
@@ -108,6 +104,13 @@ class ModeView {
         });
     }
 
+    enableRemoveButton() {
+        this.removeButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            this.showConfirmButton();
+        })
+    }
+
     enableConfirmButton() {
         this.confirmButton.addEventListener("click", () => {
             const dataset = new Dataset();
@@ -123,16 +126,22 @@ class ModeView {
                     canvas.updateMasks();
 
                     this.clearEdittedMask();
+                    this.backToLabelMaskMode();
                 });
-            } else if (Annotator.getCurrentMode() === Annotator.DELETE_MASK) {
-                const selectedMasks = Annotator.getSelectedMasks();
-                const currentData = dataset.getCurrentData();
-                for (const mask of selectedMasks) {
-                    currentData.removeMask(mask);
-                }
-                Annotator.clearSelection();
-                const canvas = new Canvas(null);
-                canvas.updateMasks();
+                
+            } else if (
+              Annotator.getCurrentMode() === Annotator.DELETE_MASK ||
+              Annotator.getCurrentMode() === Annotator.LABEL_MASK
+            ) {
+              const selectedMasks = Annotator.getSelectedMasks();
+              const currentData = dataset.getCurrentData();
+              for (const mask of selectedMasks) {
+                currentData.removeMask(mask);
+              }
+              Annotator.clearSelection();
+              const canvas = new Canvas(null);
+              canvas.updateMasks();
+              this.hideActionButtons();
             }
         });
     }
@@ -140,6 +149,29 @@ class ModeView {
     enableResetButton() {
         this.resetButton.addEventListener("click", () => {
             this.clearEdittedMask();
+        });
+    }
+
+    enableBackButton() {
+        this.backButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            if(Annotator.getCurrentMode() == Annotator.LABEL_MASK) {
+                this.hideActionButtons();
+            } else {
+                this.backToLabelMaskMode();
+            }
+        })
+    }
+    
+    backToLabelMaskMode() {
+        this.modeRadios.forEach((radio) => {
+          if (radio == this.labelMaskRadio) {
+            radio.checked = true;
+            const mode = parseInt(radio.value);
+            this.radioChangeEventFn(mode);
+          } else {
+            radio.checked = false;
+          }
         });
     }
 
@@ -162,13 +194,25 @@ class ModeView {
         this.undoButton.classList.remove("hidden");
         this.resetButton.classList.remove("hidden");
         this.confirmButton.classList.remove("hidden");
-        this.actionContainer.classList.remove('hidden');
     }
 
     hideActionButtons() {
         this.undoButton.classList.add("hidden");
         this.resetButton.classList.add("hidden");
         this.confirmButton.classList.add("hidden");
-        this.actionContainer.classList.add("hidden");
+    }
+
+    radioChangeEventFn(mode) {
+        if (mode !== Annotator.getCurrentMode)  {
+            Annotator.setMode(mode);
+            Annotator.clearSelection();
+            this.clearEdittedMask();
+            this.hideActionButtons();
+        }
+        if (mode == Annotator.ADD_MASK) {
+          this.showActionButtons();
+        } else if (mode == Annotator.DELETE_MASK) {
+          this.showConfirmButton();
+        }
     }
 }

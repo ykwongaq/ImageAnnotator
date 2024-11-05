@@ -616,11 +616,13 @@ input[type=range]:active::-moz-range-thumb {
   padding: 18px 34px;
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
   transform: translateY(-70px);
+  transition: 0.2s all;
 }
 .float-bar__item {
   padding: 0 25px;
   height: 32;
   display: flex;
+  gap: 20px;
 }
 .float-bar__item:first-child {
   padding-left: 0;
@@ -654,10 +656,6 @@ input[type=range]:active::-moz-range-thumb {
 .float-bar__button:disabled, .float-bar__button.disabled {
   opacity: 0.6;
 }
-.float-bar__button + .float-bar__button {
-  margin-left: 20px;
-}
-
 .toggle-color-plate-popup {
   position: relative;
 }
@@ -888,7 +886,7 @@ button {
   background: transparent;
 }
 
-#actionContainer, #progress-bar, #rename-label-button {
+#progress-bar, #rename-label-button {
   display: none;
 }
 
@@ -1173,6 +1171,26 @@ button {
   padding: 40px;
   background-color: #fff;
   flex-grow: 1;
+}
+
+#edit-btn-blk {
+  display: none;
+}
+
+#confirm-button.hidden {
+  display: block !important;
+}
+
+html:has(#confirm-button:not(.hidden)) #default-bar .float-bar__inner {
+  opacity: 0;
+  transform: translateY(0);
+  visibility: hidden;
+}
+
+#actionContainer-bar:has(#confirm-button.hidden) .float-bar__inner {
+  opacity: 0;
+  transform: translateY(0);
+  visibility: hidden;
 }
 
 /*# sourceMappingURL=styles.css.map */

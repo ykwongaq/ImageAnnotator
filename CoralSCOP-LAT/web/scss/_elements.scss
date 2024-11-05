@@ -604,12 +604,15 @@ input[type="range"] {
         padding: 18px 34px;
         box-shadow: 0 0 10px 0 rgba(0, 0, 0, .2);
         transform: translateY(-70px);
+        transition: .2s all;
     }
 
     &__item {
         padding: 0 25px;
         height: 32;
         display: flex;
+
+        gap: 20px;
 
         &:first-child {
             padding-left: 0;
@@ -653,7 +656,6 @@ input[type="range"] {
     }
 
     &__button + &__button {
-        margin-left: 20px;
     }
 }
 

@@ -1,6 +1,6 @@
 @use 'sass:math';
 
-#actionContainer, #progress-bar, #rename-label-button {
+ #progress-bar, #rename-label-button {
     display: none;
 }
 
@@ -357,4 +357,26 @@
     padding: 40px;
     background-color: #fff;
     flex-grow: 1;
+}
+
+#edit-btn-blk {
+    display: none;
+}
+
+#confirm-button.hidden {
+    display: block !important;
+}
+
+html:has(#confirm-button:not(.hidden)) #default-bar {
+    .float-bar__inner {
+        opacity: 0;
+        transform: translateY(0);
+        visibility: hidden;
+    }
+}
+
+#actionContainer-bar:has(#confirm-button.hidden) .float-bar__inner {
+    opacity: 0;
+    transform: translateY(0);
+    visibility: hidden;
 }

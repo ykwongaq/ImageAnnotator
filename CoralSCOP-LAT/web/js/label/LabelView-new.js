@@ -203,6 +203,11 @@ class LabelView {
         // this.selectedLabelColor.style.backgroundColor = color;
         // this.selectedLabelColor.style.borderColor = borderColor;
         this.toggleLabelMask();
+
+        const toggleFn = colorBoxSmallButton.closest(".toggle-fn");
+        if(toggleFn && toggleFn.ToggleInput) {
+            toggleFn.ToggleInput._hide();
+        }
       });
 
       this.colorSelectionContainer.appendChild(labelSmallButton);
