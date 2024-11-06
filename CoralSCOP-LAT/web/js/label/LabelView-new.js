@@ -153,10 +153,12 @@ class LabelView {
 
       // Set the label button properties
       const color = LabelManager.getColorById(labelId);
+      const fontColor = LabelManager.getTextColorById(labelId);
       labelText.innerHTML = `${LabelManager.getCategoryDisplayId(
         labelId
       )}. ${labelName}`;
       colorBox.style.backgroundColor = color;
+      colorBox.style.color = fontColor
       const borderColor = LabelManager.getBorderColorById(labelId);
       colorBox.style.borderColor = borderColor;
 

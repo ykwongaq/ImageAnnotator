@@ -20,36 +20,50 @@ class LabelManager {
 
     static colorList = [
         "#000000",
-        "#00FF00",
-        "#FFFF00",
-        "#FF00FF",
-        "#00FFFF",
-        "#800000",
-        "#808000",
-        "#008000",
-        "#800080",
-        "#008080",
-        "#000080",
-        "#FFA500",
-        "#A52A2A",
-        "#8A2BE2",
-        "#DEB887",
-        "#5F9EA0",
-        "#7FFF00",
-        "#D2691E",
-        "#FF7F50",
-        "#6495ED",
-        "#DC143C",
-        "#00FA9A",
-        "#FFD700",
-        "#ADFF2F",
-        "#4B0082",
-        "#F0E68C",
-        "#E6E6FA",
-        "#FFB6C1",
-        "#20B2AA",
-        "#DA70D6",
-        "#FF6347",
+        "#F6C3CB",
+        "#EB361C",
+        "#225437",
+        "#F7D941",
+        "#73FBFE",
+        "#9EFCD6",
+        "#2B00F7",
+        "#F2AA34",
+        "#EF7C76",
+        "#BADFE5",
+        "#BED966",
+        "#CCE1FD",
+        "#F188E9",
+        "#6CFB45",
+        "#7FCBAC",
+        "#C9BFB6",
+        "#163263",
+        "#751608",
+        "#54AFAA",
+        "#5F0F63",
+    ];
+
+    static fontColorList = [
+        "#fff",
+        "#000",
+        "#fff",
+        "#fff",
+        "#000",
+        "#000",
+        "#000",
+        "#fff",
+        "#000",
+        "#000",
+        "#000",
+        "#000",
+        "#000",
+        "#000",
+        "#000",
+        "#000",
+        "#000",
+        "#fff",
+        "#fff",
+        "#fff",
+        "#fff",
     ];
 
     static getColorById(id) {
@@ -63,6 +77,19 @@ class LabelManager {
         }
         const colorNumber = id_ % this.colorList.length;
         return this.colorList[colorNumber];
+    }
+
+    static getTextColorById(id) {
+        if (id === null) {
+            return this.defaultColor;
+        }
+
+        let id_ = id;
+        if (LabelManager.isBleachCoral(id_)) {
+            id_ = LabelManager.getHealthyLabelIdOf(id_);
+        }
+        const colorNumber = id_ % this.fontColorList.length;
+        return this.fontColorList[colorNumber];
     }
 
     static exportJson() {
