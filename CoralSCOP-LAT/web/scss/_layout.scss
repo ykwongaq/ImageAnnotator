@@ -217,6 +217,30 @@
     padding: 0;
     margin: 0;
 
+    .arrow-tooltip {
+        --tool-height: 30px;
+        position: absolute;
+        height: 30px;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        border: 1px solid var(--text-text-primary2);
+        padding: 2px 18px;
+        font-size: 13px;
+        background-color: var(--surface-surface-primary3);
+        top: calc(50% - var(--tool-height)/2);
+        left: calc(100% - 10px) ;
+        z-index: 12;
+        transition: .2s all;
+        opacity: 0;
+        visibility: hidden;
+        transform: translate(-10px, 0);
+        box-shadow: 0 2px 4px 0 rgba(0,0,0,0.13);
+        border-radius: 4px;
+        pointer-events: none;
+    }
+
+
     &__item {
         position: relative;
 
@@ -227,6 +251,8 @@
             width: max-content;
             display: none;
         }
+
+       
     }
 
     &__button {
@@ -237,10 +263,22 @@
         justify-content: center;
         color: var(--icon-icon-primary1);
         background-color: #fff;
+        font-size: 32px;
+
+        * {
+            pointer-events: none;
+        }
 
         &:hover {
             background-color: #fafafa;
+             .arrow-tooltip {
+                opacity: 1;
+                visibility: visible;
+                transform: translate(0, 0);
+            }
         }
+
+       
     }
 
     &__item &__button.active {
@@ -380,3 +418,4 @@ html:has(#confirm-button:not(.hidden)) #default-bar {
     transform: translateY(0);
     visibility: hidden;
 }
+

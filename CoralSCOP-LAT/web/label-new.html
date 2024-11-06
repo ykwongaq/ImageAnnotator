@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Label page</title>
+    <link rel="stylesheet" href="./icon/style.css">
     <link rel="stylesheet" href="./css/styles.css">
 </head>
 <body>
@@ -18,11 +19,11 @@
                 <span class="logo-blk__text">CoralSCOP-LAT</span>
             </div>
             <div class="header__main">
-                <div class="header__main-side"><a href="#!" class="arrow-link arrow-link--prev"><span class="ico ico--left"></span>All Image(1,200) </a></div>
+                <div class="header__main-side"><a href="#!" class="arrow-link arrow-link--prev"><span class="ico-line-arrow-left"></span> All Image(1,200) </a></div>
                 <div class="header__middle">
-                    <button id="prev-image-button" class="circle-arrow circle-arrow--prev"><</button>
+                    <button id="prev-image-button" class="circle-arrow circle-arrow--prev"><span class="ico-circle-arrow-left"></span></button>
                     <p class="header__title" id="progress-info">Image-Name-Sample.jpeg</p>
-                    <button id="next-image-button" class="circle-arrow circle-arrow--next">></button>
+                    <button id="next-image-button" class="circle-arrow circle-arrow--next"><span class="ico-circle-arrow-right"></span></button>
                     <div
                             id="progress-bar"
                             class="progressbar round-xlarge"
@@ -37,10 +38,10 @@
                 <div class="side-bar__main">
                     <ul class="nav-list top">
                         <li class="nav-list__item">
-                            <a href="./" id="back-to-main-page-button" class="nav-list__button">main</a>
+                            <a href="./" id="back-to-main-page-button" class="nav-list__button"><span class="ico-home"></span> <span class="arrow-tooltip">Home</span></a>
                         </li>
                         <li class="nav-list__item">
-                            <button id="file-button" class="nav-list__button">file</button>
+                            <button id="file-button" class="nav-list__button"><span class="ico-grid"></span><span class="arrow-tooltip">File</span></button>
                             <div id="file-dropdown-menu" class="normal-dropdown">
                                 <button class="normal-dropdown__link" id="load-project-button">Load Project</button>
                                 <button class="normal-dropdown__link" id="export-coco-button">Export COCO</button>
@@ -50,24 +51,24 @@
                             </div>
                         </li>
                         <li class="nav-list__item">
-                            <button id="label-button" class="nav-list__button">label</button>
+                            <button id="label-button" class="nav-list__button"><span class="ico-stack"></span><span class="arrow-tooltip">Label</span></button>
                         </li>
                         <li class="nav-list__item">
-                            <button id="statistic-button" class="nav-list__button">stat</button>
+                            <button id="statistic-button" class="nav-list__button"><span class="ico-wave"></span><span class="arrow-tooltip">Statistic</span></button>
                         </li>
                         <li class="nav-list__item">
-                            <button id="setting-button" class="nav-list__button">set</button>
+                            <button id="setting-button" class="nav-list__button"><span class="ico-gear"></span><span class="arrow-tooltip">Setting</span></button>
                         </li>
                     </ul>
 
-                    <ul class="nav-list bottom">
+                    <!-- <ul class="nav-list bottom">
                         <li class="nav-list__item">
                             <a href="./" class="nav-list__button">A</a>
                         </li>
                         <li class="nav-list__item active">
                             <a href="./" class="nav-list__button">B</a>
                         </li>
-                    </ul>
+                    </ul> -->
                 </div>
                 <div class="side-bar__sub">
                     <p class="side-bar__title">MASK</p>
@@ -126,7 +127,7 @@
                         <div class="input-blk">
                             <p class="input-blk__label">Label Search</p>
                             <div class="input-blk__wrap">
-                                <span class="input-blk__icon">?</span>
+                                <span class="input-blk__icon"><span class="ico-search"></span></span>
                                 <input
                                     type="text"
                                     id="search-input"
@@ -145,8 +146,8 @@
                                 <div class="label-blk__color color-plate-list__color-plate colorBox"></div>
                                 <p class="label-blk__label labelText" contenteditable="false">Staghorn Coral</p>
                                 <div class="label-blk__side">
-                                    <button class="label-blk__btn label-hide-fn"><span class="icon">1</span></button>
-                                    <button class="label-blk__btn label-menu-fn"><span class="icon">2</span></button>
+                                    <button class="label-blk__btn label-hide-fn"><span class="ico-eye"></span><span class="ico-hide"></span></button>
+                                    <button class="label-blk__btn label-menu-fn"><span class="ico-dots-horizontal-triple"></span></button>
                                 </div>
                             </div>
                         </template>
@@ -205,7 +206,7 @@
                                 </label>
                         </div>
                         <div class="float-bar__item">
-                                <button id="remove-button" class="float-bar__button">Remove</button>
+                                <button id="remove-button" class="float-bar__button"><span class="ico-bin icon"></span>Remove</button>
                         </div>
                         <div class="float-bar__item">
                                 <label class="float-bar__button radio-label">
@@ -215,6 +216,7 @@
                                         type="radio"
                                         value="1"
                                     />
+                                    <span class="ico-shape icon"></span>
                                     Add Mask
                                 </label>
                         </div>

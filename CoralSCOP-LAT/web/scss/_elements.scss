@@ -21,6 +21,12 @@ input:disabled {
     align-items: center;
     justify-content: center;
     color: var(--icon-icon-secondary2);
+    font-size: 26px;
+    transition: .2s all;
+    
+    &:hover {
+        color: var(--text-text-primary2);
+    }
 
     &--prev {
 
@@ -511,7 +517,7 @@ input[type="range"] {
         justify-content: center;
         width: 53px;
         aspect-ratio: 1;
-        font-size: 16px;
+        font-size: 18px;
         font-weight: 400;
         cursor: pointer;
 
@@ -522,7 +528,20 @@ input[type="range"] {
         &--drag {
             
         }
+
+        &:not(.active) {
+            .ico-hide {
+                display: none;
+            }
+        }
+
+        &.active {
+            .ico-eye {
+                display: none;
+            }
+        }
     }
+    
 }
 
 
@@ -609,8 +628,8 @@ input[type="range"] {
 
     &__item {
         padding: 0 25px;
-        height: 32;
         display: flex;
+        align-items: center;
 
         gap: 20px;
 
@@ -641,6 +660,7 @@ input[type="range"] {
         display: flex;
         align-items: center;
         cursor: pointer;
+        
 
         &:hover {
             opacity: .8;
@@ -648,6 +668,10 @@ input[type="range"] {
 
         .icon {
             margin-right: 8px;
+            font-size: 24px;
+            line-height: 1;
+            position: relative;
+            top: 1px;
         }
 
         &:disabled, &.disabled {
@@ -663,8 +687,17 @@ input[type="range"] {
     position: relative;
     &__button {
         &::after {
-            content: '+';
+            font-family: wico;
+            content: "\e90e";
+            transform: rotate(90deg);
             margin-left: 15px;
+            transition: .2s all;
+            font-size: 20px;
+            color: var(--icon-icon-secondary2);
+
+            .open & {
+                transform: rotate(-90deg);
+            }
         }
     }
 
@@ -902,4 +935,9 @@ input[type="range"] {
         position: absolute;
         cursor: pointer;
     }
+}
+
+
+[class*="ico-"] {
+    pointer-events: none;
 }
