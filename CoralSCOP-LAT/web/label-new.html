@@ -230,8 +230,8 @@
                             <div class="float-bar__inner">
                                 <div class="float-bar__item">
                                     <div id="actionContainer" class="float-bar__item actionButton">
-                                            <button id="undo-button" class="float-bar__button hidden">Undo</button>
-                                            <button id="reset-button" class="float-bar__button hidden">Reset</button>
+                                            <button id="undo-button" class="float-bar__button hidden"><span class="ico-undo icon"></span></button>
+                                            <button id="reset-button" class="float-bar__button hidden"><span class="ico-rotate icon"></span></button>
                                             <button id="confirm-button" class="float-bar__button hidden">Confirm</button>
                                     </div>
                                 </div>
@@ -245,32 +245,27 @@
 
                 <div class="canvas-control">
                     <button id="zoomin-viewpoint-button" class="canvas-control__item">+</button>
-                    <button id="reset-viewpoint-button" class="canvas-control__label canvas-control__item">100%</button>
+                    <button id="reset-viewpoint-button" class="canvas-control__label canvas-control__item"><span class="icon ico--drag"></span></button>
                     <button id="zoomout-viewpoint-button" class="canvas-control__item">-</button>
                 </div>
             </div>
             <div id="statisticPage" class="main-section page statistic-page">
-                <div class="statistic-content-container">
+                <div class="main-section__container statistic-content-container">
                     <section class="chart-group">
-                        <h2 class="group-title">Statistic Report</h2>
+                        <h2 class="main-section__title">Statistic Report</h2>
                         <div id="current-image-grid" class="charts-grid"></div>
                     </section>
                 </div>
                 <template id="chart-item-template">
                     <div class="chart-item">
-                        <div class="chart"></div>
-                        <button class="download-btn">Download PNG</button>
+                        <div class="chart chart-box"></div>
+                        <p class="chart-name chart__name"></p>
+                        <button class="download-btn btn">Download Png</button>
                     </div>
                 </template>
             </div>
             <div id="settingPage" class="main-section page">
-                <template id="chart-item-template">
-                    <div class="chart-item">
-                        <div class="chart"></div>
-                        <button class="download-btn">Download PNG</button>
-                    </div>
-                </template>
-                <div class="setting-container">
+                <div class="main-section__container">
                 <button id="save-setting-button" class="save-button">
                     Save Settings
                 </button>
@@ -347,6 +342,25 @@
             <button class="normal-dropdown__link" id="delete-label-button">Delete</button>
         </div>
 
+    <div id="loading-pop" class="loading-pop">
+        <div class="loading-pop__inner">
+            <img class="loading-pop__loading" src="./images/loading.svg" alt="" />
+            <p id="loading-percentage" class="loading-pop__number"></p>
+            <p id="loading-pop-text" class="loading-pop__lg-text">
+                Hold Tight!
+            </p>
+            <p class="loading-pop__text">We're brewing up something amazing. 
+                It might take a few minutes, so sit back and relax. Better not to leave this page. 
+                Thanks for your patience! 😊</p>
+            <div class="loading-pop__row">
+                <button id="loading-pop-quit" class="button">Quit</button>
+            </div>
+        </div>
+    </div>
+    <div id="loading-pop-backdrop" class="loading-pop-backdrop"></div>
+
+    <script src="js/label/chart.js"></script>
+    <script src="js/loadingIconManager-new.js"></script>
     <script src="./js/slider.js"></script>
     <script src="./js/toggle-input.js"></script>
     <script src="./js/testing.js"></script>
@@ -365,7 +379,6 @@
     <script src="js/label/core.js"></script>
     <script src="js/label/settingPage.js"></script>
     <script src="js/label/labelPage.js"></script>
-    <script src="js/label/chart.js"></script>
     <script src="js/label/statisticPage.js"></script>
 </body>
 </html>

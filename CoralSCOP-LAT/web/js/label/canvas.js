@@ -268,12 +268,14 @@ class Canvas {
             const label_id = mask.getCategoryId();
             const color = LabelManager.getColorById(label_id);
             const fontColor = LabelManager.getTextColorById(label_id);
+            
+            
             if (label_id !== null) {
                 const fontSize = Math.floor(
                     Math.max(this.imageWidth, this.imageHeight) * 0.04
                 );
-
-
+                
+                const display_id = LabelManager.getCategoryDisplayId(label_id)
                 const fontBgRadius = fontSize * .7;
 
                 maskCtx.beginPath();
@@ -285,11 +287,14 @@ class Canvas {
                 maskCtx.stroke();
                 maskCtx.closePath();
 
-                maskCtx.font = `${fontSize}px Arial`;
+
+                console.log('sdsd', `${label_id}`.length, label_id.length, display_id)
+
+                maskCtx.font = `${fontSize/display_id.length}px Arial`;
                 // maskCtx.fillStyle = `rgba(255, 0, 0, ${this.maskOpacity})`;
                 maskCtx.fillStyle = fontColor;
                 maskCtx.fillText(
-                    LabelManager.getCategoryDisplayId(label_id),
+                    display_id,
                     middle_pixel[0],
                     middle_pixel[1]
                 );

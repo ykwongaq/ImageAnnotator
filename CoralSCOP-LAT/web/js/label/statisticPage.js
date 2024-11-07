@@ -3,7 +3,28 @@ class StatisticPage {
         this.currentImageGrid = document.getElementById("current-image-grid");
         this.chartItemTemplate = document.getElementById("chart-item-template");
 
-        google.charts.load("current", { packages: ["corechart"] });
+
+        
+    }
+
+    loadGoogleLib() {
+        const myPromise = new Promise((resolve, reject) => {
+            // Asynchronous operation
+            const success = true; // Simulate success or failure
+        
+            google.charts.load("current", { packages: ["corechart"] });
+
+            console.log('before');
+
+
+            google.charts.setOnLoadCallback(function () {
+                if (success) {
+                    resolve(true);
+                }
+              });
+        });
+
+        return myPromise;
     }
 
     update() {
