@@ -425,29 +425,71 @@ html:has(#confirm-button:not(.hidden)) #default-bar {
     visibility: hidden;
 }
 
+.legend-item {
+    display: flex;
+    font-size: 14px;
+    align-items: center;
+
+    &::before {
+        width: 1.5em;
+        aspect-ratio: 1;
+        display: block;
+        margin-right: 10px;
+        content: '';
+        background: var(--color);
+    }
+
+    & + & {
+        margin-top: 5px;
+    }
+}
 
 .charts-grid {
     display: flex;
     gap: 20px;
     flex-wrap: wrap;
-    .chart-box {
-        width: 511px;
-        height: 463px;
-        background-color: var(--surface-surface-primary3);
 
+    .chart-item {
+        width: 410px;
+        margin-bottom: 40px;
+
+        .chart-box {
+            width: 330px;
+            aspect-ratio: 1;
+            margin: auto;
+        }
+
+        &__top {
+            background-color: var(--surface-surface-primary3);
+            border: 1px solid #E6E9EA;
+            margin-bottom: 22px;
+            padding-top: 10px;
+        }
         &__name {
             font-size: 24px;
+            margin-bottom: 25px;
 
             small {
                 font-family: Roboto;
                 color: var(--text-text-secondary1);
+                display: block;
+                font-size: 20px;
+                margin-top: 5px;
             }
         }
-
         .btn {
             width: 227px;
         }
     }
+
+    .chart-box {
+        margin: 0 auto 25px;
+    }
+
+    .legends {
+        padding: 0 28px 28px;
+    }
+
 }
 
 @keyframes rotate {

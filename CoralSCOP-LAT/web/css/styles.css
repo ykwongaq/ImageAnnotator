@@ -1254,25 +1254,62 @@ html:has(#confirm-button:not(.hidden)) #default-bar .float-bar__inner {
   visibility: hidden;
 }
 
+.legend-item {
+  display: flex;
+  font-size: 14px;
+  align-items: center;
+}
+.legend-item::before {
+  width: 1.5em;
+  aspect-ratio: 1;
+  display: block;
+  margin-right: 10px;
+  content: "";
+  background: var(--color);
+}
+.legend-item + .legend-item {
+  margin-top: 5px;
+}
+
 .charts-grid {
   display: flex;
   gap: 20px;
   flex-wrap: wrap;
 }
-.charts-grid .chart-box {
-  width: 511px;
-  height: 463px;
+.charts-grid .chart-item {
+  width: 410px;
+  margin-bottom: 40px;
+}
+.charts-grid .chart-item .chart-box {
+  width: 330px;
+  aspect-ratio: 1;
+  margin: auto;
+}
+.charts-grid .chart-item__top {
   background-color: var(--surface-surface-primary3);
+  border: 1px solid #E6E9EA;
+  margin-bottom: 22px;
+  padding-top: 10px;
 }
-.charts-grid .chart-box__name {
+.charts-grid .chart-item__name {
   font-size: 24px;
+  margin-bottom: 25px;
 }
-.charts-grid .chart-box__name small {
+.charts-grid .chart-item__name small {
   font-family: Roboto;
   color: var(--text-text-secondary1);
+  display: block;
+  font-size: 20px;
+  margin-top: 5px;
 }
-.charts-grid .chart-box .btn {
+.charts-grid .chart-item .btn {
   width: 227px;
+}
+.charts-grid .chart-box {
+  margin: 0 auto 25px;
+}
+.charts-grid .legends {
+  padding: 0 28px 28px;
 }
 
 @keyframes rotate {

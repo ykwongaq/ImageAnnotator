@@ -24,8 +24,6 @@ class LoadingIconManager {
         }
     }
 
-
-
     hideLoadingIcon(__force) {
         if(__force) {
             this.launchCount = 0;
