@@ -181,6 +181,7 @@ class StatisticPage {
         var slices = {};
         let sliceId = 0;
 
+
         dataTable.push(["Coral Colony", "Count"]);
         for (let id in coralColonyDict) {
             id = parseInt(id);
@@ -188,14 +189,21 @@ class StatisticPage {
             colors.push(LabelManager.getColorById(id));
             let sliceColor = null;
             if (LabelManager.isDeadCoral(id)) {
-                console.log("Dead Coral");
-                sliceColor = "red";
+                sliceColor = "#fff";
             } else {
-                sliceColor = "black";
+                sliceColor = LabelManager.getTextColorById(id);
             }
             slices[sliceId] = { textStyle: { color: sliceColor } };
             sliceId += 1;
         }
+
+        const names = dataTable.reduce((acc, item, index) => {
+            if(index > 0) {
+                acc.push(item[0])
+            }
+            return acc;
+        }, [])
+
 
         const data = google.visualization.arrayToDataTable(dataTable);
 
@@ -209,7 +217,7 @@ class StatisticPage {
 
         chart.draw(data, options);
 
-        const legends = this.createLegends({colors: colors, names: dataTable[1]});
+        const legends = this.createLegends({colors: colors, names: names});
 
         legends.forEach(legend => {
             legendsContainer.appendChild(legend);
@@ -356,13 +364,20 @@ class StatisticPage {
             colors.push(LabelManager.getColorById(id));
             let sliceColor = null;
             if (LabelManager.isDeadCoral(id)) {
-                sliceColor = "red";
+                sliceColor = "#fff";
             } else {
-                sliceColor = "black";
+                sliceColor = LabelManager.getTextColorById(id);
             }
             slices[sliceId] = { textStyle: { color: sliceColor } };
             sliceId += 1;
         }
+
+        const names = dataTable.reduce((acc, item, index) => {
+            if(index > 0) {
+                acc.push(item[0])
+            }
+            return acc;
+        }, [])
 
         const data = google.visualization.arrayToDataTable(dataTable);
 
@@ -375,7 +390,7 @@ class StatisticPage {
 
         chart.draw(data, options);
 
-        const legends = this.createLegends({colors: colors, names: dataTable[1]});
+        const legends = this.createLegends({colors: colors, names: names});
 
         legends.forEach(legend => {
             legendsContainer.appendChild(legend);
