@@ -176,7 +176,11 @@ class Core {
                 bottomBar.reEnable();
             } else if (pageId === "statisticPage") {
                 const statisticPage = new StatisticPage();
-                statisticPage.update();
+
+                statisticPage.loadGoogleLib().then(data => {
+                    statisticPage.update();
+                })
+
                 bottomBar.disable();
             } else if (pageId === "settingPage") {
                 const settingPage = new SettingPage();

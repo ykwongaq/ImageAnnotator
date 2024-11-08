@@ -266,15 +266,35 @@ class Canvas {
 
             const middle_pixel = mask.getMiddlePoint();
             const label_id = mask.getCategoryId();
+            const color = LabelManager.getColorById(label_id);
+            const fontColor = LabelManager.getTextColorById(label_id);
+            
+            
             if (label_id !== null) {
                 const fontSize = Math.floor(
-                    Math.max(this.imageWidth, this.imageHeight) * 0.05
+                    Math.max(this.imageWidth, this.imageHeight) * 0.04
                 );
-                maskCtx.font = `${fontSize}px Arial`;
+                
+                const display_id = LabelManager.getCategoryDisplayId(label_id)
+                const fontBgRadius = fontSize * .7;
+
+                maskCtx.beginPath();
+                maskCtx.arc(middle_pixel[0] + fontBgRadius/2, middle_pixel[1] - fontBgRadius/2, fontBgRadius, 0, Math.PI * 2);
+                maskCtx.strokeStyle = '#fff';
+                maskCtx.lineWidth = 1;
+                maskCtx.fillStyle = color; // Fill color
+                maskCtx.fill(); // Fills the circle
+                maskCtx.stroke();
+                maskCtx.closePath();
+
+
+                console.log('sdsd', `${label_id}`.length, label_id.length, display_id)
+
+                maskCtx.font = `${fontSize/display_id.length}px Arial`;
                 // maskCtx.fillStyle = `rgba(255, 0, 0, ${this.maskOpacity})`;
-                maskCtx.fillStyle = "red";
+                maskCtx.fillStyle = fontColor;
                 maskCtx.fillText(
-                    LabelManager.getCategoryDisplayId(label_id),
+                    display_id,
                     middle_pixel[0],
                     middle_pixel[1]
                 );

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Label page</title>
+    <link rel="stylesheet" href="./icon/style.css">
     <link rel="stylesheet" href="./css/styles.css">
 </head>
 <body>
@@ -18,11 +19,11 @@
                 <span class="logo-blk__text">CoralSCOP-LAT</span>
             </div>
             <div class="header__main">
-                <div class="header__main-side"><a href="#!" class="arrow-link arrow-link--prev"><span class="ico ico--left"></span>All Image(1,200) </a></div>
+                <div class="header__main-side"><a href="#!" class="arrow-link arrow-link--prev"><span class="ico-line-arrow-left"></span> All Image(1,200) </a></div>
                 <div class="header__middle">
-                    <button id="prev-image-button" class="circle-arrow circle-arrow--prev"><</button>
+                    <button id="prev-image-button" class="circle-arrow circle-arrow--prev"><span class="ico-circle-arrow-left"></span></button>
                     <p class="header__title" id="progress-info">Image-Name-Sample.jpeg</p>
-                    <button id="next-image-button" class="circle-arrow circle-arrow--next">></button>
+                    <button id="next-image-button" class="circle-arrow circle-arrow--next"><span class="ico-circle-arrow-right"></span></button>
                     <div
                             id="progress-bar"
                             class="progressbar round-xlarge"
@@ -37,10 +38,10 @@
                 <div class="side-bar__main">
                     <ul class="nav-list top">
                         <li class="nav-list__item">
-                            <a href="./" id="back-to-main-page-button" class="nav-list__button">main</a>
+                            <a href="./" id="back-to-main-page-button" class="nav-list__button"><span class="ico-home"></span> <span class="arrow-tooltip">Home</span></a>
                         </li>
                         <li class="nav-list__item">
-                            <button id="file-button" class="nav-list__button">file</button>
+                            <button id="file-button" class="nav-list__button"><span class="ico-grid"></span><span class="arrow-tooltip">File</span></button>
                             <div id="file-dropdown-menu" class="normal-dropdown">
                                 <button class="normal-dropdown__link" id="load-project-button">Load Project</button>
                                 <button class="normal-dropdown__link" id="export-coco-button">Export COCO</button>
@@ -50,24 +51,24 @@
                             </div>
                         </li>
                         <li class="nav-list__item">
-                            <button id="label-button" class="nav-list__button">label</button>
+                            <button id="label-button" class="nav-list__button"><span class="ico-stack"></span><span class="arrow-tooltip">Label</span></button>
                         </li>
                         <li class="nav-list__item">
-                            <button id="statistic-button" class="nav-list__button">stat</button>
+                            <button id="statistic-button" class="nav-list__button"><span class="ico-wave"></span><span class="arrow-tooltip">Statistic</span></button>
                         </li>
                         <li class="nav-list__item">
-                            <button id="setting-button" class="nav-list__button">set</button>
+                            <button id="setting-button" class="nav-list__button"><span class="ico-gear"></span><span class="arrow-tooltip">Setting</span></button>
                         </li>
                     </ul>
 
-                    <ul class="nav-list bottom">
+                    <!-- <ul class="nav-list bottom">
                         <li class="nav-list__item">
                             <a href="./" class="nav-list__button">A</a>
                         </li>
                         <li class="nav-list__item active">
                             <a href="./" class="nav-list__button">B</a>
                         </li>
-                    </ul>
+                    </ul> -->
                 </div>
                 <div class="side-bar__sub">
                     <p class="side-bar__title">MASK</p>
@@ -126,7 +127,7 @@
                         <div class="input-blk">
                             <p class="input-blk__label">Label Search</p>
                             <div class="input-blk__wrap">
-                                <span class="input-blk__icon">?</span>
+                                <span class="input-blk__icon"><span class="ico-search"></span></span>
                                 <input
                                     type="text"
                                     id="search-input"
@@ -145,8 +146,8 @@
                                 <div class="label-blk__color color-plate-list__color-plate colorBox"></div>
                                 <p class="label-blk__label labelText" contenteditable="false">Staghorn Coral</p>
                                 <div class="label-blk__side">
-                                    <button class="label-blk__btn label-hide-fn"><span class="icon">1</span></button>
-                                    <button class="label-blk__btn label-menu-fn"><span class="icon">2</span></button>
+                                    <button class="label-blk__btn label-hide-fn"><span class="ico-eye"></span><span class="ico-hide"></span></button>
+                                    <button class="label-blk__btn label-menu-fn"><span class="ico-dots-horizontal-triple"></span></button>
                                 </div>
                             </div>
                         </template>
@@ -205,7 +206,7 @@
                                 </label>
                         </div>
                         <div class="float-bar__item">
-                                <button id="remove-button" class="float-bar__button">Remove</button>
+                                <button id="remove-button" class="float-bar__button"><span class="ico-bin icon"></span>Remove</button>
                         </div>
                         <div class="float-bar__item">
                                 <label class="float-bar__button radio-label">
@@ -215,6 +216,7 @@
                                         type="radio"
                                         value="1"
                                     />
+                                    <span class="ico-shape icon"></span>
                                     Add Mask
                                 </label>
                         </div>
@@ -228,8 +230,8 @@
                             <div class="float-bar__inner">
                                 <div class="float-bar__item">
                                     <div id="actionContainer" class="float-bar__item actionButton">
-                                            <button id="undo-button" class="float-bar__button hidden">Undo</button>
-                                            <button id="reset-button" class="float-bar__button hidden">Reset</button>
+                                            <button id="undo-button" class="float-bar__button hidden"><span class="ico-undo icon"></span></button>
+                                            <button id="reset-button" class="float-bar__button hidden"><span class="ico-rotate icon"></span></button>
                                             <button id="confirm-button" class="float-bar__button hidden">Confirm</button>
                                     </div>
                                 </div>
@@ -243,32 +245,27 @@
 
                 <div class="canvas-control">
                     <button id="zoomin-viewpoint-button" class="canvas-control__item">+</button>
-                    <button id="reset-viewpoint-button" class="canvas-control__label canvas-control__item">100%</button>
+                    <button id="reset-viewpoint-button" class="canvas-control__label canvas-control__item"><span class="icon ico--drag"></span></button>
                     <button id="zoomout-viewpoint-button" class="canvas-control__item">-</button>
                 </div>
             </div>
             <div id="statisticPage" class="main-section page statistic-page">
-                <div class="statistic-content-container">
+                <div class="main-section__container statistic-content-container">
                     <section class="chart-group">
-                        <h2 class="group-title">Statistic Report</h2>
+                        <h2 class="main-section__title">Statistic Report</h2>
                         <div id="current-image-grid" class="charts-grid"></div>
                     </section>
                 </div>
                 <template id="chart-item-template">
                     <div class="chart-item">
-                        <div class="chart"></div>
-                        <button class="download-btn">Download PNG</button>
+                        <div class="chart chart-box"></div>
+                        <p class="chart-name chart__name"></p>
+                        <button class="download-btn btn">Download Png</button>
                     </div>
                 </template>
             </div>
             <div id="settingPage" class="main-section page">
-                <template id="chart-item-template">
-                    <div class="chart-item">
-                        <div class="chart"></div>
-                        <button class="download-btn">Download PNG</button>
-                    </div>
-                </template>
-                <div class="setting-container">
+                <div class="main-section__container">
                 <button id="save-setting-button" class="save-button">
                     Save Settings
                 </button>
@@ -345,6 +342,25 @@
             <button class="normal-dropdown__link" id="delete-label-button">Delete</button>
         </div>
 
+    <div id="loading-pop" class="loading-pop">
+        <div class="loading-pop__inner">
+            <img class="loading-pop__loading" src="./images/loading.svg" alt="" />
+            <p id="loading-percentage" class="loading-pop__number"></p>
+            <p id="loading-pop-text" class="loading-pop__lg-text">
+                Hold Tight!
+            </p>
+            <p class="loading-pop__text">We're brewing up something amazing. 
+                It might take a few minutes, so sit back and relax. Better not to leave this page. 
+                Thanks for your patience! 😊</p>
+            <div class="loading-pop__row">
+                <button id="loading-pop-quit" class="button">Quit</button>
+            </div>
+        </div>
+    </div>
+    <div id="loading-pop-backdrop" class="loading-pop-backdrop"></div>
+
+    <script src="js/label/chart.js"></script>
+    <script src="js/loadingIconManager-new.js"></script>
     <script src="./js/slider.js"></script>
     <script src="./js/toggle-input.js"></script>
     <script src="./js/testing.js"></script>
@@ -363,7 +379,6 @@
     <script src="js/label/core.js"></script>
     <script src="js/label/settingPage.js"></script>
     <script src="js/label/labelPage.js"></script>
-    <script src="js/label/chart.js"></script>
     <script src="js/label/statisticPage.js"></script>
 </body>
 </html>

@@ -141,6 +141,11 @@ input:disabled {
   align-items: center;
   justify-content: center;
   color: var(--icon-icon-secondary2);
+  font-size: 26px;
+  transition: 0.2s all;
+}
+.circle-arrow:hover {
+  color: var(--text-text-primary2);
 }
 .circle-arrow button {
   position: absolute;
@@ -542,7 +547,7 @@ input[type=range]:active::-moz-range-thumb {
   justify-content: center;
   width: 53px;
   aspect-ratio: 1;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 400;
   cursor: pointer;
 }
@@ -552,6 +557,13 @@ input[type=range]:active::-moz-range-thumb {
 .label-blk__btn:hover {
   color: #000;
 }
+.label-blk__btn:not(.active) .ico-hide {
+  display: none;
+}
+.label-blk__btn.active .ico-eye {
+  display: none;
+}
+
 .toggle-input-blk {
   --content: "Add Label";
   --icon: "+";
@@ -620,8 +632,8 @@ input[type=range]:active::-moz-range-thumb {
 }
 .float-bar__item {
   padding: 0 25px;
-  height: 32;
   display: flex;
+  align-items: center;
   gap: 20px;
 }
 .float-bar__item:first-child {
@@ -652,6 +664,10 @@ input[type=range]:active::-moz-range-thumb {
 }
 .float-bar__button .icon {
   margin-right: 8px;
+  font-size: 24px;
+  line-height: 1;
+  position: relative;
+  top: 1px;
 }
 .float-bar__button:disabled, .float-bar__button.disabled {
   opacity: 0.6;
@@ -660,8 +676,16 @@ input[type=range]:active::-moz-range-thumb {
   position: relative;
 }
 .toggle-color-plate-popup__button::after {
-  content: "+";
+  font-family: wico;
+  content: "\e90e";
+  transform: rotate(90deg);
   margin-left: 15px;
+  transition: 0.2s all;
+  font-size: 20px;
+  color: var(--icon-icon-secondary2);
+}
+.open .toggle-color-plate-popup__button::after {
+  transform: rotate(-90deg);
 }
 .toggle-color-plate-popup__pop {
   padding: 20px;
@@ -714,7 +738,7 @@ input[type=range]:active::-moz-range-thumb {
   font-size: 16px;
 }
 .canvas-control__label {
-  font-size: 8px;
+  font-size: 16px;
   border-top: 1px solid var(--line-line-primary1);
   border-bottom: 1px solid var(--line-line-primary1);
 }
@@ -853,9 +877,14 @@ input[type=range]:active::-moz-range-thumb {
   cursor: pointer;
 }
 
+[class*=ico-] {
+  pointer-events: none;
+}
+
 :where(*) {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
 }
 :where(*):hover, :where(*):focus, :where(*):active {
   outline: none;
@@ -962,6 +991,7 @@ button {
   align-items: center;
   justify-content: center;
   width: var(--logo-blk-width);
+  flex-grow: 0;
 }
 .logo-blk__text {
   font-size: 1em;
@@ -1060,6 +1090,29 @@ button {
   padding: 0;
   margin: 0;
 }
+.nav-list .arrow-tooltip {
+  --tool-height: 30px;
+  position: absolute;
+  height: 30px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--text-text-primary2);
+  padding: 2px 18px;
+  font-size: 13px;
+  background-color: var(--surface-surface-primary3);
+  top: calc(50% - var(--tool-height) / 2);
+  left: calc(100% - 10px);
+  z-index: 12;
+  transition: 0.2s all;
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-10px, 0);
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.13);
+  border-radius: 4px;
+  pointer-events: none;
+  color: var(--text-text-primary1);
+}
 .nav-list__item {
   position: relative;
 }
@@ -1078,9 +1131,18 @@ button {
   justify-content: center;
   color: var(--icon-icon-primary1);
   background-color: #fff;
+  font-size: 32px;
+}
+.nav-list__button * {
+  pointer-events: none;
 }
 .nav-list__button:hover {
   background-color: #fafafa;
+}
+.nav-list__button:hover .arrow-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(0, 0);
 }
 .nav-list__item .nav-list__button.active {
   color: var(--icon-icon-secondary1);
@@ -1093,6 +1155,11 @@ button {
   position: relative;
   padding: var(--gap) var(--gap) 0;
   display: flex;
+}
+.main-section__container {
+  padding: 40px;
+  background-color: #fff;
+  flex-grow: 1;
 }
 .main-section__content {
   flex-grow: 1;
@@ -1167,12 +1234,6 @@ button {
   display: none;
 }
 
-.setting-container {
-  padding: 40px;
-  background-color: #fff;
-  flex-grow: 1;
-}
-
 #edit-btn-blk {
   display: none;
 }
@@ -1191,6 +1252,108 @@ html:has(#confirm-button:not(.hidden)) #default-bar .float-bar__inner {
   opacity: 0;
   transform: translateY(0);
   visibility: hidden;
+}
+
+.charts-grid {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.charts-grid .chart-box {
+  width: 511px;
+  height: 463px;
+  background-color: var(--surface-surface-primary3);
+}
+.charts-grid .chart-box__name {
+  font-size: 24px;
+}
+.charts-grid .chart-box__name small {
+  font-family: Roboto;
+  color: var(--text-text-secondary1);
+}
+.charts-grid .chart-box .btn {
+  width: 227px;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.loading-pop {
+  transition: 0.3s all;
+  position: fixed;
+  z-index: 15;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.loading-pop:not(.active) {
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(0, -20px);
+}
+.loading-pop__inner {
+  border-radius: 10px;
+  background-color: #fff;
+  text-align: center;
+  width: 700px;
+  padding: 80px 55px;
+}
+.loading-pop__loading {
+  width: 100px;
+  aspect-ratio: 1;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto 34px;
+  animation: rotate 2s linear infinite;
+}
+.loading-pop__number {
+  display: none;
+  font-weight: 700;
+  color: var(--text-text-primary2);
+  font-size: 48px;
+}
+.loading-pop:not(.is-count) .loading-pop__number {
+  display: none;
+}
+.loading-pop__lg-text {
+  color: var(--text-text-primary2);
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.loading-pop__text {
+  line-height: 1.4;
+  font-size: 20px;
+  font-weight: 300;
+}
+.loading-pop-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 12;
+  background-color: #000;
+  opacity: 0.7;
+  transition: 0.3s all;
+}
+.loading-pop:not(.active) + .loading-pop-backdrop {
+  opacity: 0;
+  visibility: hidden;
+}
+.loading-pop__row {
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+}
+.loading-pop:not(.is-count) .loading-pop__row {
+  display: none;
+}
+.loading-pop .button {
+  width: 158px;
 }
 
 /*# sourceMappingURL=styles.css.map */

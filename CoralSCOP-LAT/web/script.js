@@ -26,7 +26,7 @@ function drawChart1() {
 
     var options = {
         title: "Company Performance",
-        legend: { position: "bottom" },
+        legend: { position: "top" },
         chartArea: { left: "10%", top: "10%", width: "80%", height: "75%" }, // Adjusted to fill more space
         backgroundColor: "#fff",
         // Remove fixed width and height

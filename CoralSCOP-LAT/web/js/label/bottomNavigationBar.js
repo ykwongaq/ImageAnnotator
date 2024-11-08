@@ -85,6 +85,8 @@ class BottomNavigationBar {
 
     enablePrevImageButton() {
         this.prevImageButton.addEventListener("click", () => {
+            const loading = new LoadingIconManager();
+            loading.showLoadingIcon();
             const core = new Core();
             core.saveData();
 
@@ -92,6 +94,7 @@ class BottomNavigationBar {
             if (dataset.currentDataIdx > 0) {
                 core.setCurrentDataByIdx(dataset.currentDataIdx - 1);
             }
+            loading.hideLoadingIcon();
         });
 
         const labelView = new LabelView();
@@ -113,6 +116,8 @@ class BottomNavigationBar {
 
     enableNextImageButton() {
         this.nextImageButton.addEventListener("click", () => {
+            const loading = new LoadingIconManager();
+            loading.showLoadingIcon();
             const core = new Core();
             core.saveData();
 
@@ -120,6 +125,7 @@ class BottomNavigationBar {
             if (dataset.currentDataIdx < dataset.totalImages - 1) {
                 core.setCurrentDataByIdx(dataset.currentDataIdx + 1);
             }
+            loading.hideLoadingIcon();
         });
 
         const labelView = new LabelView();
