@@ -279,10 +279,12 @@ class Canvas {
             const fontColor = LabelManager.getTextColorById(label_id);
 
             if (label_id !== null) {
-                const fontSize = Math.floor(
-                    Math.max(this.imageWidth, this.imageHeight) * 0.04
+                const fontSize = Math.min(
+                    Math.floor(
+                        Math.min(this.imageWidth, this.imageHeight) * 0.04
+                    ),
+                    40
                 );
-
                 const display_id = LabelManager.getCategoryDisplayId(label_id);
                 const fontBgRadius = fontSize * 0.7;
 
