@@ -14,6 +14,7 @@ class Canvas {
 
         this.imageCache = new Image();
         this.maskCache = new Image();
+        this.textCache = new Image();
         this.edittingMaskCache = new Image();
 
         // View control
@@ -258,7 +259,15 @@ class Canvas {
             }
         }
 
+        this.maskCache = new Image();
+        this.maskCache.src = maskCanvas.toDataURL();
+
         // Draw the text labels after the masks are applied
+        const textCanvas = document.createElement("canvas");
+        const textCtx = textCanvas.getContext("2d");
+        textCanvas.width = this.imageWidth;
+        textCanvas.height = this.imageHeight;
+
         for (const mask of masks) {
             if (!mask.getShouldDisplay()) {
                 continue;
@@ -268,40 +277,46 @@ class Canvas {
             const label_id = mask.getCategoryId();
             const color = LabelManager.getColorById(label_id);
             const fontColor = LabelManager.getTextColorById(label_id);
-            
-            
+
             if (label_id !== null) {
                 const fontSize = Math.floor(
                     Math.max(this.imageWidth, this.imageHeight) * 0.04
                 );
-                
-                const display_id = LabelManager.getCategoryDisplayId(label_id)
-                const fontBgRadius = fontSize * .7;
 
-                maskCtx.beginPath();
-                maskCtx.arc(middle_pixel[0] + fontBgRadius/2, middle_pixel[1] - fontBgRadius/2, fontBgRadius, 0, Math.PI * 2);
-                maskCtx.strokeStyle = '#fff';
-                maskCtx.lineWidth = 1;
-                maskCtx.fillStyle = color; // Fill color
-                maskCtx.fill(); // Fills the circle
-                maskCtx.stroke();
-                maskCtx.closePath();
+                const display_id = LabelManager.getCategoryDisplayId(label_id);
+                const fontBgRadius = fontSize * 0.7;
 
-
-                console.log('sdsd', `${label_id}`.length, label_id.length, display_id)
-
-                maskCtx.font = `${fontSize/display_id.length}px Arial`;
-                // maskCtx.fillStyle = `rgba(255, 0, 0, ${this.maskOpacity})`;
-                maskCtx.fillStyle = fontColor;
-                maskCtx.fillText(
-                    display_id,
-                    middle_pixel[0],
-                    middle_pixel[1]
+                textCtx.beginPath();
+                textCtx.arc(
+                    middle_pixel[0] + fontBgRadius / 2,
+                    middle_pixel[1] - fontBgRadius / 2,
+                    fontBgRadius,
+                    0,
+                    Math.PI * 2
                 );
+                textCtx.strokeStyle = "#fff";
+                textCtx.lineWidth = 1;
+                textCtx.fillStyle = color; // Fill color
+                textCtx.fill(); // Fills the circle
+                textCtx.stroke();
+                textCtx.closePath();
+
+                console.log(
+                    "sdsd",
+                    `${label_id}`.length,
+                    label_id.length,
+                    display_id
+                );
+
+                textCtx.font = `${fontSize / display_id.length}px Arial`;
+                // maskCtx.fillStyle = `rgba(255, 0, 0, ${this.maskOpacity})`;
+                textCtx.fillStyle = fontColor;
+                textCtx.fillText(display_id, middle_pixel[0], middle_pixel[1]);
             }
         }
-        this.maskCache = new Image();
-        this.maskCache.src = maskCanvas.toDataURL();
+
+        this.textCache = new Image();
+        this.textCache.src = textCanvas.toDataURL();
     }
 
     // Helper function to convert hex color to RGB
@@ -342,6 +357,7 @@ class Canvas {
                 this.ctx.globalAlpha = this.maskOpacity;
                 this.ctx.drawImage(this.maskCache, 0, 0);
                 this.ctx.globalAlpha = 1.0;
+                this.ctx.drawImage(this.textCache, 0, 0);
             }
 
             if (this.edittingMask !== null) {

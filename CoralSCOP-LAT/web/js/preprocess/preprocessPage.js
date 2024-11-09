@@ -257,6 +257,9 @@ class PreprocessPage {
                                 }
                             );
                         });
+
+                        // Make sure that the annotation processer will work next time.
+                        this.annotationProcessor.setShouldSkip(false);
                     } else {
                         alert(
                             "Invalid project path: " +
