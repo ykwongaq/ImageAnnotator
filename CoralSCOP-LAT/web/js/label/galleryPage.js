@@ -101,10 +101,11 @@ class GalleryPage {
 }
 
 function main() {
-  // const galleryPage = new GalleryPage();
-  // galleryPage.enable();
+  const galleryPage = new GalleryPage();
+  galleryPage.enable();
+  galleryPage.createGalleryList();
 
-  // document.getElementById('gallery-button').classList.add('active');
+  document.getElementById('gallery-button').classList.add('active');
 }
 
 main();
