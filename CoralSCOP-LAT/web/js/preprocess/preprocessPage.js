@@ -10,17 +10,14 @@ class PreprocessPage {
         this.deselectedGallery = document.getElementById("deselected-gallery");
         this.selectedGallery = document.getElementById("selected-gallery");
 
-        this.dropAreaDom = document.getElementById("deselected-gallery");
+        this.dropAreaDom = document.getElementById("drop-container");
+
 
         this.selectAllButton = document.getElementById("select-all-button");
         this.deselectAllButton = document.getElementById("deselect-all-button");
+        this.cancelButton = document.getElementById('loading-pop-quit');
 
         this.processButton = document.getElementById("process-button");
-
-        this.loadingIcon = document.getElementById("loading-icon");
-        let loadingIconManager = new LoadingIconManager();
-        loadingIconManager.setLoadingIcon(this.loadingIcon);
-        loadingIconManager.hideLoadingIcon();
 
         this.imageCountText = document.getElementById(
             "selected-image-count-text"
@@ -29,13 +26,25 @@ class PreprocessPage {
         this.progressText = document.getElementById("progress-text");
         this.processedCount = 0;
 
-        this.continueButton = document.getElementById("continue-button");
+        // this.continueButton = document.getElementById("continue-button");
         this.backMainPageButton = document.getElementById(
             "back-to-main-page-button"
         );
         this.galleryItems = [];
 
         // this.projectPathInput = document.getElementById("project-path-input");
+    }
+    
+    enableCancelButton() {
+        if(this.cancelButton) {
+            this.cancelButton.addEventListener('click', (event) => {
+                event.preventDefault();
+                const loadingIcon = new LoadingIconManager();
+                loadingIcon.updateLargeText('Quiting');
+                this.annotationProcessor.setShouldSkip(true);
+                this.cancelButton.disabled = true;
+            })
+        }
     }
 
     enableChangeInGallery() {
@@ -121,19 +130,16 @@ class PreprocessPage {
     clearUnselectedItem() {
         this.imageSelector.clearUnselectedData();
         this.deselectedGallery.innerHTML = "";
-
-        // Remove the item in gallyItems
-        this.galleryItems = this.galleryItems.filter((galleryItem) => {
-            return this.selectedGallery.contains(galleryItem);
-        });
     }
     enableSelectAllButton() {
         this.selectAllButton.addEventListener("click", () => {
             this.galleryItems.forEach((galleryItem) => {
                 const imageFile =
-                    galleryItem.querySelector("div").firstChild.textContent;
+                    galleryItem.querySelector(".gallery-item__name").textContent;
                 this.selectImage(imageFile, galleryItem);
+                galleryItem.querySelector('input').checked = true;
             });
+            this.updateProcessButonStatusTo();
         });
     }
 
@@ -141,41 +147,38 @@ class PreprocessPage {
         this.deselectAllButton.addEventListener("click", () => {
             this.galleryItems.forEach((galleryItem) => {
                 const imageFile =
-                    galleryItem.querySelector("div").firstChild.textContent;
+                galleryItem.querySelector(".gallery-item__name").textContent;
                 this.deselectImage(imageFile, galleryItem);
+                galleryItem.querySelector('input').checked = false;
             });
+            this.updateProcessButonStatusTo();
         });
     }
 
     disableProcessButton() {
         this.processButton.disabled = true;
-        this.processButton.style.borderColor = "gray";
-        this.processButton.style.color = "gray";
-        this.processButton.style.cursor = "not-allowed";
     }
 
     reEnableProcessButton() {
         this.processButton.disabled = false;
-        this.processButton.style.borderColor = "black";
-        this.processButton.style.color = "black";
-        this.processButton.style.cursor = "pointer";
     }
 
-    disableContinueButton() {
-        this.continueButton.disabled = true;
-        this.continueButton.style.borderColor = "gray";
-        this.continueButton.style.color = "gray";
-        this.continueButton.style.cursor = "not-allowed";
-    }
+    // disableContinueButton() {
+        // this.continueButton.disabled = true;
+        // this.continueButton.style.borderColor = "gray";
+        // this.continueButton.style.color = "gray";
+        // this.continueButton.style.cursor = "not-allowed";
+    // }
 
-    reEnableContinueButton() {
-        this.continueButton.disabled = false;
-        this.continueButton.style.borderColor = "black";
-        this.continueButton.style.color = "black";
-        this.continueButton.style.cursor = "pointer";
-    }
+    // reEnableContinueButton() {
+        // this.continueButton.disabled = false;
+        // this.continueButton.style.borderColor = "black";
+        // this.continueButton.style.color = "black";
+        // this.continueButton.style.cursor = "pointer";
+    // }
 
     disableBackMainPageButton() {
+        return;
         this.backMainPageButton.disabled = true;
         this.backMainPageButton.style.borderColor = "gray";
         this.backMainPageButton.style.color = "gray";
@@ -183,6 +186,7 @@ class PreprocessPage {
     }
 
     reEnableBackMainPageButton() {
+        return;
         this.backMainPageButton.disabled = false;
         this.backMainPageButton.style.borderColor = "black";
         this.backMainPageButton.style.color = "black";
@@ -192,8 +196,8 @@ class PreprocessPage {
     enableProcessButton() {
         this.processButton.addEventListener("click", () => {
             this.disableProcessButton();
-            this.disableContinueButton();
-            this.disableBackMainPageButton();
+            // this.disableContinueButton();
+            // this.disableBackMainPageButton();
 
             const selectedImages = this.imageSelector.getSelectedImages();
             // Sort the selected images by filename
@@ -213,14 +217,14 @@ class PreprocessPage {
                 eel.check_valid_folder(projectPath)((response) => {
                     let isValid = response["success"];
                     let error_message = response["error_message"];
+                    const loadingIcon = new LoadingIconManager();
 
                     if (isValid) {
                         const imageSrc = [];
                         const imageFiles = [];
 
                         this.processedCount = 0;
-                        this.progressBar.style.width = "0%";
-                        this.progressText.textContent = "Process: (0 %)";
+                        loadingIcon.updatePercentage(0);
 
                         selectedImages.forEach((imageFile) => {
                             const imageTag =
@@ -228,6 +232,9 @@ class PreprocessPage {
                                     imageFile
                                 );
                             const data_url = imageTag.src;
+
+                            loadingIcon.showLoadingIcon(true);
+
                             this.annotationProcessor.process(
                                 data_url,
                                 imageFile,
@@ -238,21 +245,24 @@ class PreprocessPage {
                                         (this.processedCount /
                                             selectedImages.length) *
                                         100;
-                                    this.progressBar.style.width = `${percentage}%`;
-                                    this.progressText.textContent = `Process: ${percentage.toFixed(
-                                        2
-                                    )} %`;
+                                    loadingIcon.updatePercentage(percentage.toFixed(2));
+                                    loadingIcon.hideLoadingIcon();
+
+                                    const genernalPopup = new GenernalPopManager();
+
+                                    genernalPopup.setText('Please back to home page and load the project.');
+                                    genernalPopup.setLargeText('Processed Completed.');
+                                    genernalPopup.show();
+                                    genernalPopup.setButtonFn(() => {window.location.href = 'main_page.html'});
 
                                     if (
                                         this.processedCount ===
                                         selectedImages.length
                                     ) {
                                         this.reEnableProcessButton();
-                                        this.reEnableContinueButton();
+                                        // this.reEnableContinueButton();
                                         this.reEnableBackMainPageButton();
-                                        const topNav =
-                                            new PreprocessTopNavigationBar();
-                                        topNav.restoreIcon();
+                                        
                                     }
                                 }
                             );
@@ -268,13 +278,30 @@ class PreprocessPage {
                                 error_message
                         );
                         this.reEnableProcessButton();
-                        this.reEnableContinueButton();
+                        // this.reEnableContinueButton();
                         this.reEnableBackMainPageButton();
                         return;
                     }
                 });
             });
         });
+    }
+
+    createGalleryItem() {
+        const tempalte = document.getElementById("gallery-item-template");
+        const galleryItem = document.importNode(
+            tempalte.content,
+            true
+          );
+        return galleryItem;
+    }
+
+    updateProcessButonStatusTo() {
+        if(this.imageSelector.getSelectedImages().length > 0)  {
+            this.reEnableProcessButton();
+        } else {
+            this.disableProcessButton();
+        }
     }
 
     loadImage(imageFile) {
@@ -284,31 +311,31 @@ class PreprocessPage {
             return;
         }
 
-        const galleryItem = document.createElement("div");
-        galleryItem.classList.add("gallery-item");
-
-        const imgElement = document.createElement("img");
+        const galleryItemFragment = this.createGalleryItem();
+        const galleryItem = galleryItemFragment.querySelector('.gallery-item');
+        const imgElement = galleryItem.querySelector('img');
+        const filenameElement = galleryItem.querySelector('.gallery-item__name');
+        const checkboxElement = galleryItem.querySelector('input');
         const reader = new FileReader();
         reader.onload = (e) => {
             imgElement.src = e.target.result;
         };
         reader.readAsDataURL(imageFile);
 
-        const filenameElement = document.createElement("div");
         filenameElement.textContent = fileName;
-
-        galleryItem.appendChild(imgElement);
-        galleryItem.appendChild(filenameElement);
 
         // When the gallery item is double clicked,
         // check is it selected or not. If selected, deselect it.
         // If not selected, select it.
-        galleryItem.addEventListener("dblclick", () => {
+        checkboxElement.addEventListener("change", () => {
+
             if (this.imageSelector.isSelected(fileName)) {
                 this.deselectImage(fileName, galleryItem);
             } else {
                 this.selectImage(fileName, galleryItem);
             }
+
+            this.updateProcessButonStatusTo();
         });
 
         this.imageSelector.addData(fileName, imgElement);
@@ -318,6 +345,8 @@ class PreprocessPage {
 
     selectImage(imageFile, galleryItem) {
         const success = this.imageSelector.selectImage(imageFile);
+        return;
+
         if (success) {
             // Add it to the selected gallery
             this.selectedGallery.appendChild(galleryItem);
@@ -333,15 +362,16 @@ class PreprocessPage {
         this.imageSelector.deselectImage(imageFile);
 
         // Add it to the deselected gallery
-        this.deselectedGallery.appendChild(galleryItem);
+        // this.deselectedGallery.appendChild(galleryItem);
 
         // Remove it from the selected gallery
-        if (this.selectedGallery.contains(galleryItem)) {
-            this.selectedGallery.removeChild(galleryItem);
-        }
+        // if (this.selectedGallery.contains(galleryItem)) {
+        //     this.selectedGallery.removeChild(galleryItem);
+        // }
     }
 
     addSelectedImageToGallery(imageFile) {
+        return;
         const container = document.createElement("div");
         container.classList.add("gallery-item");
 
@@ -366,6 +396,7 @@ function main() {
     preprocessPage.enableProcessButton();
     // preprocessPage.configPage.enable();
     preprocessPage.enableChangeInGallery();
+    preprocessPage.enableCancelButton();
 }
 
 main();

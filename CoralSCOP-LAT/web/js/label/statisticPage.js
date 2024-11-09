@@ -11,10 +11,10 @@ class StatisticPage {
             height: 330,
             fontSize: 15,
             chartArea: {
-                left: "5%", // Space on the left
-                top: "5%",  // Space on the top
-                width: '90%', // Width of the chart area
-                height: '90%' // Height of the chart area
+                left: "10%", // Space on the left
+                top: "10%",  // Space on the top
+                width: '80%', // Width of the chart area
+                height: '80%' // Height of the chart area
             },
             backgroundColor: { 
                 fill: 'transparent' // Sets the background to transparent

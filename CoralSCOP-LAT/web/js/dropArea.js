@@ -1,9 +1,9 @@
 class DropArea {
     constructor(dropArea) {
         this.dropArea = dropArea;
-        this.selectLink = this.dropArea.querySelector("#select-link");
-        this.fileInput = this.dropArea.querySelector("#file-input");
-        this.dropText = this.dropArea.querySelector("#drop-text");
+        this.selectLink = document.getElementById("select-link");
+        this.fileInput = document.getElementById("file-input");
+        this.dropText = document.getElementById("drop-text");
     }
 
     enable() {

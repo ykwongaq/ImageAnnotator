@@ -744,16 +744,17 @@ input[type=range]:active::-moz-range-thumb {
 }
 
 .gallery-list {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
   gap: 20px;
+  padding: 0 0 20px;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
   padding: 0 0 20px;
 }
 .gallery-list__item {
   width: 100%;
 }
 .gallery-list--full .gallery-list__item {
-  width: calc(20% - 20px);
+  grid-column: 1 span;
 }
 
 .gallery-item {
@@ -843,13 +844,17 @@ input[type=range]:active::-moz-range-thumb {
   border: 1px solid var(--border-color);
   border-radius: 100px;
 }
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.3;
+}
 .button--border {
   --color: var(--text-text-primary2);
   --bg-color: #fff;
   --border-color: var(--text-text-primary2) ;
 }
-.button:hover {
-  opacity: 0.8;
+.button:not(:disabled):hover {
+  opacity: 0.7;
 }
 
 .normal-dropdown {
@@ -941,14 +946,11 @@ button {
   flex-shrink: 0;
 }
 .header__main {
-  display: none;
   justify-content: center;
   align-items: center;
   flex: 1;
   padding: 10px 20px;
-}
-.wrapper.wrapper:has(#annotationPage.active-page) .header__main {
-  display: flex;
+  display: none;
 }
 .header__main-side {
   width: 25%;
@@ -981,6 +983,15 @@ button {
 }
 .header .arrow-link--prev {
   margin-right: auto;
+}
+.header__main-side, .header #prev-image-button, .header #next-image-button {
+  display: none;
+}
+.wrapper.wrapper:has(#annotationPage.active-page) .header__main-side, .wrapper.wrapper:has(#annotationPage.active-page) .header #prev-image-button, .wrapper.wrapper:has(#annotationPage.active-page) .header #next-image-button {
+  display: flex;
+}
+.wrapper.wrapper:has(#annotationPage.active-page) .header__main, .wrapper.wrapper:has(#statisticPage.active-page) .header__main {
+  display: flex;
 }
 
 .logo-blk {
@@ -1194,6 +1205,7 @@ button {
   gap: 25px;
   justify-content: flex-end;
   padding: 25px 20px;
+  transition: 0.2s all;
 }
 .main-section__inner .main-section__bottom {
   margin-inline: calc(-1 * var(--padding));
@@ -1320,7 +1332,7 @@ html:has(#confirm-button:not(.hidden)) #default-bar .float-bar__inner {
     transform: rotate(360deg);
   }
 }
-.loading-pop {
+.modal-pop {
   transition: 0.3s all;
   position: fixed;
   z-index: 15;
@@ -1329,19 +1341,19 @@ html:has(#confirm-button:not(.hidden)) #default-bar .float-bar__inner {
   align-items: center;
   justify-content: center;
 }
-.loading-pop:not(.active) {
+.modal-pop:not(.active) {
   opacity: 0;
   visibility: hidden;
   transform: translate(0, -20px);
 }
-.loading-pop__inner {
+.modal-pop__inner {
   border-radius: 10px;
   background-color: #fff;
   text-align: center;
   width: 700px;
   padding: 80px 55px;
 }
-.loading-pop__loading {
+.modal-pop__loading {
   width: 100px;
   aspect-ratio: 1;
   object-fit: contain;
@@ -1349,48 +1361,72 @@ html:has(#confirm-button:not(.hidden)) #default-bar .float-bar__inner {
   margin: 0 auto 34px;
   animation: rotate 2s linear infinite;
 }
-.loading-pop__number {
-  display: none;
+.modal-pop__number {
   font-weight: 700;
   color: var(--text-text-primary2);
   font-size: 48px;
 }
-.loading-pop:not(.is-count) .loading-pop__number {
+.modal-pop:not(.is-count) .modal-pop__number {
   display: none;
 }
-.loading-pop__lg-text {
+.modal-pop__lg-text {
   color: var(--text-text-primary2);
   font-size: 36px;
   font-weight: 700;
   margin-bottom: 10px;
 }
-.loading-pop__text {
+.modal-pop__text {
   line-height: 1.4;
   font-size: 20px;
   font-weight: 300;
 }
-.loading-pop-backdrop {
+.modal-pop-backdrop {
   position: fixed;
   inset: 0;
   z-index: 12;
   background-color: #000;
-  opacity: 0.7;
-  transition: 0.3s all;
-}
-.loading-pop:not(.active) + .loading-pop-backdrop {
-  opacity: 0;
   visibility: hidden;
+  transition: 0.3s all;
+  opacity: 0;
 }
-.loading-pop__row {
+.modal-pop.active ~ .modal-pop-backdrop {
+  opacity: 0.7;
+  visibility: visible;
+}
+.modal-pop__row {
   display: flex;
   justify-content: center;
   margin-top: 40px;
 }
-.loading-pop:not(.is-count) .loading-pop__row {
+.loading-pop:not(.is-count) .modal-pop__row {
   display: none;
 }
-.loading-pop .button {
+.modal-pop .button {
   width: 158px;
+}
+
+#drop-container {
+  height: calc(100vh - 380px);
+}
+#drop-container:has(~ #deselected-gallery .gallery-item) {
+  display: none;
+}
+
+.select-link {
+  padding-block: 7px;
+  margin-inline: 10px;
+}
+
+.main-section:has(#deselected-gallery) .main-section__bottom {
+  transform: translate(0, 101%);
+  opacity: 0;
+  visibility: hidden;
+}
+
+.main-section:has(#deselected-gallery .gallery-item) .main-section__bottom {
+  transform: translate(0, 0);
+  opacity: 1;
+  visibility: visible;
 }
 
 /*# sourceMappingURL=styles.css.map */

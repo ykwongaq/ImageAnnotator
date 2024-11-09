@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Process page</title>
+    <link rel="stylesheet" href="./icon/style.css">
+    <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body>
+    <div class="wrapper">
+        <div class="header">
+            <div class="logo-blk">
+                <img class="logo-blk__img" src="./images/logo.png" >
+                <span class="logo-blk__text">CoralSCOP-LAT</span>
+            </div>
+            <div class="header__main" style="display: none;">
+                <div class="header__main-side"><a href="#!" class="arrow-link arrow-link--prev"><span class="ico ico--left"></span>All Image(1,200) </a></div>
+                <div class="header__middle">
+                    <a href="#!" class="circle-arrow circle-arrow--prev"><</a>
+                    <p class="header__title">Image-Name-Sample.jpeg</p>
+                    <a href="#!" class="circle-arrow circle-arrow--next">></a>
+                </div>
+                <div class="header__main-side"></div>
+            </div>
+        </div>
+        <div class="main">
+            <div class="main-section">
+                <div class="main-section__inner">
+                    <p class="main-section__title">Imported Images</p>
+                    <div class="main-section__content">
+                        <div id="drop-container" class="drop-container">
+                            <div id="drop-text" class="drop-text">
+                                Drop your image folder here or
+                                <button id="select-link" class="button select-link">select</button> the folder
+                            </div>
+                            <input
+                                type="file"
+                                id="file-input"
+                                webkitdirectory
+                                directory
+                                style="display: none"
+                            />
+                        </div>
+                        <template id="gallery-item-template">
+                            <label class="gallery-list__item gallery-item">
+                                <input type="checkbox">
+                                <div class="gallery-item__img-w">
+                                    <img class="gallery-item__img" src="">
+                                </div>
+                                <p class="name gallery-item__name">
+                                    <span class="gallery-item__text">Image-Name-Sample.jpeg</span>
+                                </p>
+                            </label>
+                        </template>
+                        <div id="deselected-gallery" class="gallery-list gallery-list--full">
+                        </div>
+                        <div id="selected-gallery" class="hidden"></div>
+                    </div>
+                    <div class="main-section__bottom">
+                        <button id="deselect-all-button" class="button button--border">Deselect All</button>
+                        <button id="select-all-button" class="button button--border">Select All</button>
+                        <button id="process-button" disabled class="button">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="process-view" style="display: none;">
+            <div id="selected-image-count-text" class="process-text">
+                Selected Images: 0
+            </div>
+            <div class="progressbar-view">
+                <div id="progress-text" class="progressbar-text">
+                    Process: (0 %)
+                </div>
+                <div class="progress-container round-xlarge">
+                    <div
+                        id="image-progress-bar"
+                        class="progressbar round-xlarge"
+                        style="width: 0%"
+                    ></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="loading-pop" class="loading-pop modal-pop">
+            <div class="loading-pop__inner modal-pop__inner">
+                <img class="loading-pop__loading modal-pop__loading" src="./images/loading.svg" alt="" />
+                <p id="loading-percentage" class="loading-pop__number modal-pop__number"></p>
+                <p id="loading-pop-text" class="loading-pop__lg-text modal-pop__lg-text">
+                    Hold Tight!
+                </p>
+                <p class="loading-pop__text modal-pop__text">We're brewing up something amazing. 
+                    It might take a few minutes, so sit back and relax. Better not to leave this page. 
+                    Thanks for your patience! 😊</p>
+                <div class="loading-pop__row modal-pop__row">
+                    <button id="loading-pop-quit" class="button">Quit</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="general-pop" class="modal-pop">
+            <div class="modal-pop__inner">
+                <p id="general-pop-large-text" class="modal-pop__lg-text"></p>
+                <p id="general-pop-text" class="modal-pop__text"></p>
+                <div class="modal-pop__row">
+                    <button id="general-pop-button" class="button">OK</button>
+                </div>
+            </div>
+        </div>
+        <div id="loading-pop-backdrop" class="modal-pop-backdrop"></div>
+    </div>
+    <script src="./js/slider.js"></script>
+    <script src="./js/toggle-input.js"></script>
+    <script src="/eel.js"></script>
+    <script src="js/genernalPopManager.js"></script>
+    <script src="js/loadingIconManager-new.js"></script>
+    <script src="js/dropArea.js"></script>
+    <script src="js/navigate.js"></script>
+    <script src="js/preprocess/preprocessTopNavigationBar.js"></script>
+    <script src="js/preprocess/annotationProcessor.js"></script>
+    <script src="js/preprocess/imageSelector.js"></script>
+    <script src="js/preprocess/config.js"></script>
+    <script src="js/preprocess/configPage.js"></script>
+    <script src="js/preprocess/preprocessPage.js"></script>
+</body>
+</html>

@@ -38,7 +38,7 @@
                 <div class="side-bar__main">
                     <ul class="nav-list top">
                         <li class="nav-list__item">
-                            <a href="./" id="back-to-main-page-button" class="nav-list__button"><span class="ico-home"></span> <span class="arrow-tooltip">Home</span></a>
+                            <a href="./main_page.html" id="back-to-main-page-button" class="nav-list__button"><span class="ico-home"></span> <span class="arrow-tooltip">Home</span></a>
                         </li>
                         <li class="nav-list__item">
                             <button id="file-button" class="nav-list__button"><span class="ico-grid"></span><span class="arrow-tooltip">File</span></button>
@@ -347,22 +347,22 @@
             <button class="normal-dropdown__link" id="delete-label-button">Delete</button>
         </div>
 
-    <div id="loading-pop" class="loading-pop">
-        <div class="loading-pop__inner">
-            <img class="loading-pop__loading" src="./images/loading.svg" alt="" />
-            <p id="loading-percentage" class="loading-pop__number"></p>
-            <p id="loading-pop-text" class="loading-pop__lg-text">
+    <div id="loading-pop" class="loading-pop modal-pop">
+        <div class="loading-pop__inner modal-pop__inner">
+            <img class="loading-pop__loading modal-pop__loading" src="./images/loading.svg" alt="" />
+            <p id="loading-percentage" class="loading-pop__number modal-pop__number"></p>
+            <p id="loading-pop-text" class="loading-pop__lg-text modal-pop__lg-text">
                 Hold Tight!
             </p>
-            <p class="loading-pop__text">We're brewing up something amazing. 
+            <p class="loading-pop__text modal-pop__text">We're brewing up something amazing. 
                 It might take a few minutes, so sit back and relax. Better not to leave this page. 
                 Thanks for your patience! 😊</p>
-            <div class="loading-pop__row">
+            <div class="loading-pop__row modal-pop__row">
                 <button id="loading-pop-quit" class="button">Quit</button>
             </div>
         </div>
     </div>
-    <div id="loading-pop-backdrop" class="loading-pop-backdrop"></div>
+    <div id="loading-pop-backdrop" class="modal-pop-backdrop"></div>
 
     <script src="js/label/chart.js"></script>
     <script src="js/loadingIconManager-new.js"></script>
