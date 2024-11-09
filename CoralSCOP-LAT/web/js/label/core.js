@@ -130,7 +130,10 @@ class Core {
 
                         this.autoStart();
                         this.setProjectLoaded(true);
-                        this.showPage("annotationPage");
+                        this.showPage("galleryPage");
+
+                        const popup = new GenernalPopManager();
+                        popup.hide();
                     });
                 } else {
                     const errorMessage = response["error_message"];
@@ -158,8 +161,6 @@ class Core {
 
     showPage(pageId) {
 
-
-        
         const pages = document.querySelectorAll(".page");
         pages.forEach((page) => {
             page.classList.remove("active-page");
@@ -167,13 +168,18 @@ class Core {
 
         if (this.isProjectLoaded()) {
             const page = document.getElementById(pageId);
+            console.log('page', page)
             page.classList.add("active-page");
 
             const bottomBar = new BottomNavigationBar();
+            const galleryPage = new GalleryPage();
+            galleryPage.disable();
+
             if (pageId === "annotationPage") {
                 const canvas = new Canvas();
                 canvas.resetViewpoint();
                 bottomBar.reEnable();
+                galleryPage.reEnableBackFromLabelButton();
             } else if (pageId === "statisticPage") {
                 const statisticPage = new StatisticPage();
 
@@ -186,6 +192,9 @@ class Core {
                 const settingPage = new SettingPage();
                 settingPage.displayConfig();
                 bottomBar.disable();
+            } else if (pageId === "galleryPage") {
+                galleryPage.reEnable();
+                galleryPage.createGalleryList();
             }
         } else {
             this.defaultPage.classList.add("active-page");

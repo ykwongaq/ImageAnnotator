@@ -798,12 +798,6 @@ input[type="range"] {
     --line-color: #E6E9EA;
     position: relative;
 
-    &:where(label) {
-        cursor: pointer;
-          &:hover {
-            border-color: var(--surface-surface-primary1);
-        }
-    }
 
     &__remove {
         width: 20px;
@@ -861,6 +855,24 @@ input[type="range"] {
         justify-content: space-between;
         min-height: 50px;
 
+        
+    }
+
+    [type=checkbox]:checked ~ &__name {
+        &::after {
+            background: var(--surface-surface-primary1);
+            content: '+';
+        }
+    }
+
+    &:where(label), &:where(button) {
+        cursor: pointer;
+          &:hover {
+            border-color: var(--surface-surface-primary1);
+        }
+    }
+
+    &:where(label) &__name {
         &::after {
             content: '';
             width: 24px;
@@ -875,12 +887,6 @@ input[type="range"] {
         }
     }
 
-    [type=checkbox]:checked ~ &__name {
-        &::after {
-            background: var(--surface-surface-primary1);
-            content: '+';
-        }
-    }
 }
 
 .button {
@@ -894,7 +900,7 @@ input[type="range"] {
         cursor: not-allowed;
         opacity: .3;
     }
-
+        text-align: center;
         cursor: pointer;
         padding: 13px 15px;
         width: var(--width);

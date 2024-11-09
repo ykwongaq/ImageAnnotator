@@ -6,6 +6,7 @@ class BottomNavigationBar {
         this.toogleMaskButton = document.getElementById("toogle-mask-button");
         this.zoomInButton = document.getElementById("zoomin-viewpoint-button");
         this.zoomOutButton = document.getElementById("zoomout-viewpoint-button");
+        this.backToGalleryButton = document.getElementById("back-to-gallery");
     }
 
     enable() {
@@ -15,6 +16,7 @@ class BottomNavigationBar {
         this.enableToogleMaskButton();
         this.enableZoomInButton();
         this.enableZoomOutButton();
+        this.enableBackToGalleryButton();
     }
 
     disable() {
@@ -24,6 +26,7 @@ class BottomNavigationBar {
         this.disableToogleMaskButton();
         this.disableZoomInButton();
         this.disableZoomOutButton();
+        this.thisBackToGalleryButton();
     }
 
     reEnable() {
@@ -33,6 +36,7 @@ class BottomNavigationBar {
         this.reEnableToogleMaskButton();
         this.reEnableZoomInButton();
         this.reEnableZoomOutButton();
+        this.reEnableBackToGalleryButton();
     }
 
     disablePrevImageButton() {
@@ -81,6 +85,15 @@ class BottomNavigationBar {
 
     reEnableZoomOutButton() {
         this.zoomOutButton.disabled = false;
+    }
+
+ 
+    disableBackToGalleryButton() {
+        this.backToGalleryButton.disabled = true;
+    }
+
+    reEnableBackToGalleryButton() {
+        this.backToGalleryButton.disabled = false;
     }
 
     enablePrevImageButton() {
@@ -210,5 +223,13 @@ class BottomNavigationBar {
             const canvas = new Canvas();
             canvas.zoomOut();
         });
+    }
+
+    enableBackToGalleryButton() {
+        this.backToGalleryButton.addEventListener("click", (event) => {
+            event.preventDefault();
+            const core = new Core();
+            core.showPage('galleryPage');
+        })
     }
 }

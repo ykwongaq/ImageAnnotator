@@ -19,15 +19,17 @@ class GenernalPopManager {
         this.fn = __fn;
     }
 
+    updateButtonText(__text) {
+        this.button.textContent = __text;
+    }
 
     enableButton() {
         if(this.button){
             this.button.addEventListener('click', () => {
+                console.log('sdasd', this.fn);
                 let willHide = true
                 if(this.fn) {
                     willHide = this.fn() || true;
-                    this.fn = null;
-                    
                 }
                 if(!willHide) {
                     this.popup.classList.remove('active');
@@ -46,6 +48,10 @@ class GenernalPopManager {
 
     show() {
         this.popup.classList.add('active');
+    }
+
+    hide(){
+        this.popup.classList.remove('active');
     }
 }
 

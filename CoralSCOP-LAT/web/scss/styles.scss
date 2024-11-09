@@ -1,7 +1,9 @@
 @use '../fonts/stylesheet';
 @use './function';
-@use './var.scss';
+@use './var';
 @use './elements';
-@use './base.scss';
-@use './layout.scss';
-@use './process.scss';
+@use './base';
+@use './layout';
+@use './process';
+@use './home';
+@use './gallery';

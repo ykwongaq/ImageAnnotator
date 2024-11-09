@@ -14,6 +14,7 @@ class TopNavigationBar {
         this.labelButton = document.getElementById("label-button");
         this.statisticButton = document.getElementById("statistic-button");
         this.settingButton = document.getElementById("setting-button");
+        this.galleryButton = document.getElementById("gallery-button");
 
         this.loadProjectButton = document.getElementById("load-project-button");
         this.exportCOCOButton = document.getElementById("export-coco-button");
@@ -23,6 +24,7 @@ class TopNavigationBar {
 
         this.buttons = [
             this.labelButton,
+            this.galleryButton,
             this.statisticButton,
             this.settingButton,
         ];
@@ -38,6 +40,17 @@ class TopNavigationBar {
         this.enableExportExcelButton();
         this.enableExportGraphButton();
         this.enableExportAllButton();
+    }
+
+    autoOpenFile() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if(urlParams.get('autoload') === 'true'){
+            const popup = new GenernalPopManager();
+            popup.updateText('Please select a created project');
+            popup.updateButtonText('Load Poroject');
+            popup.setButtonFn(()=> {console.log('as'); this.loadProjectButton.click()});
+            popup.show();
+        }
     }
 
     clearActiveState() {
@@ -66,6 +79,11 @@ class TopNavigationBar {
         });
         this.backToMainPageButton.addEventListener("click", () => {
             core.setProjectLoaded(false);
+        });
+        this.galleryButton.addEventListener("click", () => {
+            core.showPage("galleryPage");
+            this.clearActiveState();
+            this.galleryButton.classList.add("active");
         });
     }
 
