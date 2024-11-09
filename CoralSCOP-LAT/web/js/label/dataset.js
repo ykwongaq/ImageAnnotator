@@ -317,6 +317,15 @@ class Dataset {
         eel.get_data(this.currentDataIdx)(callbackFunction);
     }
 
+    /*
+    Usage:
+    dataset = new Dataset();
+    dataset.getAllData((dataList) => {
+        for (const data of dataList) {
+            console.log(data);
+        }   
+    });
+    */
     getAllData(callbackFunction = null) {
         eel.get_all_data()(callbackFunction);
     }
