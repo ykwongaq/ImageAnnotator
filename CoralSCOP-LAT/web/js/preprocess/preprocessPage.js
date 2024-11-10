@@ -12,10 +12,9 @@ class PreprocessPage {
 
         this.dropAreaDom = document.getElementById("drop-container");
 
-
         this.selectAllButton = document.getElementById("select-all-button");
         this.deselectAllButton = document.getElementById("deselect-all-button");
-        this.cancelButton = document.getElementById('loading-pop-quit');
+        this.cancelButton = document.getElementById("loading-pop-quit");
 
         this.processButton = document.getElementById("process-button");
 
@@ -34,16 +33,16 @@ class PreprocessPage {
 
         // this.projectPathInput = document.getElementById("project-path-input");
     }
-    
+
     enableCancelButton() {
-        if(this.cancelButton) {
-            this.cancelButton.addEventListener('click', (event) => {
+        if (this.cancelButton) {
+            this.cancelButton.addEventListener("click", (event) => {
                 event.preventDefault();
                 const loadingIcon = new LoadingIconManager();
-                loadingIcon.updateLargeText('Quiting');
+                loadingIcon.updateLargeText("Quiting");
                 this.annotationProcessor.setShouldSkip(true);
                 this.cancelButton.disabled = true;
-            })
+            });
         }
     }
 
@@ -134,10 +133,11 @@ class PreprocessPage {
     enableSelectAllButton() {
         this.selectAllButton.addEventListener("click", () => {
             this.galleryItems.forEach((galleryItem) => {
-                const imageFile =
-                    galleryItem.querySelector(".gallery-item__name").textContent;
+                const imageFile = galleryItem.querySelector(
+                    ".gallery-item__name"
+                ).textContent;
                 this.selectImage(imageFile, galleryItem);
-                galleryItem.querySelector('input').checked = true;
+                galleryItem.querySelector("input").checked = true;
             });
             this.updateProcessButonStatusTo();
         });
@@ -146,10 +146,11 @@ class PreprocessPage {
     enableDeselectAllButton() {
         this.deselectAllButton.addEventListener("click", () => {
             this.galleryItems.forEach((galleryItem) => {
-                const imageFile =
-                galleryItem.querySelector(".gallery-item__name").textContent;
+                const imageFile = galleryItem.querySelector(
+                    ".gallery-item__name"
+                ).textContent;
                 this.deselectImage(imageFile, galleryItem);
-                galleryItem.querySelector('input').checked = false;
+                galleryItem.querySelector("input").checked = false;
             });
             this.updateProcessButonStatusTo();
         });
@@ -164,17 +165,17 @@ class PreprocessPage {
     }
 
     // disableContinueButton() {
-        // this.continueButton.disabled = true;
-        // this.continueButton.style.borderColor = "gray";
-        // this.continueButton.style.color = "gray";
-        // this.continueButton.style.cursor = "not-allowed";
+    // this.continueButton.disabled = true;
+    // this.continueButton.style.borderColor = "gray";
+    // this.continueButton.style.color = "gray";
+    // this.continueButton.style.cursor = "not-allowed";
     // }
 
     // reEnableContinueButton() {
-        // this.continueButton.disabled = false;
-        // this.continueButton.style.borderColor = "black";
-        // this.continueButton.style.color = "black";
-        // this.continueButton.style.cursor = "pointer";
+    // this.continueButton.disabled = false;
+    // this.continueButton.style.borderColor = "black";
+    // this.continueButton.style.color = "black";
+    // this.continueButton.style.cursor = "pointer";
     // }
 
     disableBackMainPageButton() {
@@ -191,6 +192,81 @@ class PreprocessPage {
         this.backMainPageButton.style.borderColor = "black";
         this.backMainPageButton.style.color = "black";
         this.backMainPageButton.style.cursor = "pointer";
+    }
+
+    endProcessing() {
+        this.reEnableProcessButton();
+        // this.reEnableContinueButton();
+        this.reEnableBackMainPageButton();
+
+        const genernalPopup = new GenernalPopManager();
+
+        genernalPopup.updateText(
+            "Please back to home page and load the project."
+        );
+        genernalPopup.updateLargeText("Processed Completed.");
+        genernalPopup.show();
+        genernalPopup.setButtonFn(() => {
+            navigateTo("main_page.html");
+        });
+    }
+
+    async process(response, selectedImages, projectPath) {
+        let isValid = response["success"];
+        let error_message = response["error_message"];
+        const loadingIcon = new LoadingIconManager();
+
+        if (isValid) {
+            const imageSrc = [];
+            const imageFiles = [];
+
+            this.processedCount = 0;
+            loadingIcon.updatePercentage(0);
+
+            for (const imageFile of selectedImages) {
+                if (this.annotationProcessor.isShouldSkip()) {
+                    this.endProcessing();
+                }
+
+                const imageTag =
+                    this.imageSelector.getImageTagByFilename(imageFile);
+                const data_url = imageTag.src;
+
+                loadingIcon.showLoadingIcon(true);
+
+                const result = await eel.preprocess(
+                    data_url,
+                    imageFile,
+                    projectPath
+                )();
+
+                console.log("result", result);
+                this.processedCount++;
+                console.log(this.processedCount);
+                const percentage =
+                    (this.processedCount / selectedImages.length) * 100;
+                loadingIcon.updatePercentage(percentage.toFixed(2));
+                loadingIcon.hideLoadingIcon();
+
+                if (this.processedCount === selectedImages.length) {
+                    this.endProcessing();
+                }
+            }
+
+            // Make sure that the annotation processer will work next time.
+            this.annotationProcessor.setShouldSkip(false);
+        } else {
+            alert(
+                "Invalid project path: " +
+                    projectPath +
+                    " with error: " +
+                    error_message
+            );
+            this.reEnableProcessButton();
+            // this.reEnableContinueButton();
+            this.reEnableBackMainPageButton();
+            return;
+        }
     }
 
     enableProcessButton() {
@@ -214,74 +290,8 @@ class PreprocessPage {
                     return;
                 }
 
-                eel.check_valid_folder(projectPath)((response) => {
-                    let isValid = response["success"];
-                    let error_message = response["error_message"];
-                    const loadingIcon = new LoadingIconManager();
-
-                    if (isValid) {
-                        const imageSrc = [];
-                        const imageFiles = [];
-
-                        this.processedCount = 0;
-                        loadingIcon.updatePercentage(0);
-
-                        selectedImages.forEach((imageFile) => {
-                            const imageTag =
-                                this.imageSelector.getImageTagByFilename(
-                                    imageFile
-                                );
-                            const data_url = imageTag.src;
-
-                            loadingIcon.showLoadingIcon(true);
-
-                            this.annotationProcessor.process(
-                                data_url,
-                                imageFile,
-                                projectPath,
-                                (result) => {
-                                    this.processedCount++;
-                                    const percentage =
-                                        (this.processedCount /
-                                            selectedImages.length) *
-                                        100;
-                                    loadingIcon.updatePercentage(percentage.toFixed(2));
-                                    loadingIcon.hideLoadingIcon();
-
-                                    const genernalPopup = new GenernalPopManager();
-
-                                    genernalPopup.updateText('Please back to home page and load the project.');
-                                    genernalPopup.updateLargeText('Processed Completed.');
-                                    genernalPopup.show();
-                                    genernalPopup.setButtonFn(() => {navigateTo('main_page.html')});
-
-                                    if (
-                                        this.processedCount ===
-                                        selectedImages.length
-                                    ) {
-                                        this.reEnableProcessButton();
-                                        // this.reEnableContinueButton();
-                                        this.reEnableBackMainPageButton();
-                                        
-                                    }
-                                }
-                            );
-                        });
-
-                        // Make sure that the annotation processer will work next time.
-                        this.annotationProcessor.setShouldSkip(false);
-                    } else {
-                        alert(
-                            "Invalid project path: " +
-                                projectPath +
-                                " with error: " +
-                                error_message
-                        );
-                        this.reEnableProcessButton();
-                        // this.reEnableContinueButton();
-                        this.reEnableBackMainPageButton();
-                        return;
-                    }
+                eel.check_valid_folder(projectPath)(async (response) => {
+                    this.process(response, selectedImages, projectPath);
                 });
             });
         });
@@ -289,15 +299,12 @@ class PreprocessPage {
 
     createGalleryItem() {
         const tempalte = document.getElementById("gallery-item-template");
-        const galleryItem = document.importNode(
-            tempalte.content,
-            true
-          );
+        const galleryItem = document.importNode(tempalte.content, true);
         return galleryItem;
     }
 
     updateProcessButonStatusTo() {
-        if(this.imageSelector.getSelectedImages().length > 0)  {
+        if (this.imageSelector.getSelectedImages().length > 0) {
             this.reEnableProcessButton();
         } else {
             this.disableProcessButton();
@@ -312,10 +319,12 @@ class PreprocessPage {
         }
 
         const galleryItemFragment = this.createGalleryItem();
-        const galleryItem = galleryItemFragment.querySelector('.gallery-item');
-        const imgElement = galleryItem.querySelector('img');
-        const filenameElement = galleryItem.querySelector('.gallery-item__name');
-        const checkboxElement = galleryItem.querySelector('input');
+        const galleryItem = galleryItemFragment.querySelector(".gallery-item");
+        const imgElement = galleryItem.querySelector("img");
+        const filenameElement = galleryItem.querySelector(
+            ".gallery-item__name"
+        );
+        const checkboxElement = galleryItem.querySelector("input");
         const reader = new FileReader();
         reader.onload = (e) => {
             imgElement.src = e.target.result;
@@ -328,7 +337,6 @@ class PreprocessPage {
         // check is it selected or not. If selected, deselect it.
         // If not selected, select it.
         checkboxElement.addEventListener("change", () => {
-
             if (this.imageSelector.isSelected(fileName)) {
                 this.deselectImage(fileName, galleryItem);
             } else {

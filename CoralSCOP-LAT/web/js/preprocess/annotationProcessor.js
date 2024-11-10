@@ -7,6 +7,10 @@ class AnnotationProcesser {
         this.shouldSkip = false;
     }
 
+    isShouldSkip() {
+        return this.shouldSkip;
+    }
+
     setShouldSkip(shouldSkip) {
         /*
         Exammple usage
@@ -21,20 +25,13 @@ class AnnotationProcesser {
         eel.generate_embedding(data_url, imageFile)(this.response);
     }
 
-    process(data_url, imageFile, projectPath, callBack = null) {
+    async process(data_url, imageFile, projectPath, callBack = null) {
         if (this.shouldSkip) {
             return;
         }
         console.log("Processing", imageFile);
-        eel.preprocess(
-            data_url,
-            imageFile,
-            projectPath
-        )((result) => {
-            if (callBack) {
-                callBack(result);
-            }
-        });
+        const result = await eel.preprocess(data_url, imageFile, projectPath);
+        return result;
     }
 
     checkProjectPath(projectPath) {
