@@ -250,10 +250,10 @@ class PreprocessPage {
 
                                     const genernalPopup = new GenernalPopManager();
 
-                                    genernalPopup.setText('Please back to home page and load the project.');
-                                    genernalPopup.setLargeText('Processed Completed.');
+                                    genernalPopup.updateText('Please back to home page and load the project.');
+                                    genernalPopup.updateLargeText('Processed Completed.');
                                     genernalPopup.show();
-                                    genernalPopup.setButtonFn(() => {window.location.href = 'main_page.html'});
+                                    genernalPopup.setButtonFn(() => {navigateTo('main_page.html')});
 
                                     if (
                                         this.processedCount ===
