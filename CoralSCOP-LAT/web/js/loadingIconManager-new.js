@@ -5,10 +5,31 @@ class LoadingIconManager {
         }
         LoadingIconManager.instance = this;
         this.loadingIcon = document.getElementById('loading-pop');
+        this.loadindPercentage = document.getElementById('loading-percentage');
+        this.loadingLargeText = document.getElementById('loading-pop-text');
+        this.quitButton = document.getElementById('loading-pop-quit');
+        this.fn = null;
 
         this.launchCount = 0;
 
         return this;
+    }
+
+    updateButtonFn(__fn) {
+        if(__fn && this.quitButton) {
+            this.quitButton.addEventListener('click', (event) => {
+                event.preventDefault();
+                __fn();
+            })
+        }
+    }
+
+    updateLargeText(__text) {
+        this.loadingLargeText.textContent = __text;
+    }
+
+    updatePercentage(__text) {
+        this.loadindPercentage.textContent = `${__text}%`;
     }
 
     showLoadingIcon(__cont) {
@@ -24,8 +45,6 @@ class LoadingIconManager {
         }
     }
 
-
-
     hideLoadingIcon(__force) {
         if(__force) {
             this.launchCount = 0;
@@ -39,5 +58,7 @@ class LoadingIconManager {
             }
         }
     }
+
+
     
 }

@@ -22,6 +22,7 @@ class LabelPage {
 function main() {
     const labelPage = new LabelPage();
     labelPage.enable();
+    labelPage.topNavigationBar.autoOpenFile();
 
     const core = new Core();
     document.addEventListener("DOMContentLoaded", () => {

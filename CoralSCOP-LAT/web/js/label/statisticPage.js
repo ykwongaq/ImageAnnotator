@@ -4,7 +4,22 @@ class StatisticPage {
         this.chartItemTemplate = document.getElementById("chart-item-template");
 
 
-        
+        this.glbOptions = {
+            pieHole: 0.4,
+            legend: { position: 'none' },
+            width: 330,
+            height: 330,
+            fontSize: 15,
+            chartArea: {
+                left: "10%", // Space on the left
+                top: "10%",  // Space on the top
+                width: '80%', // Width of the chart area
+                height: '80%' // Height of the chart area
+            },
+            backgroundColor: { 
+                fill: 'transparent' // Sets the background to transparent
+            },
+        }
     }
 
     loadGoogleLib() {
@@ -13,9 +28,6 @@ class StatisticPage {
             const success = true; // Simulate success or failure
         
             google.charts.load("current", { packages: ["corechart"] });
-
-            console.log('before');
-
 
             google.charts.setOnLoadCallback(function () {
                 if (success) {
@@ -50,6 +62,21 @@ class StatisticPage {
             }
         }
         return count;
+    }
+
+
+    createLegends(__legendsData) {
+        const lengends = [];
+        
+        __legendsData.colors.forEach((color, index) => {
+            const dom = document.createElement('p');
+            dom.className = "legend-item";
+            dom.style.setProperty('--color', color);
+            dom.textContent = __legendsData.names[index];
+            lengends.push(dom);
+        })
+
+        return lengends
     }
 
     createCurrentImageStatistic(response) {
@@ -101,6 +128,8 @@ class StatisticPage {
                 );
             }
         }
+
+        this.calChartBoxHeight();
     }
 
     createCoralColonyDistributionChartItem(response) {
@@ -113,6 +142,8 @@ class StatisticPage {
         );
         const chartContainer = chartItem.querySelector(".chart");
         const downloadButton = chartItem.querySelector(".download-btn");
+        const legendsContainer = chartItem.querySelector('.legends')
+        const nameText = chartItem.querySelector('.chart-item__name');
 
         let totalCoralColonyCount = 0;
         let coralColonyDict = {};
@@ -150,6 +181,7 @@ class StatisticPage {
         var slices = {};
         let sliceId = 0;
 
+
         dataTable.push(["Coral Colony", "Count"]);
         for (let id in coralColonyDict) {
             id = parseInt(id);
@@ -157,36 +189,41 @@ class StatisticPage {
             colors.push(LabelManager.getColorById(id));
             let sliceColor = null;
             if (LabelManager.isDeadCoral(id)) {
-                console.log("Dead Coral");
-                sliceColor = "red";
+                sliceColor = "#fff";
             } else {
-                sliceColor = "black";
+                sliceColor = LabelManager.getTextColorById(id);
             }
             slices[sliceId] = { textStyle: { color: sliceColor } };
             sliceId += 1;
         }
 
+        const names = dataTable.reduce((acc, item, index) => {
+            if(index > 0) {
+                acc.push(item[0])
+            }
+            return acc;
+        }, [])
+
+
         const data = google.visualization.arrayToDataTable(dataTable);
 
         const chart = new google.visualization.PieChart(chartContainer);
-        const options = {
-            title: `Coral Colony Distribution (Total: ${totalCoralColonyCount})`,
-            pieHole: 0.4,
-            legend: { position: "right" },
-            chartArea: {
-                left: "10%",
-                top: "10%",
-                width: "100%",
-                height: "100%",
-            },
-            fontSize: 16,
-            backgroundColor: "#fff",
+        const options = {...this.glbOptions, ...{
             colors: colors,
             pieSliceText: "value",
-            slices: slices,
+            slices: slices
+            }
         };
 
         chart.draw(data, options);
+
+        const legends = this.createLegends({colors: colors, names: names});
+
+        legends.forEach(legend => {
+            legendsContainer.appendChild(legend);
+        })
+
+        nameText.innerHTML = `Coral Colony Distribution <small>(Total: ${totalCoralColonyCount})</small>`;
 
         downloadButton.addEventListener("click", () => {
             const filename = response["filename"];
@@ -199,6 +236,7 @@ class StatisticPage {
     createCoralCoverageChartItem(response) {
         const jsonItem = response["json_item"];
         const filteredIndices = response["filtered_indices"];
+        
 
         const chartItem = document.importNode(
             this.chartItemTemplate.content,
@@ -206,6 +244,8 @@ class StatisticPage {
         );
         const chartContainer = chartItem.querySelector(".chart");
         const downloadButton = chartItem.querySelector(".download-btn");
+        const legendsContainer = chartItem.querySelector('.legends')
+        const nameText = chartItem.querySelector('.chart-item__name');
 
         const imageHeight = jsonItem["image"]["height"];
         const imageWidth = jsonItem["image"]["width"];
@@ -228,32 +268,37 @@ class StatisticPage {
 
         const nonCoralPixelCount = totalPixelCount - coralPixelCount;
 
-        var dataTable = google.visualization.arrayToDataTable([
+
+        const colors = ['#EAB308', '#1B68D3'];
+        const names = ["Coral", "Non-Coral"];
+
+        var data = [
             ["Type", "Count"],
-            ["Coral", coralPixelCount],
-            ["Non-Coral", nonCoralPixelCount],
-        ]);
+            [names[0], coralPixelCount],
+            [names[1], nonCoralPixelCount],
+        ];
+
+        var dataTable = google.visualization.arrayToDataTable(data);
 
         const chart = new google.visualization.PieChart(chartContainer);
-        const options = {
-            title: "Coral Coverage",
-            pieHole: 0.4,
-            legend: { position: "right" },
-            chartArea: {
-                left: "10%",
-                top: "10%",
-                width: "100%",
-                height: "100%",
-            },
-            backgroundColor: "#fff",
-            fontSize: 16,
+        const options = {...this.glbOptions, ...{
+            colors: colors,
             slices: {
                 0: { textStyle: { color: "black" } },
-                1: { textStyle: { color: "black" } },
+                1: { textStyle: { color: "#fff" } },
             },
+            }
         };
 
         chart.draw(dataTable, options);
+
+        const legends = this.createLegends({colors: colors, names: names});
+
+        legends.forEach(legend => {
+            legendsContainer.appendChild(legend);
+        })
+
+        nameText.innerHTML = `Coral Coverage`;
 
         downloadButton.addEventListener("click", () => {
             const filename = response["filename"];
@@ -273,6 +318,8 @@ class StatisticPage {
         );
         const chartContainer = chartItem.querySelector(".chart");
         const downloadButton = chartItem.querySelector(".download-btn");
+        const legendsContainer = chartItem.querySelector('.legends')
+        const nameText = chartItem.querySelector('.chart-item__name');
 
         let totalCoralArea = 0;
         let coralAreaDict = {};
@@ -317,34 +364,39 @@ class StatisticPage {
             colors.push(LabelManager.getColorById(id));
             let sliceColor = null;
             if (LabelManager.isDeadCoral(id)) {
-                sliceColor = "red";
+                sliceColor = "#fff";
             } else {
-                sliceColor = "black";
+                sliceColor = LabelManager.getTextColorById(id);
             }
             slices[sliceId] = { textStyle: { color: sliceColor } };
             sliceId += 1;
         }
 
+        const names = dataTable.reduce((acc, item, index) => {
+            if(index > 0) {
+                acc.push(item[0])
+            }
+            return acc;
+        }, [])
+
         const data = google.visualization.arrayToDataTable(dataTable);
 
+        //Coral Species Distribution
         const chart = new google.visualization.PieChart(chartContainer);
-        const options = {
-            title: `Coral Species Distribution`,
-            pieHole: 0.4,
-            legend: { position: "right" },
-            chartArea: {
-                left: "10%",
-                top: "10%",
-                width: "100%",
-                height: "100%",
-            },
-            fontSize: 16,
-            backgroundColor: "#fff",
+        const options = {...this.glbOptions, ...{
             colors: colors,
-            slices: slices,
+            slices: slices}
         };
 
         chart.draw(data, options);
+
+        const legends = this.createLegends({colors: colors, names: names});
+
+        legends.forEach(legend => {
+            legendsContainer.appendChild(legend);
+        })
+
+        nameText.innerHTML = `Coral Species Distribution`;
 
         downloadButton.addEventListener("click", () => {
             const filename = response["filename"];
@@ -368,6 +420,8 @@ class StatisticPage {
         );
         const chartContainer = chartItem.querySelector(".chart");
         const downloadButton = chartItem.querySelector(".download-btn");
+        const legendsContainer = chartItem.querySelector('.legends')
+        const nameText = chartItem.querySelector('.chart-item__name');
 
         let totalCoralArea = 0;
         let coralAreaDict = {};
@@ -404,14 +458,17 @@ class StatisticPage {
             return null;
         }
 
+
+        const names = ['Healthy', 'Bleached', 'Dead']
+
         var dataTable = [];
         var colors = [];
         var slices = {};
 
         dataTable.push(["Coral Condition", "Area"]);
-        dataTable.push(["Healthy", coralAreaDict["healthy"]]);
-        dataTable.push(["Bleached", coralAreaDict["bleached"]]);
-        dataTable.push(["Dead", coralAreaDict["dead"]]);
+        dataTable.push([names[0], coralAreaDict["healthy"]]);
+        dataTable.push([names[1], coralAreaDict["bleached"]]);
+        dataTable.push([names[2], coralAreaDict["dead"]]);
 
         const data = google.visualization.arrayToDataTable(dataTable);
         var colors = ["blue", "gray", "black"];
@@ -420,25 +477,19 @@ class StatisticPage {
             1: { textStyle: { color: "black" } },
             2: { textStyle: { color: "red" } },
         };
-
+//Coral Condition Distribution
         const chart = new google.visualization.PieChart(chartContainer);
-        const options = {
-            title: `Coral Condition Distribution`,
-            pieHole: 0.4,
-            legend: { position: "right" },
-            chartArea: {
-                left: "10%",
-                top: "10%",
-                width: "100%",
-                height: "100%",
-            },
-            fontSize: 16,
-            backgroundColor: "#fff",
-            colors: colors,
-            slices: slices,
-        };
+        const options = { ...this.glbOptions,...{colors: colors,slices: slices}};
 
         chart.draw(data, options);
+
+        const legends = this.createLegends({colors: colors, names: names});
+
+        legends.forEach(legend => {
+            legendsContainer.appendChild(legend);
+        })
+
+        nameText.innerHTML = `Coral Condition Distribution`;
 
         downloadButton.addEventListener("click", () => {
             const filename = response["filename"];
@@ -463,6 +514,8 @@ class StatisticPage {
         );
         const chartContainer = chartItem.querySelector(".chart");
         const downloadButton = chartItem.querySelector(".download-btn");
+        const legendsContainer = chartItem.querySelector('.legends')
+        const nameText = chartItem.querySelector('.chart-item__name');
 
         let totalCoralArea = 0;
         let coralAreaDict = {};
@@ -508,10 +561,12 @@ class StatisticPage {
             return null;
         }
 
+        const names = ['Healthy', 'Bleached'];
+
         var dataTable = [];
         dataTable.push(["Coral Condition", "Area"]);
-        dataTable.push(["Healthy", coralAreaDict["healthy"]]);
-        dataTable.push(["Bleached", coralAreaDict["bleached"]]);
+        dataTable.push([names[0], coralAreaDict["healthy"]]);
+        dataTable.push([names[1], coralAreaDict["bleached"]]);
         var data = google.visualization.arrayToDataTable(dataTable);
 
         var colors = [LabelManager.getColorById(targetId), "gray"];
@@ -521,22 +576,20 @@ class StatisticPage {
         };
 
         const chart = new google.visualization.PieChart(chartContainer);
-        const options = {
-            title: `Coral Condition Distribution (${id2Name[targetId]})`,
-            pieHole: 0.4,
-            legend: { position: "right" },
-            chartArea: {
-                left: "10%",
-                top: "10%",
-                width: "100%",
-                height: "100%",
-            },
-            fontSize: 16,
-            backgroundColor: "#fff",
+        const options = {...this.glbOptions, ...{
             colors: colors,
             slices: slices,
+            }
         };
         chart.draw(data, options);
+
+        const legends = this.createLegends({colors: colors, names: names});
+
+        legends.forEach(legend => {
+            legendsContainer.appendChild(legend);
+        })
+
+        nameText.innerHTML = `Coral Condition Distribution (${id2Name[targetId]})`;
 
         downloadButton.addEventListener("click", () => {
             const filename = response["filename"];
@@ -573,5 +626,46 @@ class StatisticPage {
 
     clearCharts() {
         this.currentImageGrid.innerHTML = "";
+    }
+
+    calChartBoxHeight() {
+        // Select all elements with the class 'chart'
+    const charts = document.querySelectorAll('.chart-item__top');
+
+    // Create an object to hold groups of charts by their Y-offset
+    const groupedCharts = {};
+
+    // Iterate over each chart element to group them by their window Y-offset
+    charts.forEach(chart => {
+        const rect = chart.getBoundingClientRect(); // Get the bounding rectangle
+        const yOffset = rect.top + window.scrollY; // Calculate the Y-offset relative to the document
+
+        // If the Y-offset is not already a key in the groupedCharts object, create an array for it
+        if (!groupedCharts[yOffset]) {
+            groupedCharts[yOffset] = [];
+        }
+
+        // Push the current chart into the appropriate group
+        groupedCharts[yOffset].push(chart);
+    });
+
+    // Iterate over each group to calculate the maximum height and apply it
+    Object.keys(groupedCharts).forEach(yOffset => {
+        const group = groupedCharts[yOffset];
+        let maxHeight = 0;
+
+        // Calculate the maximum height in the current group
+        group.forEach(chart => {
+            const height = chart.offsetHeight; // Get the height of the element
+            if (height > maxHeight) {
+                maxHeight = height; // Update maxHeight if current height is greater
+            }
+        });
+
+        // Set the height of each chart in the group to the maximum height found
+        group.forEach(chart => {
+            chart.style.height = maxHeight + 'px'; // Apply the maximum height
+        });
+    });
     }
 }

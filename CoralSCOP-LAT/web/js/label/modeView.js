@@ -66,6 +66,9 @@ class ModeView {
         this.removeButton = document.getElementById("remove-button");
         this.backButton = document.getElementById("back-to-edit-mode-btn");
 
+
+        console.log(`this.removeButton`, this.removeButton)
+
         return this;
     }
 

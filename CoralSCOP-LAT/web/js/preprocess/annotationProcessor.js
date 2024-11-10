@@ -26,8 +26,6 @@ class AnnotationProcesser {
             return;
         }
         console.log("Processing", imageFile);
-        const topNav = new PreprocessTopNavigationBar();
-        topNav.showLoadingIcon();
         eel.preprocess(
             data_url,
             imageFile,

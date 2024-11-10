@@ -772,9 +772,10 @@ input[type="range"] {
 
 
 .gallery-list {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
     gap: 20px;
+    padding: 0 0 20px;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
 
     padding: 0 0 20px;
 
@@ -784,7 +785,7 @@ input[type="range"] {
 
 
     &--full &__item {
-    width: calc(20% - 20px);
+        grid-column: 1 span;
    }
 
    
@@ -797,12 +798,6 @@ input[type="range"] {
     --line-color: #E6E9EA;
     position: relative;
 
-    &:where(label) {
-        cursor: pointer;
-          &:hover {
-            border-color: var(--surface-surface-primary1);
-        }
-    }
 
     &__remove {
         width: 20px;
@@ -860,6 +855,24 @@ input[type="range"] {
         justify-content: space-between;
         min-height: 50px;
 
+        
+    }
+
+    [type=checkbox]:checked ~ &__name {
+        &::after {
+            background: var(--surface-surface-primary1);
+            content: '+';
+        }
+    }
+
+    &:where(label), &:where(button) {
+        cursor: pointer;
+          &:hover {
+            border-color: var(--surface-surface-primary1);
+        }
+    }
+
+    &:where(label) &__name {
         &::after {
             content: '';
             width: 24px;
@@ -874,12 +887,6 @@ input[type="range"] {
         }
     }
 
-    [type=checkbox]:checked ~ &__name {
-        &::after {
-            background: var(--surface-surface-primary1);
-            content: '+';
-        }
-    }
 }
 
 .button {
@@ -889,6 +896,11 @@ input[type="range"] {
     --color: #fff;
     --width: 156px;
 
+    &:disabled {
+        cursor: not-allowed;
+        opacity: .3;
+    }
+        text-align: center;
         cursor: pointer;
         padding: 13px 15px;
         width: var(--width);
@@ -903,8 +915,8 @@ input[type="range"] {
             --border-color: var(--text-text-primary2)
         }
 
-        &:hover {
-            opacity: .8;
+        &:not(:disabled):hover {
+            opacity: .7;
         }
 }
 
