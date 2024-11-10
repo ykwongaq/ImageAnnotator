@@ -72,13 +72,9 @@ class Core {
     autoStart() {
         eel.get_dataset_size()((size) => {
             if (size > 0) {
-                console.log('size', size);
                 const dataset = new Dataset();
-                console.log('before total')
                 dataset.setTotalImages(size);
-                console.log('after total')
                 eel.get_current_image_idx()((idx) => {
-                    console.log('eel.get_current_image_idx()');
                     const topNavigationBar = new TopNavigationBar();
                     topNavigationBar.showLoadingIcon();
                     eel.gen_iou_matrix_by_id(idx)(() => {
@@ -87,7 +83,6 @@ class Core {
                 });
 
                 eel.get_label_list()((labelList) => {
-                    console.log('eel.get_label_list()((labelList)');
                     if (labelList.size === 0) {
                         return;
                     }
@@ -121,6 +116,7 @@ class Core {
     loadProject() {
         eel.select_folder()((folder_path) => {
             if (folder_path === null) {
+                return;
             }
 
             eel.is_valid_project_folder(folder_path)((response) => {
