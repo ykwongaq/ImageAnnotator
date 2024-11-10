@@ -26,7 +26,7 @@ class BottomNavigationBar {
         this.disableToogleMaskButton();
         this.disableZoomInButton();
         this.disableZoomOutButton();
-        this.thisBackToGalleryButton();
+        this.disableBackToGalleryButton();
     }
 
     reEnable() {
@@ -229,7 +229,8 @@ class BottomNavigationBar {
         this.backToGalleryButton.addEventListener("click", (event) => {
             event.preventDefault();
             const core = new Core();
-            core.showPage('galleryPage');
+            const topNavigationBar = new TopNavigationBar();
+            topNavigationBar.galleryButton.click();
         })
     }
 }

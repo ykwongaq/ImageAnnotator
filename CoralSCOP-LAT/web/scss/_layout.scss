@@ -58,6 +58,9 @@
         max-width: 800px;
         white-space: nowrap;
         text-overflow: ellipsis;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }  
 
     &__middle {
@@ -602,4 +605,13 @@ html:has(#confirm-button:not(.hidden)) #default-bar {
     .button {
         width: 158px;
     }
+}
+
+#progress-info-name {
+    max-width: 440px;
+    display: inline-block;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    margin-right: 10px;
+    overflow: hidden;
 }

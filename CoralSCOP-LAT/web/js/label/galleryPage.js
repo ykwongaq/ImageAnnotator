@@ -41,7 +41,6 @@ class GalleryPage {
   createGalleryList() {
     const dataset = new Dataset();
     dataset.getAllData((dataList) => {
-      console.log('getAllData', dataList)
       this.galleryContainer.innerHTML = "";
       for (const [index, data] of dataList.entries()) {
         this.loadImage(data, index)
@@ -49,7 +48,16 @@ class GalleryPage {
       this.numberText.forEach(item => {
         item.textContent = `${dataList.length}`;
       })
-  });
+    });
+  }
+
+  setImageTotalImages() {
+    const dataset = new Dataset();
+    dataset.getAllData((dataList) => {
+      this.numberText.forEach(item => {
+        item.textContent = `${dataList.length}`;
+      })
+    });
   }
 
   enableBackFromLabelButton() {
@@ -103,9 +111,9 @@ class GalleryPage {
 function main() {
   const galleryPage = new GalleryPage();
   galleryPage.enable();
-  galleryPage.createGalleryList();
+  // galleryPage.createGalleryList();
 
-  document.getElementById('gallery-button').classList.add('active');
+  document.getElementById('label-button').classList.add('active');
 }
 
 main();

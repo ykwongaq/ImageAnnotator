@@ -5,14 +5,16 @@ class ProgressInfoView {
         }
 
         ProgressInfoView.instance = this;
-        this.progressInfo = document.getElementById("progress-info");
+        this.progressInfoName = document.getElementById("progress-info-name");
+        this.progressInfoNumber = document.getElementById("progress-info-number");
         this.progressBar = document.getElementById("progress-bar");
 
         return this;
     }
 
     setProgressInfo(imageName, currentIndex, totalIndex) {
-        this.progressInfo.innerText = `${imageName} (${currentIndex}/${totalIndex})`;
+        this.progressInfoName.textContent = imageName;
+        this.progressInfoNumber.textContent =  `(${currentIndex}/${totalIndex})`;
     }
 
     setProgressBar(currentIndex, totalIndex) {

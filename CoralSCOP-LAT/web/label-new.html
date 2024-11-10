@@ -20,10 +20,12 @@
             </div>
             <div class="header__main">
                 <div class="header__main-side hidden"><button class="arrow-link arrow-link--prev" disabled id="back-from-label"><span class="ico-line-arrow-left"></span><span class="text"></span></button></div>
-                <div class="header__main-side"><button id="back-to-gallery" class="arrow-link arrow-link--prev"><span class="ico-line-arrow-left"></span> All Image(<span class="image-total-text"></span>) </button></div>
+                <div class="header__main-side"><button id="back-to-gallery" class="arrow-link arrow-link--prev"><span class="ico-line-arrow-left"></span> All image
+                    <!-- (<span class="image-total-text"></span>) -->
+                 </button></div>
                 <div class="header__middle">
                     <button id="prev-image-button" class="circle-arrow circle-arrow--prev"><span class="ico-circle-arrow-left"></span></button>
-                    <p class="header__title" id="progress-info">Image-Name-Sample.jpeg</p>
+                    <p class="header__title"><span id="progress-info-name"></span><span id="progress-info-number"></span></p>
                     <button id="next-image-button" class="circle-arrow circle-arrow--next"><span class="ico-circle-arrow-right"></span></button>
                     <div
                             id="progress-bar"
@@ -195,7 +197,7 @@
                     </button>
                 </template>
                 <div class="main-section__inner">
-                    <p class="main-section__title">All Images (<span class="image-total-text"></span>)</p>
+                    <p class="main-section__title">All Images</p>
                     <div id="gallery-container" class="gallery-list gallery-list--full">
                     </div>
                 </div>
@@ -269,7 +271,7 @@
 
                 <div class="canvas-control">
                     <button id="zoomin-viewpoint-button" class="canvas-control__item">+</button>
-                    <button id="reset-viewpoint-button" class="canvas-control__label canvas-control__item"><span class="icon ico--drag"></span></button>
+                    <button id="reset-viewpoint-button" class="canvas-control__label canvas-control__item"><span class="icon ico-drag"></span></button>
                     <button id="zoomout-viewpoint-button" class="canvas-control__item">-</button>
                 </div>
             </div>

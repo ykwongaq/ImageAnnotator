@@ -481,6 +481,7 @@ def get_data_size():
 @eel.expose
 def get_current_image_idx():
     dataset = server.get_dataset()
+    print(f"get_current_image_idx: {dataset}")
     return dataset.get_current_data_idx()
 
 
@@ -607,5 +608,5 @@ if __name__ == "__main__":
     print(f"About to start the server ...")
     server = Server()
     print(f"Server initialized ...")
-    eel.start("main_page.html", size=(1200, 800))
+    eel.start("main_page.html", size=(1200, 800), port=8081)
     print(f"Server started ...")

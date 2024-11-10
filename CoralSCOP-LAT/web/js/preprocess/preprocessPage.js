@@ -243,11 +243,11 @@ class PreprocessPage {
                 this.processedCount++;
                 const percentage =
                     (this.processedCount / selectedImages.length) * 100;
-                loadingIcon.updatePercentage(percentage.toFixed(2));
-                loadingIcon.hideLoadingIcon();
+                
 
                 if (this.processedCount === selectedImages.length) {
                     this.endProcessing();
+                    LoadingIconManager.hideLoadingIcon(true)
                 }
             }
 

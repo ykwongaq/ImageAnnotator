@@ -953,3 +953,9 @@ input[type="range"] {
 [class*="ico-"] {
     pointer-events: none;
 }
+
+.label-sm-blk {
+    &__text {
+        display: none;
+    }
+}
