@@ -240,9 +240,7 @@ class PreprocessPage {
                     projectPath
                 )();
 
-                console.log("result", result);
                 this.processedCount++;
-                console.log(this.processedCount);
                 const percentage =
                     (this.processedCount / selectedImages.length) * 100;
                 loadingIcon.updatePercentage(percentage.toFixed(2));
