@@ -135,7 +135,9 @@ input[type="range"] {
 .slider-blk {
     display: flex;
     align-items: center;
+    gap: 17px;
 
+ 
     &__inner {
         flex: 1;
         display: flex;
@@ -143,7 +145,7 @@ input[type="range"] {
 
     input[type="text"] {
         flex-shrink: 0;
-        margin-left: 17px;
+        
         width: 72px;
         height: 37px;
         text-align: center;

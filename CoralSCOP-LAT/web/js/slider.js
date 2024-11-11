@@ -8,11 +8,12 @@ class Slider {
     this.max = 100;
     this.min = 0;
     this.value = this.slider.value;
-    this.input.value = `${this.value}%`;
+    this.suffix = this.slider.dataset.suffix ?? '';
+    this.input.value = `${this.value}${this.suffix}`;
 
     this.slider.addEventListener("input", (event) => {
       const val = event.target.value;
-      this.input.value = `${val}%`;
+      this.input.value = `${val}${this.suffix}`;
       this._trigger("change");
     });
 
@@ -25,7 +26,7 @@ class Slider {
         updateValue = this.max;
       }
       setTimeout(() => {
-        this.input.value = `${updateValue}%`;
+        this.input.value = `${updateValue}${this.suffix}`;
       }, 10);
       this.slider.value = val;
       this._trigger("change");

@@ -26,6 +26,7 @@ class LabelView {
     this.deleteLabelButton = document.getElementById("delete-label-button");
     this.renameLabelButton = document.getElementById("rename-label-button");
     this.currentStatus = LabelView.HEALTHY_STATUS;
+    this.maskSliderBlock = document.getElementById('mask-slider-blk');
 
     this.selectedDeleteId = null;
     this.hidedCategory = [];
@@ -40,6 +41,10 @@ class LabelView {
     this.enableDeleteAction();
     this.enableDocument();
     this.enableStatesButtons();
+  }
+
+  enableMaskSlider() {
+    this.maskSliderBlock.Slider = new Slider(this.maskSliderBlock);
   }
 
   enableStatesButtons() {

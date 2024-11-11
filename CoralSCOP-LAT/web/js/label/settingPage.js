@@ -18,6 +18,7 @@ class SettingPage {
         this.maxOverlapSlider = document.getElementById("max-overlap-slider");
 
         this.saveButton = document.getElementById("save-setting-button");
+        this.cancelButton = document.getElementById("cancel-setting-button");
         this.config = new LabelConfig();
         return this;
     }
@@ -27,12 +28,19 @@ class SettingPage {
         this.enableMinConfidenceSlider();
         this.enableMaxOverlapSlider();
         this.enableSaveButton();
+        this.enableCancelButton();
         this.loadConfig(this.config);
+    }
+    
+    initSliders() {
+        const sliderBlocks = document.querySelectorAll('.settings-group .slider-blk');
+        sliderBlocks.forEach(item => {
+            item.Slider = new Slider(item);
+        });
     }
 
     enableMinAreaSlider() {
         this.minAreaSlider.addEventListener("input", () => {
-            this.minAreaText.innerText = `Min Area: ${this.minAreaSlider.value}%`;
             const minArea = this.minAreaSlider.value / 100;
             this.config.setMinArea(minArea);
         });
@@ -40,7 +48,6 @@ class SettingPage {
 
     enableMinConfidenceSlider() {
         this.minConfidenceSlider.addEventListener("input", () => {
-            this.minConfidenceText.innerText = `Min Confidence: ${this.minConfidenceSlider.value}%`;
             const minConfidence = this.minConfidenceSlider.value / 100;
             this.config.setMinConfidence(minConfidence);
         });
@@ -48,7 +55,6 @@ class SettingPage {
 
     enableMaxOverlapSlider() {
         this.maxOverlapSlider.addEventListener("input", () => {
-            this.maxOverlapText.innerText = `Max Overlap: ${this.maxOverlapSlider.value}%`;
             const maxOverlap = this.maxOverlapSlider.value / 100;
             this.config.setMaxIOU(maxOverlap);
         });
@@ -62,7 +68,23 @@ class SettingPage {
                 const core = new Core();
                 const dataset = new Dataset();
                 core.setCurrentDataByIdx(dataset.getCurrentDataIdx());
+
+                const genernalPopup = new GenernalPopManager();
+                genernalPopup.updateLargeText("Saved");
+                genernalPopup.updateText("");
+                genernalPopup.updateButtonText('OK');
+                genernalPopup.setButtonFn(() => {
+                    genernalPopup.hide();
+                })
+                genernalPopup.show();
             });
+        });
+    }
+
+    enableCancelButton() {
+        this.cancelButton.addEventListener("click", () => {
+            const core = new Core();
+            core.showPage('annotationPage');
         });
     }
 
@@ -82,9 +104,7 @@ class SettingPage {
         this.minConfidenceSlider.value = configDict.minConfidence * 100;
         this.maxOverlapSlider.value = configDict.maxIOU * 100;
 
-        this.minAreaText.innerText = `Min Area: ${this.minAreaSlider.value}%`;
-        this.minConfidenceText.innerText = `Min Confidence: ${this.minConfidenceSlider.value}%`;
-        this.maxOverlapText.innerText = `Max Overlap: ${this.maxOverlapSlider.value}%`;
+        this.initSliders();
     }
 }
 
