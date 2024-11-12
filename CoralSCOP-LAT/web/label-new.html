@@ -275,13 +275,16 @@
                     <button id="zoomout-viewpoint-button" class="canvas-control__item">-</button>
                 </div>
             </div>
-            <div id="statisticPage" class="main-section page statistic-page">
-                <div class="main-section__container statistic-content-container">
-                    <section class="chart-group">
+            <div id="statisticPage" class="main-section page statistic-page statistic-content-container">
+                    <div class="main-section__inner">
                         <h2 class="main-section__title">Statistic Report</h2>
-                        <div id="current-image-grid" class="charts-grid"></div>
-                    </section>
-                </div>
+                        <div class="main-section__content">
+                        <section class="chart-group">
+                            
+                                <div id="current-image-grid" class="charts-grid"></div>
+                        </section>
+                        </div>
+                    </div>
                 <template id="chart-item-template">
                     <div class="chart-item">
                         <div class="chart-item__top">

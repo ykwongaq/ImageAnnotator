@@ -99,7 +99,11 @@ class GalleryPage {
       galleryItem.addEventListener("click", () => {
         const core = new Core();
         core.setCurrentDataByIdx(idx);
+        const topNavigationBar = new TopNavigationBar();
+        topNavigationBar.clearActiveState();
         core.showPage('annotationPage');
+        topNavigationBar.labelButton.classList.add("active");
+
       });
 
       this.galleryContainer.appendChild(galleryItem);
