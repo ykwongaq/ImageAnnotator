@@ -228,6 +228,11 @@ class Data {
         mask.setMaskId(maxId + 1);
         mask.setImageId(this.imageId);
         this.masks.push(mask);
+
+        // For any newly added mask, we will included them into filtered indices
+        if (this.filteredIndics !== null) {
+            this.filteredIndics.push(mask.getMaskId());
+        }
     }
 
     removeMask(mask) {

@@ -28,8 +28,6 @@ function main() {
     document.addEventListener("DOMContentLoaded", () => {
         core.showPage("annotationPage");
     });
-
-    
 }
 
 main();
