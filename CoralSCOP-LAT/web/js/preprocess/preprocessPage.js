@@ -225,8 +225,10 @@ class PreprocessPage {
 
             for (const imageFile of selectedImages) {
                 if (this.annotationProcessor.isShouldSkip()) {
+                    loadingIcon.hideLoadingIcon(true);
                     this.endProcessing();
-                }
+                    break;
+                } 
 
                 const imageTag =
                     this.imageSelector.getImageTagByFilename(imageFile);
@@ -247,8 +249,8 @@ class PreprocessPage {
                 loadingIcon.updatePercentage(`${percentage.toFixed(2)}`);
 
                 if (this.processedCount === selectedImages.length) {
-                    this.endProcessing();
                     loadingIcon.hideLoadingIcon(true);
+                    this.endProcessing();
                 }
             }
 

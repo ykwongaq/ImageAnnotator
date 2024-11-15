@@ -46,14 +46,17 @@ class LoadingIconManager {
     }
 
     hideLoadingIcon(__force) {
-        if (__force) {
-            this.launchCount = 0;
-        } else {
-        }
+      
         if (this.loadingIcon) {
             this.launchCount--;
+
+            if (__force) {
+                this.launchCount = 0;
+                console.log(this.launchCount, `this.launchCount`);
+            } 
             if (this.launchCount <= 0) {
                 this.launchCount = 0;
+                console.log(this.loadingIcon.classList, `this.loadingIcon.classList`);
                 this.loadingIcon.classList.remove("active");
             }
         }

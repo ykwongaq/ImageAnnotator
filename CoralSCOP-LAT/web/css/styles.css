@@ -828,6 +828,7 @@ input[type=range]:active::-moz-range-thumb {
   margin-left: 15px;
   color: #fff;
   align-items: center;
+  flex-shrink: 0;
   text-align: center;
 }
 
