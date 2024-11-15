@@ -346,6 +346,10 @@ class Dataset {
         eel.get_all_data()(callbackFunction);
     }
 
+    getAllDataWithoutAnnotation(callbackFunction = null) {
+        eel.get_all_data_without_annotations()(callbackFunction);
+    }
+
     getDataById(dataIdx, callbackFunction = null) {
         eel.get_data(dataIdx)(callbackFunction);
     }

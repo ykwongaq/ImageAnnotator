@@ -149,7 +149,7 @@ class PreprocessServer:
             masks.append(mask)
         iou_matrix = calculate_iou_matrix(masks)
         output_json["iou_matrix"] = iou_matrix.tolist()
-        
+
         self.save_json(output_json, annotation_output_file)
 
         # Geenrate project file
@@ -159,8 +159,7 @@ class PreprocessServer:
         project_info["labels"] = {0: "Dead Coral"}
         # Set the first image to default filter config
         project_info["filter_config"] = {0: self.data_filter.export_config()}
- 
-        
+
         self.save_json(project_info, project_file)
 
         return image, embedding, output_json, project_info
@@ -266,8 +265,9 @@ class Server:
         self.dataset.add_data(data)
         self.dataset.setProjectInfo(project_info)
 
+
 @eel.expose
-def preprocess(image_url: str, image_file: str, projectPath: str): 
+def preprocess(image_url: str, image_file: str, projectPath: str):
     """
     Preprocess the data:
     1. Save the image to the image folder
@@ -329,6 +329,7 @@ def get_dataset_size():
     dataset = server.get_dataset()
     return dataset.get_size()
 
+
 @eel.expose
 def get_data(idx: int):
     """
@@ -369,6 +370,20 @@ def get_data(idx: int):
     return_item["filename"] = filenname
     return_item["filtered_indices"] = filtered_indices
 
+    return return_item
+
+
+@eel.expose
+def get_data_without_annotation(idx: int) -> Data:
+    """
+    Get the data at the given index without annotations
+    """
+    dataset = server.get_dataset()
+    data = dataset.get_data(idx)
+
+    return_item = {}
+    return_item["image"] = data.get_image_content()
+    return_item["filename"] = data.get_filename()
     return return_item
 
 
@@ -532,6 +547,16 @@ def get_all_data():
 
 
 @eel.expose
+def get_all_data_without_annotations():
+    dataset = server.get_dataset()
+    return_list = []
+    for idx in range(dataset.get_size()):
+        data = get_data_without_annotation(idx)
+        return_list.append(data)
+    return return_list
+
+
+@eel.expose
 def export_json(output_path):
     dataset = server.get_dataset()
     dataset.export_json(output_path)
@@ -553,6 +578,7 @@ def gen_iou_matrix_by_id(idx):
     dataset = server.get_dataset()
     data = dataset.get_data(idx)
     data.update_iou_matrix()
+
 
 @eel.expose
 def export_graph(path, label_colors):
@@ -579,10 +605,15 @@ def export_graph(path, label_colors):
         output_path = os.path.join(data_output_folder, "coral_species_distribution.png")
         statistic_graph.plot_coral_species_distribution(output_path)
 
-        output_path = os.path.join(data_output_folder, "coral_condition_distribution.png")
+        output_path = os.path.join(
+            data_output_folder, "coral_condition_distribution.png"
+        )
         statistic_graph.plot_coral_condition_distribution(output_path)
 
-        statistic_graph.plot_coral_all_species_condition_distribution(data_output_folder)
+        statistic_graph.plot_coral_all_species_condition_distribution(
+            data_output_folder
+        )
+
 
 @eel.expose
 def export_excel(path):
@@ -595,11 +626,10 @@ def export_excel(path):
         coco_json = dataset.process_json_to_coco_json(data)
         if coco_json is None:
             continue
-        
+
         statistic_graph = StatisticGraph(coco_json, None)
         output_path = os.path.join(output_folder, f"{data.get_filename()}.xlsx")
         statistic_graph.export_excel(output_path)
-            
 
 
 if __name__ == "__main__":
