@@ -44,11 +44,13 @@ class TopNavigationBar {
 
     autoOpenFile() {
         const urlParams = new URLSearchParams(window.location.search);
-        if(urlParams.get('autoload') === 'true'){
+        if (urlParams.get("autoload") === "true") {
             const popup = new GenernalPopManager();
-            popup.updateText('Please select a created project');
-            popup.updateButtonText('Load Poroject');
-            popup.setButtonFn(()=> {console.log('as'); this.loadProjectButton.click()});
+            popup.updateText("Please select a created project");
+            popup.updateButtonText("Load Poroject");
+            popup.setButtonFn(() => {
+                this.loadProjectButton.click();
+            });
             popup.show();
         }
     }

@@ -66,9 +66,6 @@ class ModeView {
         this.removeButton = document.getElementById("remove-button");
         this.backButton = document.getElementById("back-to-edit-mode-btn");
 
-
-        console.log(`this.removeButton`, this.removeButton)
-
         return this;
     }
 
@@ -108,10 +105,10 @@ class ModeView {
     }
 
     enableRemoveButton() {
-        this.removeButton.addEventListener('click', (event) => {
+        this.removeButton.addEventListener("click", (event) => {
             event.preventDefault();
             this.showConfirmButton();
-        })
+        });
     }
 
     enableConfirmButton() {
@@ -131,20 +128,19 @@ class ModeView {
                     this.clearEdittedMask();
                     this.backToLabelMaskMode();
                 });
-                
             } else if (
-              Annotator.getCurrentMode() === Annotator.DELETE_MASK ||
-              Annotator.getCurrentMode() === Annotator.LABEL_MASK
+                Annotator.getCurrentMode() === Annotator.DELETE_MASK ||
+                Annotator.getCurrentMode() === Annotator.LABEL_MASK
             ) {
-              const selectedMasks = Annotator.getSelectedMasks();
-              const currentData = dataset.getCurrentData();
-              for (const mask of selectedMasks) {
-                currentData.removeMask(mask);
-              }
-              Annotator.clearSelection();
-              const canvas = new Canvas(null);
-              canvas.updateMasks();
-              this.hideActionButtons();
+                const selectedMasks = Annotator.getSelectedMasks();
+                const currentData = dataset.getCurrentData();
+                for (const mask of selectedMasks) {
+                    currentData.removeMask(mask);
+                }
+                Annotator.clearSelection();
+                const canvas = new Canvas(null);
+                canvas.updateMasks();
+                this.hideActionButtons();
             }
         });
     }
@@ -156,25 +152,25 @@ class ModeView {
     }
 
     enableBackButton() {
-        this.backButton.addEventListener('click', (event) => {
+        this.backButton.addEventListener("click", (event) => {
             event.preventDefault();
-            if(Annotator.getCurrentMode() == Annotator.LABEL_MASK) {
+            if (Annotator.getCurrentMode() == Annotator.LABEL_MASK) {
                 this.hideActionButtons();
             } else {
                 this.backToLabelMaskMode();
             }
-        })
+        });
     }
-    
+
     backToLabelMaskMode() {
         this.modeRadios.forEach((radio) => {
-          if (radio == this.labelMaskRadio) {
-            radio.checked = true;
-            const mode = parseInt(radio.value);
-            this.radioChangeEventFn(mode);
-          } else {
-            radio.checked = false;
-          }
+            if (radio == this.labelMaskRadio) {
+                radio.checked = true;
+                const mode = parseInt(radio.value);
+                this.radioChangeEventFn(mode);
+            } else {
+                radio.checked = false;
+            }
         });
     }
 
@@ -206,16 +202,16 @@ class ModeView {
     }
 
     radioChangeEventFn(mode) {
-        if (mode !== Annotator.getCurrentMode)  {
+        if (mode !== Annotator.getCurrentMode) {
             Annotator.setMode(mode);
             Annotator.clearSelection();
             this.clearEdittedMask();
             this.hideActionButtons();
         }
         if (mode == Annotator.ADD_MASK) {
-          this.showActionButtons();
+            this.showActionButtons();
         } else if (mode == Annotator.DELETE_MASK) {
-          this.showConfirmButton();
+            this.showConfirmButton();
         }
     }
 }

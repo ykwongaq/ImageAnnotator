@@ -29,6 +29,10 @@ class Mask {
         this.annotation["id"] = this.maskId;
     }
 
+    getMaskId() {
+        return this.maskId;
+    }
+
     setImageId(imageId) {
         this.annotation["image_id"] = imageId;
     }
@@ -165,7 +169,7 @@ class Mask {
 }
 
 class Data {
-    constructor(imageDataUrl, jsonItem, imageFileName) {
+    constructor(imageDataUrl, jsonItem, imageFileName, filteredIndics = null) {
         this.imageDataUrl = imageDataUrl;
         this.json_item = jsonItem;
         this.masks = [];
@@ -174,6 +178,18 @@ class Data {
         }
         this.imageFileName = imageFileName;
         this.imageId = jsonItem["image"]["image_id"];
+
+        this.filteredIndics = filteredIndics;
+        if (filteredIndics !== null) {
+            for (const mask of this.masks) {
+                const maskIdx = mask.getMaskId();
+                mask.setShouldDisplay(filteredIndics.includes(maskIdx));
+            }
+        }
+    }
+
+    getFilteredIndics() {
+        return this.filteredIndics;
     }
 
     getImageUrl() {

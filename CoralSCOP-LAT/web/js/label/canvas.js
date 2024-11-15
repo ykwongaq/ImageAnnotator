@@ -303,13 +303,6 @@ class Canvas {
                 textCtx.stroke();
                 textCtx.closePath();
 
-                console.log(
-                    "sdsd",
-                    `${label_id}`.length,
-                    label_id.length,
-                    display_id
-                );
-
                 textCtx.font = `${fontSize / display_id.length}px Arial`;
                 // maskCtx.fillStyle = `rgba(255, 0, 0, ${this.maskOpacity})`;
                 textCtx.fillStyle = fontColor;

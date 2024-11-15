@@ -39,19 +39,12 @@ class Core {
                 settingPage.loadConfig(filter_config);
             }
 
-            const data = new Data(imageUrl, jsonItem, imageFileName);
-
-            // Decide which mask to display based on the filtered indices
-            // let maskIdx = 0;
-            for (const mask of data.getMasks()) {
-                const maskIdx = mask.getMaskId();
-                if (filteredIndics.includes(maskIdx)) {
-                    mask.setShouldDisplay(true);
-                } else {
-                    mask.setShouldDisplay(false);
-                }
-                // maskIdx++;
-            }
+            const data = new Data(
+                imageUrl,
+                jsonItem,
+                imageFileName,
+                filteredIndics
+            );
 
             dataset.setCurrentData(data);
 
@@ -160,7 +153,6 @@ class Core {
     }
 
     showPage(pageId) {
-
         const pages = document.querySelectorAll(".page");
         pages.forEach((page) => {
             page.classList.remove("active-page");
@@ -168,7 +160,6 @@ class Core {
 
         if (this.isProjectLoaded()) {
             const page = document.getElementById(pageId);
-            console.log('page', page)
             page.classList.add("active-page");
 
             const bottomBar = new BottomNavigationBar();
@@ -184,9 +175,9 @@ class Core {
             } else if (pageId === "statisticPage") {
                 const statisticPage = new StatisticPage();
 
-                statisticPage.loadGoogleLib().then(data => {
+                statisticPage.loadGoogleLib().then((data) => {
                     statisticPage.update();
-                })
+                });
 
                 bottomBar.disable();
             } else if (pageId === "settingPage") {
