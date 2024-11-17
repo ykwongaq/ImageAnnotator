@@ -856,8 +856,7 @@ input[type="range"] {
         line-height: 1.1;
         justify-content: space-between;
         min-height: 50px;
-
-        
+        word-break: break-all;
     }
 
     [type=checkbox]:checked ~ &__name {

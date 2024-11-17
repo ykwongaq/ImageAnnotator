@@ -807,6 +807,7 @@ input[type=range]:active::-moz-range-thumb {
   line-height: 1.1;
   justify-content: space-between;
   min-height: 50px;
+  word-break: break-all;
 }
 [type=checkbox]:checked ~ .gallery-item__name::after {
   background: var(--surface-surface-primary1);
