@@ -1,4 +1,5 @@
 import logging
+import time
 
 
 # Initialize logging
@@ -550,9 +551,12 @@ def get_all_data():
 def get_all_data_without_annotations():
     dataset = server.get_dataset()
     return_list = []
+    start_time = time.time()
     for idx in range(dataset.get_size()):
         data = get_data_without_annotation(idx)
         return_list.append(data)
+    end_time = time.time()
+    print(f"Time taken: {end_time - start_time}")
     return return_list
 
 
