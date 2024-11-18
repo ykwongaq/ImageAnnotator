@@ -402,8 +402,130 @@
             </div>
         </div>
     </div>
+
+
+    <div id="tutorial-layer" class="tutorial-layer">
+        <div class="tutorial-layer__wrap">
+            <div class="tutorial-layer__wrap-inner">
+                <img class="tutorial-layer__bg" src="./images/CoralSCOP_Main_Page_1.jpg" alt="">
+                <div class="tut-pop tut-pop--arrow-right" 
+                    style="--right: 62%; --top: 20%;">
+                    <div class="tut-pop__content">
+                        <p class="tut-pop__title">Coral Detection</p>
+                        <p class="tut-pop__text">This is the image provided with coral region annotated as red region. </p>
+                        <div class="tut-pop__row">
+                            <button class="tut-pop__skip">Skip</button>
+                            <button class="button tut-pop__next">Next</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tut-pop tut-pop--arrow-right" 
+                    style="--right: 66%; --top: 25%;" >
+                    <div class="tut-pop__content">
+                        <p class="tut-pop__title">Coral Selection</p>
+                        <p class="tut-pop__text">You can select the target coral region by clicking the red area.</p>
+                        <div class="tut-pop__row">
+                            <button class="tut-pop__skip">Skip</button>
+                            <button class="button tut-pop__next">Next</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tut-pop tut-pop--arrow-left" 
+                    style="--left: 12%; --top: 80%;">
+                    <div class="tut-pop__content">
+                        <p class="tut-pop__title">Add New Coral Species</p>
+                        <p class="tut-pop__text">Once you identify a new coral species in the image, you can add the name of the coral here.</p>
+                        <div class="tut-pop__row">
+                            <button class="tut-pop__skip">Skip</button>
+                            <button class="button tut-pop__next">Next</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tut-pop tut-pop--arrow-bottom" 
+                    style="--left: 54%; --bottom: 10%;">
+                    <div class="tut-pop__content">
+                        <p class="tut-pop__title">Label Coral Species</p>
+                        <p class="tut-pop__text">To assign the coral species, first select the coral region in the image, then click the Lable button to assign the coral species. </p>
+                        <div class="tut-pop__row">
+                            <button class="tut-pop__skip">Skip</button>
+                            <button class="button tut-pop__next">Next</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tut-pop tut-pop--arrow-bottom" 
+                    style="--left: 62%; --bottom: 10%;">
+                    <div class="tut-pop__content">
+                        <p class="tut-pop__title">Remove Coral Region</p>
+                        <p class="tut-pop__text">You can remove the coral region here</p>
+                        <div class="tut-pop__row">
+                            <button class="tut-pop__skip">Skip</button>
+                            <button class="button tut-pop__next">Next</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tut-pop tut-pop--arrow-bottom" 
+                    style="--left: 71%; --bottom: 10%;">
+                    <div class="tut-pop__content">
+                        <p class="tut-pop__title">Add Coral Region</p>
+                        <p class="tut-pop__text">To add a new coral region, click this button to enter Add Mask mode. Use the left click to includes areas and the right click to exclude areas. Once you are done, click the Confirm button to finalize the selection.</p>
+                        <div class="tut-pop__row">
+                            <button class="tut-pop__skip">Skip</button>
+                            <button class="button tut-pop__next">Next</button>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <div class="tut-pop tut-pop--arrow-left" 
+                    style="--left: 68%; --top: 50%;">
+                    <div class="tut-pop__content">
+                        <p class="tut-pop__title">Size</p>
+                        <p class="tut-pop__text">You can adjust the size of the image here or using mouse wheel</p>
+                        <div class="tut-pop__row">
+                            <button class="tut-pop__skip">Skip</button>
+                            <button class="button tut-pop__next">Next</button>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="tut-pop tut-pop--arrow-left" 
+                    style="--left: 62%; --top: 40%;">
+                    <div class="tut-pop__content">
+                        <p class="tut-pop__title">Pan</p>
+                        <p class="tut-pop__text">You can adjust the size of the image here or using mouse wheel</p>
+                        <div class="tut-pop__row">
+                            <button class="tut-pop__skip">Skip</button>
+                            <button class="button tut-pop__next">Next</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tut-pop tut-pop--arrow-right" 
+                    style="--right: 5%; --top: 91%;">
+                    <div class="tut-pop__content">
+                        <p class="tut-pop__title">Reset Viewpoint</p>
+                        <p class="tut-pop__text">You can reset viewpoint by clicking the middle button</p>
+                        <div class="tut-pop__row">
+                            <button class="button tut-pop__next">Finish</button>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
     <div id="loading-pop-backdrop" class="modal-pop-backdrop"></div>
 
+    <script src="js/label/tut.js"></script>
     <script src="js/label/chart.js"></script>
     <script src="js/genernalPopManager.js"></script>
     <script src="js/loadingIconManager-new.js"></script>

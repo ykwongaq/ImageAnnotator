@@ -127,6 +127,9 @@ class Core {
 
                         const popup = new GenernalPopManager();
                         popup.hide();
+
+                        const tutInstance = new tutManager();
+                        tutInstance.enables();
                     });
                 } else {
                     const errorMessage = response["error_message"];

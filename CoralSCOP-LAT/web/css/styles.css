@@ -893,6 +893,118 @@ input[type=range]:active::-moz-range-thumb {
   display: none;
 }
 
+#tutorial-layer:not(.active) {
+  display: none;
+}
+
+.tutorial-layer {
+  position: absolute;
+  z-index: 9000;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+.tutorial-layer__wrap {
+  position: relative;
+  margin: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tutorial-layer__wrap-inner {
+  position: relative;
+  background-color: #000;
+}
+.tutorial-layer__bg {
+  aspect-ratio: 2300/1320;
+  max-width: 94vw;
+  max-height: 94vh;
+  margin: auto;
+  opacity: 0.6;
+  display: block;
+}
+
+.tut-pop {
+  position: absolute;
+  top: var(--top, "auto");
+  left: var(--left, "auto");
+  right: var(--right, "auto");
+  bottom: var(--bottom, "auto");
+}
+.tut-pop:not(.active) {
+  display: none;
+}
+.tut-pop__content {
+  max-width: 230px;
+  box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.4);
+  background: #fff;
+  border-radius: 15px;
+  overflow: hidden;
+}
+.tut-pop__skip {
+  opacity: 0.6;
+  text-decoration: underline;
+}
+.tut-pop__next {
+  font-size: 12px;
+  width: auto;
+  padding: 5px 10px;
+}
+.tut-pop__row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 10px;
+  padding-bottom: 20px;
+  padding-inline: 20px;
+}
+.tut-pop__text {
+  font-size: 14px;
+  font-family: Roboto;
+  padding: 10px 20px;
+}
+.tut-pop__title {
+  font-size: 16px;
+  text-align: center;
+  color: #fff;
+  background: var(--blue-blue500) url(../images/logo-bg.png);
+  padding: 10px 20px;
+  margin-top: -1px;
+}
+.tut-pop::before {
+  position: absolute;
+  content: "";
+  transform: translate(0, -50%);
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 10px solid #fff;
+}
+.tut-pop--arrow-left {
+  transform: translate(0, -50%);
+}
+.tut-pop--arrow-left::before {
+  transform: rotate(-90deg) translate(0, -50%);
+  top: 50%;
+  left: -10px;
+}
+.tut-pop--arrow-right {
+  transform: translate(0, -50%);
+}
+.tut-pop--arrow-right::before {
+  transform: rotate(90deg) translate(0, -50%);
+  top: 50%;
+  right: -10px;
+}
+.tut-pop--arrow-bottom {
+  transform: translate(-50%, 0);
+}
+.tut-pop--arrow-bottom::before {
+  transform: rotate(180deg) translate(50%, 0);
+  bottom: -10px;
+  left: 50%;
+}
+
 :where(*) {
   margin: 0;
   padding: 0;

@@ -961,3 +961,135 @@ input[type="range"] {
         display: none;
     }
 }
+
+#tutorial-layer {
+    &:not(.active) {
+        display: none;
+    }
+}
+
+
+.tutorial-layer {
+        position: absolute;
+        z-index: 9000;
+        inset: 0;
+        background-color: rgba(0, 0, 0, .5);
+
+    &__wrap {
+        position: relative;
+        margin: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    &__wrap-inner {
+        position: relative;
+        background-color: #000;
+    }
+
+    &__bg {
+        aspect-ratio: 2300/1320;
+        max-width: 94vw;
+        max-height: 94vh;
+        margin: auto;
+        opacity: .6;
+        display: block;
+    }
+}
+
+.tut-pop {
+    position: absolute;
+    top: var(--top, 'auto');
+    left: var(--left, 'auto');
+    right: var(--right, 'auto');
+    bottom: var(--bottom, 'auto');
+    
+    &:not(.active) {
+        display: none;
+    }
+
+    &__content {
+        max-width: 230px;
+        box-shadow: 0 0 20px 0 rgba(0, 0, 0, .4);
+        background:#fff;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    &__skip {
+        opacity: .6;
+        text-decoration: underline;
+    }
+
+    &__next {
+        font-size: 12px;
+        width: auto;
+        padding: 5px 10px;
+    }
+
+    &__row {
+        display: flex;
+        justify-content: flex-end;
+        gap: 15px;
+        margin-top: 10px;
+        padding-bottom: 20px;
+        padding-inline: 20px;
+    }
+
+    &__text {
+        font-size: 14px;
+        font-family: Roboto;
+        padding: 10px 20px;
+    }
+
+    &__title {
+        font-size: 16px;
+        text-align: center;
+        color: #fff;
+        background: var(--blue-blue500) url(../images/logo-bg.png);
+        padding: 10px 20px;
+        margin-top: -1px;
+    }
+
+    &::before {
+        position: absolute;
+        content: '';
+        transform: translate(0, -50%);
+        width: 0;
+        height: 0;
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
+        border-bottom: 10px solid #fff;
+    }
+
+    &--arrow-left {
+        transform: translate(0,-50%);
+
+        &::before {
+            transform: rotate(-90deg) translate(0, -50%);
+        top: 50%;
+        left: -10px;
+        }
+    }
+
+    &--arrow-right {
+        transform: translate(0,-50%);
+
+        &::before {
+            transform: rotate(90deg) translate(0, -50%);
+        top: 50%;
+        right: -10px;
+        }
+    }
+
+    &--arrow-bottom {
+        transform: translate(-50%, 0);
+
+        &::before {
+            transform: rotate(180deg) translate(50%, 0);
+            bottom: -10px;
+            left: 50%;
+        }
+    }
+}
