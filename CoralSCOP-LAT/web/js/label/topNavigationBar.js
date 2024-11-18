@@ -15,6 +15,7 @@ class TopNavigationBar {
         this.statisticButton = document.getElementById("statistic-button");
         this.settingButton = document.getElementById("setting-button");
         this.galleryButton = document.getElementById("gallery-button");
+        this.guideButton = document.getElementById("guide-button");
 
         this.loadProjectButton = document.getElementById("load-project-button");
         this.exportCOCOButton = document.getElementById("export-coco-button");
@@ -40,6 +41,7 @@ class TopNavigationBar {
         this.enableExportExcelButton();
         this.enableExportGraphButton();
         this.enableExportAllButton();
+        this.enableGuideButton();
     }
 
     autoOpenFile() {
@@ -211,6 +213,14 @@ class TopNavigationBar {
 
         this.iconContainer.innerHTML = "";
         this.iconContainer.appendChild(loadingDiv);
+    }
+
+    enableGuideButton(){
+        this.guideButton.addEventListener('click',event => {
+            event.preventDefault();
+            const tutInstance = new tutManager();
+            tutInstance.showFromStart();
+        })
     }
 
     restoreIcon() {

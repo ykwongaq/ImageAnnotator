@@ -42,7 +42,7 @@ class tutManager {
             button.addEventListener('click', (event)=>{
                 event.preventDefault();
                 this.currentStep++;
-                if(this.currentStep == this.tutPops.length - 1) {
+                if(this.currentStep == this.tutPops.length) {
                     this.layer.classList.remove('active');
                     localStorage.setItem('toShow', 'false');
                 } else {
@@ -67,6 +67,12 @@ class tutManager {
             pop.classList.remove('active');
         })
         this.tutPops[this.currentStep].classList.add('active');
+    }
+
+    showFromStart() {
+        this.currentStep = 0;
+        this.layer.classList.add('active');
+        this.showStepPop();
     }
     
 }
