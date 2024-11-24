@@ -44,5 +44,5 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name='CoralSCAN',
+    name='CoralSCOP-LAT',
 )
