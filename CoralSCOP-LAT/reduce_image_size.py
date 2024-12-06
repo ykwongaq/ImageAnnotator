@@ -4,6 +4,14 @@ from PIL import Image
 from tqdm import tqdm
 
 
+def is_image(image_path: str) -> bool:
+    try:
+        Image.open(image_path)
+        return True
+    except:
+        return False
+
+
 def resize_image(image: Image, reduce_ratio: float) -> Image:
     height = image.height
     width = image.width
@@ -29,7 +37,7 @@ def main(args):
         image_files = [
             os.path.join(input_path, f)
             for f in os.listdir(input_path)
-            if os.path.isfile(os.path.join(input_path, f))
+            if is_image(os.path.join(input_path, f))
         ]
         is_file = False
     else:
@@ -37,6 +45,7 @@ def main(args):
 
     # Prepare output directory
     output_path = args.output_dir
+    os.makedirs(output_path, exist_ok=True)
     if output_path is None:
         if is_file:
             output_dir = os.path.dirname(input_path)
