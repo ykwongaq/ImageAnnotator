@@ -77,12 +77,15 @@ class BottomNavigationBar {
 
     enablePrevImageButton() {
         this.prevImageButton.addEventListener("click", () => {
+            this.disable();
             const core = new Core();
             core.saveData();
 
             const dataset = new Dataset();
             if (dataset.currentDataIdx > 0) {
                 core.setCurrentDataByIdx(dataset.currentDataIdx - 1);
+            } else {
+                this.reEnable();
             }
         });
 
@@ -105,12 +108,15 @@ class BottomNavigationBar {
 
     enableNextImageButton() {
         this.nextImageButton.addEventListener("click", () => {
+            this.disable();
             const core = new Core();
             core.saveData();
 
             const dataset = new Dataset();
             if (dataset.currentDataIdx < dataset.totalImages - 1) {
                 core.setCurrentDataByIdx(dataset.currentDataIdx + 1);
+            } else {
+                this.reEnable();
             }
         });
 

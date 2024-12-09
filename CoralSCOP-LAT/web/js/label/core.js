@@ -28,6 +28,8 @@ class Core {
         const topNavigationBar = new TopNavigationBar();
         topNavigationBar.showLoadingIcon();
         dataset.getData((response) => {
+            const bottomNavigationBar = new BottomNavigationBar();
+            bottomNavigationBar.disable();
             const imageUrl = response["image"];
             const jsonItem = response["json_item"];
             const imageFileName = response["filename"];
@@ -66,6 +68,7 @@ class Core {
             this.updateProgressInfo(imageFileName, idx, dataset.totalImages);
 
             topNavigationBar.restoreIcon();
+            bottomNavigationBar.reEnable();
         });
     }
 
