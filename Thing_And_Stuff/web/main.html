@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Main Page</title>
+        <link rel="stylesheet" href="css/content.css" />
+        <link rel="stylesheet" href="css/topNavigationBar.css" />
+        <link rel="stylesheet" href="css/bottomNavigationBar.css" />
+        <link rel="stylesheet" href="css/button.css" />
+        <link rel="stylesheet" href="css/dropdownMenu.css" />
+    </head>
+    <body>
+        <div class="topnav">
+            <!-- <button id="file-button">File</button> -->
+        </div>
+
+        <!-- <div id="file-dropdown-menu" class="dropdown-content">
+            <button id="create-project-button">Create Project</button>
+            <button id="load-project-button">Load Project</button>
+            <button id="export-result-button">Export Result</button>
+        </div> -->
+
+        <div class="content-container ">
+            <div class="content">
+                <div id="info">Something</div>
+                <div class="image-container">
+                    <img id="image" src="" alt="image" />
+                </div>
+                <div class="label-buttons-container">
+                    <button id="thing-button" class="button-28" type="radio" name="label" value="0">Thing (J)</button>
+                    <button id="stuff-button" class="button-28" type="radio" name="label" value="1">Stuff (L)</button>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="bottomnav">
+            <button id="prev-button">Previous Image (A)</button>
+            <div class="jump-box">
+                <input type="text" id="image-id-input" placeholder="Image Id">
+                <button id="jump-button">Jump</button>
+            </div>
+            <button id="next-button">Next Image (D)</button>
+        </div>
+
+        <script src="/eel.js"></script>
+        <script src="js/data.js"></script>
+        <script src="js/mainPage.js"></script>
+        <script src="js/bottomNavigationBar.js"></script>
+        <script src="js/topNavigationBar.js"></script>
+        <script src="js/core.js"></script>
+
+        <script src="js/main.js"></script>
+    </body>
+</html>

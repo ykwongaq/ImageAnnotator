@@ -1,0 +1,72 @@
+body {
+    height: 100vh;
+    margin: 0;
+}
+
+.content-container {
+    height: 90%;
+    max-height: 90%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.content{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 95%;
+    width: 70%;
+}
+
+.image-container {
+    margin: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 90%;
+    width: 100%;
+}
+
+.image-container img {
+    width: 100%; /* Image will fill the container's width */
+    height: 100%; /* Image will stretch to fill the container's height */
+    object-fit: cover; /* Ensures the image covers the container */
+}
+
+.label-buttons-container{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    height: 10%;
+    width: 100%;
+}
+
+.label-buttons-container .button-28 {
+    margin: 5px;
+}
+
+.image-view {
+    margin: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: blue;
+}
+
+.video-view video {
+    width: 200%;  /* Double the original width */
+    height: 200%; /* Double the original height */
+    max-width: 100%; /* Ensure it doesn't exceed the container */
+    max-height: 100%; /* Ensure it doesn't exceed the container */
+}
+
+.video-view .button-28 {
+    margin: 5px;
+}
+
+.hidden {
+    display: none;
+}
