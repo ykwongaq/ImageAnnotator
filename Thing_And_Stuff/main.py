@@ -51,6 +51,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--input_dir",
         type=str,
+        required=True,
         help="Path to the data folder that containing the image folder",
     )
 
@@ -67,30 +68,3 @@ if __name__ == "__main__":
     print(f"Server initialized ...")
     eel.start("main.html", size=(1200, 800))
     print(f"Server started ...")
-
-
-# @eel.expose
-# def create_project(data_folder: str, output_folder: str) -> Dict:
-#     return server.create_project(data_folder, output_folder)
-
-
-# @eel.expose
-# def load_project(project_folder: str) -> Dict:
-#     return server.load_project(project_folder)
-
-
-# @eel.expose
-# def load_video(video_path: str) -> str:
-#     with open(video_path, "rb") as f:
-#         video = f.read()
-#     return base64.b64encode(video).decode("utf-8")
-
-
-# @eel.expose
-# def export_result(data: Dict, output_folder: str) -> None:
-#     server.export_result(data, output_folder)
-
-
-# @eel.expose
-# def save(project_data: Dict) -> None:
-#     server.save_project_data(project_data)
