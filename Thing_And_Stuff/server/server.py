@@ -36,7 +36,7 @@ class Server:
         for image_file in input_image_files:
             image_filename = os.path.basename(image_file)
             image_link = os.path.join(self.image_folder, image_filename)
-            os.symlink(image_file, image_link)
+            shutil.copy(image_file, image_link)
 
         self.image_files = []
         for file in input_image_files:
