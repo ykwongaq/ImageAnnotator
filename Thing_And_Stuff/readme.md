@@ -33,3 +33,10 @@ The json format is shown as follow:
 ```
 
 Here, `0` mean `Thing`, `1` mean `Stuff`, `-1` mean not annotated.
+
+## Step 4: Verify
+
+You may verify is there any missing annotation by running the `verify.py`
+```bash
+python verify.py --input_dir {Path to the project folder}
+```
