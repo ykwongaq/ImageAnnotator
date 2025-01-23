@@ -4,14 +4,13 @@ import os
 
 from tkinter import Tk, filedialog
 from .embedding import EmbeddingGenerator
-from .segmentation import CoralSegmentation
 
 # from .maskEiditor import MaskEidtor
 from .maskCreator import MaskCreator, Prompt
 from .util.general import get_resource_path
 from .project import ProjectCreator, ProjectCreateRequest, ProjectLoader, ProjectExport
 from .dataset import Dataset, Data
-from .util.coco import to_coco_annotation, coco_mask_to_rle
+from .util.coco import to_coco_annotation, coco_rle_to_rle
 
 from typing import Dict, List
 
@@ -310,7 +309,7 @@ class Server:
         mask = self.mask_creator.create_mask(prompts)
         annotation = to_coco_annotation(mask)
         annotation["category_id"] = -2  # Category id for prompted mask
-        annotation["rle"] = coco_mask_to_rle(annotation["segmentation"])
+        annotation["rle"] = coco_rle_to_rle(annotation["segmentation"])
 
         return annotation
 
@@ -325,3 +324,9 @@ class Server:
         self.logger.info(f"Exporting annotated images to {output_dir} ...")
         project_export = ProjectExport(self.project_path)
         project_export.export_annotated_images(output_dir, data_list)
+
+    @time_it
+    def export_coco(self, output_dir: str):
+        self.logger.info(f"Exporting coco to {output_dir} ...")
+        project_export = ProjectExport(self.project_path)
+        project_export.export_coco(output_dir, self.dataset)

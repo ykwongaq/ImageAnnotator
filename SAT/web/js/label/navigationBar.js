@@ -57,7 +57,28 @@ class NavigationBar {
                     : "block";
         });
 
-        this.exportCOCOButton.addEventListener("click", () => {});
+        this.exportCOCOButton.addEventListener("click", () => {
+            const core = new Core();
+            core.save(() => {
+                core.selectFolder((fileFolder) => {
+                    if (fileFolder === null) {
+                        return;
+                    }
+
+                    const generalPopManager = new GeneralPopManager();
+                    generalPopManager.clear();
+                    generalPopManager.updateLargeText("Export");
+                    generalPopManager.updateText(
+                        "Exporting the COCO Json file. Please wait."
+                    );
+                    generalPopManager.show();
+
+                    core.exportCOCO(fileFolder, () => {
+                        generalPopManager.hide();
+                    });
+                });
+            });
+        });
 
         window.addEventListener("click", (event) => {
             if (!event.target.matches("#file-button")) {

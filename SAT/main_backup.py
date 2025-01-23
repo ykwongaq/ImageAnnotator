@@ -45,7 +45,7 @@ from server.dataset import Data, DataFilter, Dataset, calculate_iou_matrix
 from server.embedding import EmbeddingGenerator
 from server.maskEiditor import MaskEidtor
 from server.segmentation import CoralSegmentation
-from server.util.coco import coco_mask_to_rle, encode_to_coco_mask, decode_coco_mask
+from server.util.coco import coco_rle_to_rle, encode_to_coco_mask, decode_coco_mask
 from server.util.general import (
     decode_image_url,
     get_resource_path,
@@ -204,7 +204,7 @@ class LabelServe:
         self.mask_editor.add_input(x, y, label)
         mask = self.mask_editor.infer_mask()
         annotation = gen_mask_json(mask)
-        rle = coco_mask_to_rle(annotation["segmentation"])
+        rle = coco_rle_to_rle(annotation["segmentation"])
         annotation["segmentation"]["counts_number"] = rle
 
         return_item = {}
@@ -218,7 +218,7 @@ class LabelServe:
         self.mask_editor.undo_input()
         mask = self.mask_editor.infer_mask()
         annotation = gen_mask_json(mask)
-        rle = coco_mask_to_rle(annotation["segmentation"])
+        rle = coco_rle_to_rle(annotation["segmentation"])
         annotation["segmentation"]["counts_number"] = rle
 
         return_item = {}
@@ -394,7 +394,7 @@ def get_data(idx: int):
     annotations = copied_json_item["annotations"]
     # Add the counts_number of the javaside
     for annotation in annotations:
-        mask = coco_mask_to_rle(annotation["segmentation"])
+        mask = coco_rle_to_rle(annotation["segmentation"])
         annotation["segmentation"]["counts_number"] = mask
     copied_json_item["annotations"] = annotations
 

@@ -113,6 +113,11 @@ def export_annotated_images(output_dir: str, data_list: List[Dict]):
     pass
 
 
+@eel.expose
+def export_coco(output_dir: str):
+    server.export_coco(output_dir)
+
+
 if __name__ == "__main__":
     setup_logging()
     print("Please wait for the tool to be ready ...")

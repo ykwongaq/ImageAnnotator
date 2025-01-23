@@ -66,7 +66,6 @@ class Core {
                 // Update the category information
                 const categoryManager = new CategoryManager();
                 categoryManager.updateCategoryList(response["category_info"]);
-                categoryManager.updateStatus(response["status_info"]);
 
                 const galleryPage = new GalleryPage();
                 galleryPage.updateGallery(galleryDataList);
@@ -240,6 +239,14 @@ class Core {
 
     exportImages(outputDir, callBack = null) {
         eel.export_images(outputDir)(() => {
+            if (callBack != null) {
+                callBack();
+            }
+        });
+    }
+
+    exportCOCO(outputDir, callBack = null) {
+        eel.export_coco(outputDir)(() => {
             if (callBack != null) {
                 callBack();
             }
