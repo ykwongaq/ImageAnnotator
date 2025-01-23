@@ -11,6 +11,10 @@ python main.py --input_dir {Path to the project folder}
 ```
 
 Please note that the project folder is the folder containing the images folder
+```
+folder
+|- images
+```
 
 ## Step 3: Output               
 The annotatoin will be automatically saved when you move to prev or next image. The result will be saved into `thing_to_stuff.json` located in the project fodler.
@@ -29,3 +33,10 @@ The json format is shown as follow:
 ```
 
 Here, `0` mean `Thing`, `1` mean `Stuff`, `-1` mean not annotated.
+
+## Step 4: Verify
+
+You may verify is there any missing annotation by running the `verify.py`
+```bash
+python verify.py --input_dir {Path to the project folder}
+```
