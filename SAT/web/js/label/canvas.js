@@ -259,44 +259,6 @@ class Canvas {
 
         // Put the modified image data back to the canvas
         maskCtx.putImageData(imageData, 0, 0);
-
-        const radius = Math.min(this.imageWidth, this.imageHeight) * 0.003;
-        // Draw the border
-        for (const mask of masks) {
-            if (!mask.shouldDisplay()) {
-                continue;
-            }
-
-            if (!mask.getCategory().isBleached()) {
-                continue;
-            }
-
-            const maskData = mask.getDecodedMask();
-
-            for (let i = 0; i < maskData.length; i++) {
-                if (maskData[i] === 1) {
-                    const x = i % this.imageWidth;
-                    const y = Math.floor(i / this.imageWidth);
-
-                    // Check if this pixel is on the border by checking its neighbors
-                    const isBorder = [
-                        maskData[i - 1], // Left
-                        maskData[i + 1], // Right
-                        maskData[i - this.imageWidth], // Top
-                        maskData[i + this.imageWidth], // Bottom
-                    ].some(
-                        (neighbor) => neighbor === 0 || neighbor === undefined
-                    );
-
-                    if (isBorder) {
-                        maskCtx.beginPath();
-                        maskCtx.arc(x, y, radius, 0, 2 * Math.PI); // 2.5 radius for 5px diameter
-                        maskCtx.fillStyle = mask.getCategory().getBorderColor();
-                        maskCtx.fill();
-                    }
-                }
-            }
-        }
         this.maskCache = new Image();
         this.maskCache.src = maskCanvas.toDataURL();
     }

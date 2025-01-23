@@ -16,7 +16,6 @@ class Request {
 class CreateProjectRequest extends Request {
     static INPUTS = "inputs";
     static OUTPUT_DIR = "output_dir";
-    static CONFIG = "config";
 
     static IMAGE_URL = "image_url";
     static IMAGE_FILE_NAME = "image_file_name";
@@ -26,7 +25,6 @@ class CreateProjectRequest extends Request {
         this.request = {};
         this.request[CreateProjectRequest.INPUTS] = [];
         this.request[CreateProjectRequest.OUTPUT_DIR] = "";
-        this.request[CreateProjectRequest.CONFIG] = "";
     }
 
     addInput(imageUrl, imageFileName) {
@@ -38,10 +36,6 @@ class CreateProjectRequest extends Request {
 
     setOutputDir(outputDir) {
         this.request[CreateProjectRequest.OUTPUT_DIR] = outputDir;
-    }
-
-    setConfig(config) {
-        this.request[CreateProjectRequest.CONFIG] = config;
     }
 
     toDict() {

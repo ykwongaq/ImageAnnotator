@@ -1,8 +1,4 @@
 class LabelPanel {
-    static TYPE_HEALTHY = 0;
-    static TYPE_BLEACHED = 1;
-    static TYPE_DEAD = 2;
-
     constructor(dom) {
         if (LabelPanel.instance) {
             return LabelPanel.instance;
@@ -23,10 +19,6 @@ class LabelPanel {
         this.categoryButtonTemplate = this.dom.querySelector(
             "#label-button-template"
         );
-        this.categoryTypeRadioButtons = this.dom.querySelectorAll(
-            "input[name='status']"
-        );
-        this.currentType = LabelPanel.TYPE_HEALTHY;
         this.categoryDropDownMenu = this.dom.querySelector(
             "#label-dropdown-menu"
         );
@@ -53,7 +45,6 @@ class LabelPanel {
         this.initOpacityInput();
         this.initShowMaskButton();
 
-        this.initStatusButtons();
         this.initAddCategory();
         this.initSearchCategory();
 
@@ -96,19 +87,6 @@ class LabelPanel {
         });
     }
 
-    initStatusButtons() {
-        for (const radio of this.categoryTypeRadioButtons) {
-            radio.addEventListener("change", () => {
-                const value = parseInt(radio.value);
-                this.currentType = value;
-                this.updateCategoryButtons();
-
-                const actionPanel = new ActionPanel();
-                actionPanel.updateCategoryButtons();
-            });
-        }
-    }
-
     initAddCategory() {
         this.addCategoryButton.addEventListener("click", () => {
             const labelName = this.addCategoryInput.value;
@@ -120,23 +98,8 @@ class LabelPanel {
                 return;
             }
 
-            // Ignore if the label name is started with "Bleached"
-            if (strippedLabelName.toLowerCase().startsWith("Bleached")) {
-                const generalPopManager = new GeneralPopManager();
-                generalPopManager.clear();
-                generalPopManager.updateLargeText("Warning");
-                generalPopManager.updateText(
-                    "The label name cannot start with 'Bleached'."
-                );
-                generalPopManager.addButton("ok", "OK", () => {
-                    generalPopManager.hide();
-                });
-                generalPopManager.show();
-                return;
-            }
-
             const categoryManager = new CategoryManager();
-            const success = categoryManager.addCoralCategory(labelName);
+            const success = categoryManager.addCategory(labelName);
             if (!success) {
                 // Cannot add the category because the category name is duplicated
                 const generalPopManager = new GeneralPopManager();
@@ -198,23 +161,7 @@ class LabelPanel {
         const categoryManager = new CategoryManager();
 
         // Get the category list based on the current type
-        let categoryList = [];
-        if (this.currentType === LabelPanel.TYPE_HEALTHY) {
-            categoryList = categoryManager.getCategoryListByStatus(
-                CategoryManager.STATUS_HEALTHY
-            );
-        } else if (this.currentType === LabelPanel.TYPE_BLEACHED) {
-            categoryList = categoryManager.getCategoryListByStatus(
-                CategoryManager.STATUS_BLEACHED
-            );
-        } else if (this.currentType === LabelPanel.TYPE_DEAD) {
-            categoryList = categoryManager.getCategoryListByStatus(
-                CategoryManager.STATUS_DEAD
-            );
-        } else {
-            console.error("Invalid category type: ", this.currentType);
-            return;
-        }
+        let categoryList = categoryManager.getCategoryList();
 
         // Create category item for each category
         for (const category of categoryList) {
@@ -267,33 +214,26 @@ class LabelPanel {
             this.categoryDropDownMenu.style.top = `${event.clientY}px`;
 
             // Create rename button
-            // If the category is a coral, then user can only rename the coral
-            // at the healthy status
-            if (
-                !category.isCoral() ||
-                (category.isCoral() && category.isHealthy())
-            ) {
-                const renameButton = document
-                    .importNode(this.categoryMenuButtonTemplate.content, true)
-                    .querySelector("button");
-                renameButton.textContent = "Rename";
-                renameButton.addEventListener("click", (event) => {
-                    // When the rename button is clicked, hide the menu
-                    this.categoryDropDownMenu.style.display = "none";
+            const renameButton = document
+                .importNode(this.categoryMenuButtonTemplate.content, true)
+                .querySelector("button");
+            renameButton.textContent = "Rename";
+            renameButton.addEventListener("click", (event) => {
+                // When the rename button is clicked, hide the menu
+                this.categoryDropDownMenu.style.display = "none";
 
-                    // The text label will become a input text box for user input
-                    labelText.contentEditable = true;
-                    labelText.focus();
+                // The text label will become a input text box for user input
+                labelText.contentEditable = true;
+                labelText.focus();
 
-                    // Select the text
-                    const range = document.createRange();
-                    const selection = window.getSelection();
-                    range.selectNodeContents(labelText);
-                    selection.removeAllRanges();
-                    selection.addRange(range);
-                });
-                this.categoryDropDownMenu.appendChild(renameButton);
-            }
+                // Select the text
+                const range = document.createRange();
+                const selection = window.getSelection();
+                range.selectNodeContents(labelText);
+                selection.removeAllRanges();
+                selection.addRange(range);
+            });
+            this.categoryDropDownMenu.appendChild(renameButton);
 
             // Create delete button
             const deleteButton = document
@@ -369,19 +309,12 @@ class LabelPanel {
             this.categoryDropDownMenu.style.top = `${event.clientY}px`;
 
             // Create rename button
-            // If the category is a coral, then user can only rename the coral
-            // at the healthy status
-            if (
-                !category.isCoral() ||
-                (category.isCoral() && category.isHealthy())
-            ) {
-                const renameButton = document
-                    .importNode(this.categoryMenuButtonTemplate.content, true)
-                    .querySelector("button");
-                renameButton.textContent = "Rename";
-                this.initRenameButton(renameButton, category);
-                this.categoryDropDownMenu.appendChild(renameButton);
-            }
+            const renameButton = document
+                .importNode(this.categoryMenuButtonTemplate.content, true)
+                .querySelector("button");
+            renameButton.textContent = "Rename";
+            this.initRenameButton(renameButton, category);
+            this.categoryDropDownMenu.appendChild(renameButton);
 
             // Create delete button
 
@@ -407,42 +340,12 @@ class LabelPanel {
         deleteButton.addEventListener("click", async (event) => {
             event.preventDefault();
 
-            // Cannot delete a dead coral category
-            if (category.isCoral() && category.isDead()) {
-                const generalPopManager = new GeneralPopManager();
-                generalPopManager.clear();
-                generalPopManager.updateLargeText("Warning");
-                generalPopManager.updateText(
-                    "Cannot delete a dead coral category."
-                );
-                generalPopManager.addButton("ok", "OK", () => {
-                    generalPopManager.hide();
-                });
-                generalPopManager.show();
-            }
-
             // To delete a category, make sure that the category
             // is not used by any mask
 
             // Check is the category is used in current image
             const core = new Core();
             let imageIds = await core.getImageIdsByCategory(category);
-
-            // If the category is a coral, also need to check
-            // other status of the coral.
-            const isCoral = category.isCoral();
-            if (isCoral) {
-                const otherStatusCategories =
-                    category.getCategoriesOfOtherStatus();
-                for (const otherCategory of otherStatusCategories) {
-                    const otherImageIds = await core.getImageIdsByCategory(
-                        otherCategory
-                    );
-                    for (const id of otherImageIds) {
-                        imageIds.add(id);
-                    }
-                }
-            }
 
             // Sort the image ids
             imageIds = Array.from(imageIds).sort();
@@ -454,11 +357,6 @@ class LabelPanel {
                 }
                 message +=
                     "\nPlease remove the annotation before deleting the category.";
-
-                if (isCoral) {
-                    message +=
-                        "\n\nNote: The category is a coral. Please also remove the masks of other status of the coral.";
-                }
 
                 const generalPopManager = new GeneralPopManager();
                 generalPopManager.clear();
@@ -473,14 +371,6 @@ class LabelPanel {
                 const categoryManager = new CategoryManager();
 
                 const categoriesToDelete = [category];
-                if (isCoral) {
-                    // If the category is a coral, also delete the other status
-                    const otherStatusCategories =
-                        category.getCategoriesOfOtherStatus();
-                    for (const otherCategory of otherStatusCategories) {
-                        categoriesToDelete.push(otherCategory);
-                    }
-                }
 
                 for (const category of categoriesToDelete) {
                     categoryManager.removeCategory(category);
@@ -516,24 +406,6 @@ class LabelPanel {
             generalPopManager.clear();
             generalPopManager.updateLargeText("Warning");
             generalPopManager.updateText("The category name cannot be empty.");
-            generalPopManager.addButton("ok", "OK", () => {
-                generalPopManager.hide();
-            });
-            generalPopManager.show();
-            return;
-        }
-
-        // Check if the input starts with "Bleached"
-        if (
-            category.isCoral() &&
-            newName.toLowerCase().startsWith("bleached")
-        ) {
-            const generalPopManager = new GeneralPopManager();
-            generalPopManager.clear();
-            generalPopManager.updateLargeText("Warning");
-            generalPopManager.updateText(
-                "The category name cannot start with 'Bleached'."
-            );
             generalPopManager.addButton("ok", "OK", () => {
                 generalPopManager.hide();
             });

@@ -12,20 +12,10 @@ class NavigationBar {
 
         this.galleryButton = this.dom.querySelector("#gallery-button");
         this.labelButton = this.dom.querySelector("#label-button");
-        this.statisticButton = this.dom.querySelector("#statistic-button");
 
         this.exportButton = this.dom.querySelector("#file-button");
         this.exportDropDownMenu = this.dom.querySelector("#file-dropdown-menu");
-        this.exportImageButton = this.dom.querySelector("#export-image-button");
-        this.exportAnnotatedImageButton = this.dom.querySelector(
-            "#export-annotated-image-button"
-        );
         this.exportCOCOButton = this.dom.querySelector("#export-coco-button");
-        this.exportExcelButton = this.dom.querySelector("#export-excel-button");
-        this.exportChartsButton = this.dom.querySelector(
-            "#export-graph-button"
-        );
-        this.exportAllButton = this.dom.querySelector("#export-all-button");
 
         this.saveDropdownButton = this.dom.querySelector(
             "#save-drop-down-button"
@@ -43,7 +33,6 @@ class NavigationBar {
     init() {
         this.initGalleryButton();
         this.initLabelButton();
-        this.initStatisticButton();
         this.initExportButton();
         this.initSave();
     }
@@ -60,15 +49,6 @@ class NavigationBar {
         });
     }
 
-    initStatisticButton() {
-        this.statisticButton.addEventListener("click", () => {
-            this.showPage(NavigationBar.STATISTIC_PAGE);
-
-            const statisticPage = new StatisticPage();
-            statisticPage.update();
-        });
-    }
-
     initExportButton() {
         this.exportButton.addEventListener("click", () => {
             this.exportDropDownMenu.style.display =
@@ -77,55 +57,7 @@ class NavigationBar {
                     : "block";
         });
 
-        this.exportImageButton.addEventListener("click", () => {
-            const core = new Core();
-            core.save(() => {
-                core.selectFolder((fileFolder) => {
-                    if (fileFolder === null) {
-                        return;
-                    }
-
-                    const generalPopManager = new GeneralPopManager();
-                    generalPopManager.clear();
-                    generalPopManager.updateLargeText("Exporting");
-                    generalPopManager.updateText(
-                        "Exporting the current project. Please wait."
-                    );
-                    generalPopManager.show();
-
-                    core.exportImages(fileFolder, () => {
-                        generalPopManager.hide();
-                    });
-                });
-            });
-        });
-
-        this.exportAnnotatedImageButton.addEventListener("click", () => {
-            const core = new Core();
-            core.save(() => {
-                core.selectFolder((fileFolder) => {
-                    if (fileFolder === null) {
-                        return;
-                    }
-
-                    const generalPopManager = new GeneralPopManager();
-                    generalPopManager.clear();
-                    generalPopManager.updateLargeText("Exporting");
-                    generalPopManager.updateText(
-                        "Exporting the current project. Please wait."
-                    );
-                    generalPopManager.show();
-
-                    core.exportAnnotatedImages(fileFolder, () => {
-                        generalPopManager.hide();
-                    });
-                });
-            });
-        });
         this.exportCOCOButton.addEventListener("click", () => {});
-        this.exportExcelButton.addEventListener("click", () => {});
-        this.exportChartsButton.addEventListener("click", () => {});
-        this.exportAllButton.addEventListener("click", () => {});
 
         window.addEventListener("click", (event) => {
             if (!event.target.matches("#file-button")) {

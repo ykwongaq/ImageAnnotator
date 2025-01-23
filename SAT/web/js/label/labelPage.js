@@ -45,13 +45,6 @@ class LabelPage {
         const galleryPage = new GalleryPage(galleryPageDom);
         galleryPage.init();
 
-        // Statistic Page
-        const statisticPageDom = document.getElementById(
-            NavigationBar.STATISTIC_PAGE
-        );
-        const statisticPage = new StatisticPage(statisticPageDom);
-        statisticPage.init();
-
         // Action Manager
         const actionManager = new ActionManager();
     }
@@ -97,10 +90,6 @@ function main() {
     }
 
     window.onbeforeunload = function (event) {
-        // const message = "Are you sure you want to leave?";
-        // event.returnValue = message;
-        // return message;
-
         const core = new Core();
         return core.isDataModified();
     };

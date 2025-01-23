@@ -226,27 +226,8 @@ class ActionPanel {
         this.clearCategoryButtons();
         const categoryManager = new CategoryManager();
 
-        const labelPanel = new LabelPanel();
-        const currentType = labelPanel.getCurrentType();
-
         // Get the category list based on the current type
-        let categoryList = [];
-        if (currentType === LabelPanel.TYPE_HEALTHY) {
-            categoryList = categoryManager.getCategoryListByStatus(
-                CategoryManager.STATUS_HEALTHY
-            );
-        } else if (currentType === LabelPanel.TYPE_BLEACHED) {
-            categoryList = categoryManager.getCategoryListByStatus(
-                CategoryManager.STATUS_BLEACHED
-            );
-        } else if (currentType === LabelPanel.TYPE_DEAD) {
-            categoryList = categoryManager.getCategoryListByStatus(
-                CategoryManager.STATUS_DEAD
-            );
-        } else {
-            console.error("Invalid category type: ", currentType);
-            return;
-        }
+        let categoryList = categoryManager.getCategoryList();
 
         for (const category of categoryList) {
             const button = this.createCategoryButton(category);

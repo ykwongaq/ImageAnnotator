@@ -1662,12 +1662,12 @@ html:has(#confirm-button:not(.hidden)) #default-bar .float-bar__inner {
     inset: 0;
 }
 .home__content {
-    width: 56%;
+    width: 100%;
     margin-left: 0%;
     height: 100%;
     display: flex;
     align-items: center;
-    max-width: 1022px;
+    justify-content: center;
 }
 .home .bg {
     position: absolute;

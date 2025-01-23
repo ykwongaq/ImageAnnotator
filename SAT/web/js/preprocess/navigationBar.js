@@ -5,14 +5,7 @@ class NavigationBar {
     }
 
     init() {
-        this.initSettingButton();
         this.initGalleryButton();
-    }
-
-    initSettingButton() {
-        this.settingButton.addEventListener("click", () => {
-            this.showPage("settingPage");
-        });
     }
 
     initGalleryButton() {

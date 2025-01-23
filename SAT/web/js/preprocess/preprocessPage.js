@@ -35,11 +35,6 @@ class PreprocessPage {
         const navigationBar = new NavigationBar(navigationBarDom);
         navigationBar.init();
 
-        // Settting Page
-        const settingPage = document.getElementById("settingPage");
-        this.configPage = new ConfigPage(settingPage);
-        this.configPage.init();
-
         this.galleryItems = [];
     }
 
@@ -218,9 +213,6 @@ class PreprocessPage {
                     const image_url = imageDom.src;
                     createProjectRequest.addInput(image_url, selectedImageName);
                 }
-
-                const config = this.configPage.getConfig();
-                createProjectRequest.setConfig(config);
 
                 eel.create_project(createProjectRequest.toDict())();
             });

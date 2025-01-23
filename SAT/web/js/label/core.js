@@ -45,7 +45,6 @@ class Core {
                     categoryManager.updateCategoryList(
                         response["category_info"]
                     );
-                    categoryManager.updateStatus(response["status_info"]);
 
                     const galleryPage = new GalleryPage();
                     galleryPage.updateGallery(galleryDataList);
@@ -108,10 +107,8 @@ class Core {
 
         const categoryManager = new CategoryManager();
         const categoryInfo = categoryManager.toJson();
-        const statusInfo = categoryManager.getStatusInfo();
 
         data["category_info"] = categoryInfo;
-        data["status_info"] = statusInfo;
 
         eel.save_data(data)(() => {
             this.setDataModified(false);

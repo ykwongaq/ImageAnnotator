@@ -12,7 +12,7 @@ class Data:
         self.image_path = None
         self.idx = -1
         self.embedding = None
-        self.segmentation = None
+        self.segmentation = {}
 
     def set_image_name(self, image_name: str):
         self.image_name = image_name
@@ -88,7 +88,6 @@ class Dataset:
         # Key is the image idx, and the value is the Data object
         self.data: Dict[int, Data] = {}
         self.category_info: List[Dict] = None
-        self.status_info: List[Dict] = None
         self.last_saved_id = 0
 
     def add_data(self, data: Data):
@@ -161,12 +160,6 @@ class Dataset:
 
     def set_category_info(self, category_info: List[Dict]):
         self.category_info = category_info
-
-    def set_status_info(self, status_info: List[Dict]):
-        self.status_info = status_info
-
-    def get_status_info(self) -> List[Dict]:
-        return self.status_info
 
     def get_data_list_by_category_id(self, category_id: int) -> List[Data]:
         """

@@ -41,10 +41,6 @@ class Server:
     SAM_DECODER_PATH = "models/vit_h_decoder_quantized.onnx"
     SAM_MODEL_TYPE = "vit_b"
 
-    # CoralSCOP
-    CORALSCOP_PATH = "models/vit_b_coralscop.pth"
-    CORALSCOP_MODEL_TYPE = "vit_b"
-
     def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)
 
@@ -57,15 +53,6 @@ class Server:
             f"Embedding model loaded in {time.time() - start_time} seconds"
         )
 
-        # Coral Segmentation Model
-        self.logger.info("Loading segmentation model ...")
-        start_time = time.time()
-        model_path = get_resource_path(Server.CORALSCOP_PATH)
-        self.coral_segmentation = CoralSegmentation(
-            model_path, Server.CORALSCOP_MODEL_TYPE
-        )
-        self.logger.info(f"CoralSCOP loaded in {time.time() - start_time} seconds")
-
         # Mask Editor
         self.logger.info("Mask Editor initialized ...")
         start_time = time.time()
@@ -76,9 +63,7 @@ class Server:
         )
 
         # Project creation
-        self.project_creator = ProjectCreator(
-            self.embeddings_generator, self.coral_segmentation
-        )
+        self.project_creator = ProjectCreator(self.embeddings_generator)
 
         # Dataset
         self.dataset: Dataset = None
@@ -174,14 +159,8 @@ class Server:
             self.logger.error(f"Category info not found")
             return None
 
-        status_info = self.dataset.get_status_info()
-        if status_info is None:
-            self.logger.error(f"Status info not found")
-            return None
-
         response = data.to_json()
         response["category_info"] = category_info
-        response["status_info"] = status_info
 
         return response
 
@@ -283,15 +262,12 @@ class Server:
         data_idx = data["images"][0]["id"]
         self.dataset.update_data(data_idx, segmentation)
         self.dataset.set_category_info(data["category_info"])
-        self.dataset.set_status_info(data["status_info"])
 
     @time_it
     def save_dataset(self, output_dir: str):
         self.logger.info(f"Saving the dataset to {self.get_project_path()} ...")
 
-        project_creator = ProjectCreator(
-            self.embeddings_generator, self.coral_segmentation
-        )
+        project_creator = ProjectCreator(self.embeddings_generator)
 
         if output_dir is None:
             output_dir = os.path.dirname(self.get_project_path())

@@ -96,9 +96,6 @@ class AnnotationJson:
     def set_iscrowd(self, iscrowd: int):
         self.iscrowd = iscrowd
 
-    def set_predicted_iou(self, predicted_iou: float):
-        self.predicted_iou = predicted_iou
-
     def to_json(self):
         assert self.segmentation is not None, "segmentation is not set"
         assert self.bbox is not None, "bbox is not set"
@@ -107,7 +104,6 @@ class AnnotationJson:
         assert self.id is not None, "id is not set"
         assert self.image_id is not None, "image_id is not set"
         assert self.iscrowd is not None, "iscrowd is not set"
-        assert self.predicted_iou is not None, "predicted_iou is not set"
         return {
             "segmentation": self.segmentation,
             "bbox": self.bbox,
@@ -116,7 +112,6 @@ class AnnotationJson:
             "id": self.id,
             "image_id": self.image_id,
             "iscrowd": self.iscrowd,
-            "predicted_iou": self.predicted_iou,
         }
 
 
@@ -142,10 +137,6 @@ class CategoryJson:
     def __init__(self):
         self.id = None
         self.name = None
-        self.super_category = None
-        self.super_category_id = None
-        self.is_coral = None
-        self.status = None
 
     def set_id(self, id: int):
         self.id = id
@@ -153,32 +144,12 @@ class CategoryJson:
     def set_name(self, name: str):
         self.name = name
 
-    def set_super_category(self, super_category: str):
-        self.super_category = super_category
-
-    def set_super_category_id(self, super_category_id: int):
-        self.super_category_id = super_category_id
-
-    def set_is_coral(self, is_coral: bool):
-        self.is_coral = is_coral
-
-    def set_status(self, status: int):
-        self.status = status
-
     def to_json(self):
         assert self.id is not None, "id is not set"
         assert self.name is not None, "name is not set"
-        assert self.super_category is not None, "super_category is not set"
-        assert self.super_category_id is not None, "super_category_id is not set"
-        assert self.is_coral is not None, "is_coral is not set"
-        assert self.status is not None, "status is not set"
         return {
             "id": self.id,
             "name": self.name,
-            "supercategory": self.super_category,
-            "supercategory_id": self.super_category_id,
-            "is_coral": self.is_coral,
-            "status": self.status,
         }
 
 
@@ -203,7 +174,6 @@ class ProjectInfoJson:
     def __init__(self):
         self.last_image_idx = None
         self.category_info: List[CategoryJson] = []
-        self.status_info: List[StatusJson] = []
 
     def set_last_image_idx(self, last_image_idx: int):
         self.last_image_idx = last_image_idx
@@ -211,15 +181,11 @@ class ProjectInfoJson:
     def add_category_info(self, category_info: CategoryJson):
         self.category_info.append(category_info)
 
-    def add_status_info(self, status_info: StatusJson):
-        self.status_info.append(status_info)
-
     def to_json(self):
         assert self.last_image_idx is not None, "last_image_idx is not set"
         return {
             "last_image_idx": self.last_image_idx,
             "category_info": [category.to_json() for category in self.category_info],
-            "status_info": [status.to_json() for status in self.status_info],
         }
 
 
@@ -240,7 +206,6 @@ class ProjectCreateRequest:
         self.request = request
         assert "inputs" in request, "Missing 'inputs' in request"
         assert "output_dir" in request, "Missing 'output_dir' in request"
-        assert "config" in request, "Missing 'config' in request"
 
     def get_inputs(self) -> List[Dict]:
         return self.request["inputs"]
@@ -248,21 +213,11 @@ class ProjectCreateRequest:
     def get_output_dir(self) -> str:
         return self.request["output_dir"]
 
-    def get_min_area(self) -> float:
-        return self.request["config"]["minArea"]
-
-    def get_min_confidence(self) -> float:
-        return self.request["config"]["minConfidence"]
-
-    def get_max_iou(self) -> float:
-        return self.request["config"]["maxIOU"]
-
 
 class ProjectCreator:
 
     SAM_ENCODER_PATH = "models/vit_h_encoder_quantized.onnx"
     SAM_MODEL_TYPE = "vit_b"
-    CORALSCOP_PATH = "models/vit_b_coralscop.pth"
 
     # Singleton
     _instance = None
@@ -272,18 +227,13 @@ class ProjectCreator:
             cls._instance = super(ProjectCreator, cls).__new__(cls)
         return cls._instance
 
-    def __init__(
-        self,
-        embedding_generator: EmbeddingGenerator,
-        segmentation: CoralSegmentation,
-    ):
+    def __init__(self, embedding_generator: EmbeddingGenerator):
         if hasattr(self, "initialized"):
             # Prevent re-initialization
             return
 
         self.logger = logging.getLogger(self.__class__.__name__)
         self.embeddings_generator = embedding_generator
-        self.segmentation = segmentation
 
         # Threading
         self.stop_event = threading.Event()
@@ -297,10 +247,6 @@ class ProjectCreator:
         inputs = sorted(inputs, key=lambda x: x["image_file_name"])
 
         output_dir = request.get_output_dir()
-
-        min_area = request.get_min_area()
-        min_confidence = request.get_min_confidence()
-        max_iou = request.get_max_iou()
 
         # Temporary folders for storing images, embeddings, annotations, and project info
         output_temp_dir = os.path.join(output_dir, TEMP_CREATE_NAME)
@@ -328,13 +274,6 @@ class ProjectCreator:
             self.logger.info(f"Processing input {idx + 1} of {len(inputs)}")
             self.logger.info(f"Processing image: {image_filename}")
 
-            # image, embedding, annotations = self.process_one_input(
-            #     image_url, image_filename, min_area, min_confidence, max_iou
-            # )
-
-            start_time = time.time()
-            self.logger.info(f"Processing image {image_filename} ...")
-
             # Create image
             image = decode_image_url(image_url)
             if self.stop_event.is_set():
@@ -349,12 +288,7 @@ class ProjectCreator:
                 terminated = True
                 break
 
-            # Detect coral
-            masks = self.segmentation.generate_masks_json(image)
-            masks = self.segmentation.filter(masks, min_area, min_confidence, max_iou)
-            for mask in masks:
-                mask["image_id"] = idx
-
+            # Generate annotation
             annotation_file_json = AnnotationFileJson()
 
             image_json = ImageJson()
@@ -363,26 +297,6 @@ class ProjectCreator:
             image_json.set_width(image.shape[1])
             image_json.set_height(image.shape[0])
             annotation_file_json.add_image(image_json)
-
-            for mask in masks:
-                annotation_json = AnnotationJson()
-                annotation_json.set_segmentation(mask["segmentation"])
-                annotation_json.set_bbox(mask["bbox"])
-                annotation_json.set_area(mask["area"])
-                annotation_json.set_category_id(mask["category_id"])
-                annotation_json.set_id(mask["id"])
-                annotation_json.set_image_id(idx)
-                annotation_json.set_iscrowd(mask["iscrowd"])
-                annotation_json.set_predicted_iou(mask["predicted_iou"])
-                annotation_file_json.add_annotation(annotation_json)
-
-            end_time = time.time()
-            self.logger.info(f"Processed image in {end_time - start_time:.2f} seconds")
-
-            # Check if the stop event is set
-            if image is None or embedding is None or masks is None:
-                terminated = True
-                break
 
             image_path = os.path.join(image_folder, image_filename)
             embedding_path = os.path.join(embedding_folder, f"{filename}.npy")
@@ -407,44 +321,6 @@ class ProjectCreator:
 
         project_info_json = ProjectInfoJson()
         project_info_json.set_last_image_idx(0)
-
-        detected_coral_category = CategoryJson()
-        detected_coral_category.set_id(-1)
-        detected_coral_category.set_name("Undefined Coral")
-        detected_coral_category.set_super_category("Undefined Coral")
-        detected_coral_category.set_super_category_id(-1)
-        detected_coral_category.set_is_coral(True)
-        detected_coral_category.set_status(-1)
-        project_info_json.add_category_info(detected_coral_category)
-
-        dead_coral_category = CategoryJson()
-        dead_coral_category.set_id(0)
-        dead_coral_category.set_name("Dead Coral")
-        dead_coral_category.set_super_category("Dead Coral")
-        dead_coral_category.set_super_category_id(0)
-        dead_coral_category.set_is_coral(True)
-        dead_coral_category.set_status(2)
-        project_info_json.add_category_info(dead_coral_category)
-
-        healty_status = StatusJson()
-        healty_status.set_id(0)
-        healty_status.set_name("Healthy")
-        project_info_json.add_status_info(healty_status)
-
-        bleached_status = StatusJson()
-        bleached_status.set_id(1)
-        bleached_status.set_name("Bleached")
-        project_info_json.add_status_info(bleached_status)
-
-        dead_status = StatusJson()
-        dead_status.set_id(2)
-        dead_status.set_name("Dead")
-        project_info_json.add_status_info(dead_status)
-
-        undefined_status = StatusJson()
-        undefined_status.set_id(-1)
-        undefined_status.set_name("Undefined")
-        project_info_json.add_status_info(undefined_status)
 
         save_json(project_info_json.to_json(), project_info_path)
 
@@ -488,10 +364,10 @@ class ProjectCreator:
         self.stop_event.set()
 
     def find_available_project_name(self, output_dir: str) -> str:
-        project_name = "project.coral"
+        project_name = "project.sat"
         i = 1
         while os.path.exists(os.path.join(output_dir, project_name)):
-            project_name = f"project_{i}.coral"
+            project_name = f"project_{i}.sat"
             i += 1
 
             if i > 1000:
@@ -554,7 +430,6 @@ class ProjectCreator:
                 annotation_json.set_id(mask["id"])
                 annotation_json.set_image_id(data.get_idx())
                 annotation_json.set_iscrowd(mask["iscrowd"])
-                annotation_json.set_predicted_iou(mask["predicted_iou"])
                 annotation_file_json.add_annotation(annotation_json)
 
             save_json(annotation_file_json.to_json(), annotation_path)
@@ -584,18 +459,8 @@ class ProjectCreator:
             category_json = CategoryJson()
             category_json.set_id(category["id"])
             category_json.set_name(category["name"])
-            category_json.set_super_category(category["supercategory"])
-            category_json.set_super_category_id(category["supercategory_id"])
-            category_json.set_is_coral(category["is_coral"])
-            category_json.set_status(category["status"])
             project_info_json.add_category_info(category_json)
 
-        self.logger.debug(f"Status info: {dataset.get_status_info()}")
-        for status in dataset.get_status_info():
-            status_json = StatusJson()
-            status_json.set_id(status["id"])
-            status_json.set_name(status["name"])
-            project_info_json.add_status_info(status_json)
         project_info_json.set_last_image_idx(dataset.get_last_saved_id())
 
         save_json(project_info_json.to_json(), new_project_info_path)
@@ -682,22 +547,18 @@ class ProjectLoader:
             embedding = np.load(embedding_path)
             data.set_embedding(embedding)
 
-            annotations = load_json(annotation_path)
-            data.set_segmentation(annotations)
+            if os.path.exists(annotation_path):
+                annotations = load_json(annotation_path)
+                data.set_segmentation(annotations)
 
-            # Data index is the image idx
-            image_id = annotations["images"][0]["id"]
-            data.set_idx(image_id)
-
+            data.set_idx(idx)
             dataset.add_data(data)
 
         # Load project info
         project_info = load_json(project_info_path)
         last_image_idx = project_info["last_image_idx"]
         category_info = project_info["category_info"]
-        status_info = project_info["status_info"]
         dataset.set_category_info(category_info)
-        dataset.set_status_info(status_info)
 
         # Delete the temporary folder
         shutil.rmtree(temp_output_dir)
