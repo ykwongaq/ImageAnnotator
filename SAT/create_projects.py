@@ -69,9 +69,6 @@ def main(args):
 
     embedding_model_path = args.embedding_model
 
-    segmentation_model_path = args.segmentation_model
-    segmentation_model_type = args.segmentation_model_type
-
     print(f"Creating projects for {len(image_files)} images")
     print(f"Output directory: {output_dir}")
     print(f"Batch size: {batch_size}")
@@ -79,8 +76,6 @@ def main(args):
     print(f"Minimum confidence: {min_confidence}")
     print(f"Maximum IOU: {max_iou}")
     print(f"Embedding model: {embedding_model_path}")
-    print(f"Segmentation model: {segmentation_model_path}")
-    print(f"Segmentation model type: {segmentation_model_type}")
 
     project_requests = []
     for image_batch in batch_iterator(image_files, batch_size):
@@ -151,18 +146,6 @@ if __name__ == "__main__":
         type=str,
         default="models/vit_h_encoder_quantized.onnx",
         help="Path to the embedding model",
-    )
-    parser.add_argument(
-        "--segmentation_model",
-        type=str,
-        default="models/vit_b_coralscop.pth",
-        help="Path to the segmentation model",
-    )
-    parser.add_argument(
-        "--segmentation_model_type",
-        type=str,
-        default="vit_b",
-        help="Type of the segmentation model",
     )
     args = parser.parse_args()
     main(args)

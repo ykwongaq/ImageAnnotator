@@ -288,6 +288,9 @@ class ProjectCreator:
 
         # Temporary folders for storing images, embeddings, annotations, and project info
         output_temp_dir = os.path.join(output_dir, TEMP_CREATE_NAME)
+        # Clear the temporary folder if it exists
+        if os.path.exists(output_temp_dir):
+            shutil.rmtree(output_temp_dir)
         os.makedirs(output_temp_dir, exist_ok=True)
 
         image_folder = os.path.join(output_temp_dir, "images")
@@ -322,13 +325,9 @@ class ProjectCreator:
                 image_url = input["image_url"]
                 image = decode_image_url(image_url)
 
-            if self.stop_event.is_set():
-                self.logger.info("Project creation stopped.")
-                terminated = True
-                break
-
             # Generate embedding
             embedding = self.embeddings_generator.generate_embedding(image)
+
             if self.stop_event.is_set():
                 self.logger.info("Project creation stopped.")
                 terminated = True
