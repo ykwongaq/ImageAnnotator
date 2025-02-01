@@ -149,10 +149,7 @@ class Dataset:
             {
                 "id": -1,
                 "name": "Detected Coral",
-                "supercategory": "Detected Coral",
-                "supercategory_id": -1,
-                "is_coral": True,
-                "status": -1,
+                "super_category": "Detected Coral",
             },
         ]
         """

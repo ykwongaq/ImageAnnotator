@@ -140,6 +140,7 @@ class CategoryJson:
     def __init__(self):
         self.id = None
         self.name = None
+        self.super_category = None
 
     def set_id(self, id: int):
         self.id = id
@@ -147,12 +148,17 @@ class CategoryJson:
     def set_name(self, name: str):
         self.name = name
 
+    def set_super_category(self, super_category: str):
+        self.super_category = super_category
+
     def to_json(self):
         assert self.id is not None, "id is not set"
         assert self.name is not None, "name is not set"
+        assert self.super_category is not None, "super_category is not set"
         return {
             "id": self.id,
             "name": self.name,
+            "supercategory": self.super_category,
         }
 
 
@@ -510,6 +516,7 @@ class ProjectCreator:
             category_json = CategoryJson()
             category_json.set_id(category["id"])
             category_json.set_name(category["name"])
+            category_json.set_super_category(category["super_category"])
             project_info_json.add_category_info(category_json)
 
         project_info_json.set_last_image_idx(dataset.get_last_saved_id())
@@ -753,6 +760,7 @@ class ProjectExport:
             category_json = CategoryJson()
             category_json.set_id(category["id"])
             category_json.set_name(category["name"])
+            category_json.set_super_category(category["super_category"])
             coco_json.add_category(category_json)
 
         save_json(coco_json.to_json(), output_coco_file)

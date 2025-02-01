@@ -112,6 +112,10 @@ class CategoryManager {
         return this.categoryDict[categoryId]["name"];
     }
 
+    getSuperCategoryNameByCategoryId(categoryId) {
+        return this.categoryDict[categoryId]["super_category"];
+    }
+
     /**
      * Update the category list
      *
@@ -160,6 +164,7 @@ class CategoryManager {
         const categoryInfo = {};
         categoryInfo["id"] = newCategoryId;
         categoryInfo["name"] = categoryName;
+        categoryInfo["super_category"] = categoryName;
 
         this.categoryDict[newCategoryId] = categoryInfo;
         return true;
@@ -225,6 +230,7 @@ class CategoryManager {
         const categoryId = category.getCategoryId();
         // Update the category name
         this.categoryDict[categoryId]["name"] = newCategoryName;
+        this.categoryDict[categoryId]["super_category"] = newCategoryName;
     }
 }
 
@@ -254,6 +260,13 @@ class Category {
     getCategoryName() {
         const categoryManager = new CategoryManager();
         return categoryManager.getCategoryNameByCategoryId(this.categoryId);
+    }
+
+    getSuperCategoryName() {
+        const categoryManager = new CategoryManager();
+        return categoryManager.getSuperCategoryNameByCategoryId(
+            this.categoryId
+        );
     }
 
     /**

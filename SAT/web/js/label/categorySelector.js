@@ -85,7 +85,7 @@ class CategorySelector {
         const labelTextSmallButton =
             labelSmallButton.querySelector(".labelText");
 
-        if (category.getCategoryId() == Category.PREDICTED_CORAL_ID) {
+        if (category.getCategoryId() == Category.UNDEFINED_ID) {
             colorBoxSmallButton.style.backgroundColor =
                 CategorySelector.UNDEFINED_COLOR;
             colorBoxSmallButton.style.borderColor =
@@ -111,7 +111,7 @@ class CategorySelector {
                 toggleFn.ToggleInput._hide();
             }
 
-            if (category.getCategoryId() == Category.PREDICTED_CORAL_ID) {
+            if (category.getCategoryId() == Category.UNDEFINED_ID) {
                 this.setSelectedCategory(null);
             } else {
                 this.setSelectedCategory(category);
