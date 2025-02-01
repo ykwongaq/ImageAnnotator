@@ -70,7 +70,6 @@ class Data:
         # Convert the segmentation mask encoding to RLE for front end visualization
         segmentation = copy.deepcopy(self.segmentation)
         for annotation in segmentation["annotations"]:
-            print(f"annotation: {annotation}")
             annotation["rle"] = rle_mask_to_rle_vis_encoding(annotation["segmentation"])
 
         return {
