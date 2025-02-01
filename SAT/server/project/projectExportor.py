@@ -67,7 +67,7 @@ class ProjectExportor:
             image = Image.fromarray(image)
             image.save(os.path.join(output_annotated_image_folder, data["image_name"]))
 
-    def is_file_path(self, path):
+    def is_file_path(self, path: str) -> bool:
         # Check if the path looks like a file (e.g., has an extension)
         return not path.endswith(os.sep) and os.path.splitext(path)[1] != ""
 
@@ -122,7 +122,7 @@ class ProjectExportor:
             category_json = CategoryJson()
             category_json.set_id(category["id"])
             category_json.set_name(category["name"])
-            category_json.set_super_category(category["super_category"])
+            category_json.set_supercategory(category["supercategory"])
             coco_json.add_category(category_json)
 
         save_json(coco_json.to_json(), output_coco_file)

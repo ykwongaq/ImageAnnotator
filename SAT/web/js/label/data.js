@@ -113,7 +113,7 @@ class CategoryManager {
     }
 
     getSuperCategoryNameByCategoryId(categoryId) {
-        return this.categoryDict[categoryId]["super_category"];
+        return this.categoryDict[categoryId]["supercategory"];
     }
 
     /**
@@ -164,7 +164,7 @@ class CategoryManager {
         const categoryInfo = {};
         categoryInfo["id"] = newCategoryId;
         categoryInfo["name"] = categoryName;
-        categoryInfo["super_category"] = categoryName;
+        categoryInfo["supercategory"] = categoryName;
 
         this.categoryDict[newCategoryId] = categoryInfo;
         return true;
@@ -230,7 +230,7 @@ class CategoryManager {
         const categoryId = category.getCategoryId();
         // Update the category name
         this.categoryDict[categoryId]["name"] = newCategoryName;
-        this.categoryDict[categoryId]["super_category"] = newCategoryName;
+        this.categoryDict[categoryId]["supercategory"] = newCategoryName;
     }
 }
 

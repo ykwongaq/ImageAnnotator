@@ -128,8 +128,7 @@ def export_coco(output_path: str):
 
 @eel.expose
 def import_json(input_path: str):
-    # server.import_json(input_path)
-    pass
+    server.import_json(input_path)
 
 
 if __name__ == "__main__":

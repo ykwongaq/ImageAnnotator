@@ -13,11 +13,12 @@ from .project import (
     ProjectCreator,
     ProjectLoader,
     ProjectExportor,
+    JsonImportor,
     ProjectSaver,
 )
 from .util.requests import ProjectCreateRequest
 from .dataset import Dataset, Data
-from .util.coco import to_coco_annotation, coco_mask_to_rle
+from .util.coco import to_coco_annotation, rle_mask_to_rle_vis_encoding
 from .util.requests import FileDialogRequest
 
 from typing import Dict, List, Tuple
@@ -385,7 +386,7 @@ class Server:
         mask = self.mask_creator.create_mask(prompts)
         annotation = to_coco_annotation(mask)
         annotation["category_id"] = -2  # Category id for prompted mask
-        annotation["rle"] = coco_mask_to_rle(annotation["segmentation"])
+        annotation["rle"] = rle_mask_to_rle_vis_encoding(annotation["segmentation"])
 
         return annotation
 
@@ -411,4 +412,31 @@ class Server:
     def import_json(self, input_path: str):
         self.logger.info(f"Importing JSON from {input_path} ...")
 
-        pass
+        json_importor = JsonImportor()
+        improted_dataset = json_importor.import_json(input_path)
+
+        for data in self.dataset.get_data_list():
+            # Find the matched data
+            current_image_name = data.get_image_name()
+            for imported_data in improted_dataset.get_data_list():
+                imported_image_name = imported_data.get_image_name()
+                if current_image_name == imported_image_name:
+                    # Update the segmentation json information
+                    self.logger.info(f"Matching data found for {current_image_name}")
+                    data_idx = data.get_idx()
+                    segmentation = imported_data.get_segmentation()
+                    segmentation["images"][0]["id"] = data_idx
+
+                    for annotation in segmentation["annotations"]:
+                        annotation["image_id"] = data_idx
+
+                    data.set_segmentation(segmentation)
+                    break
+                else:
+                    # No matching data found
+                    self.logger.info(f"No matching data found for {current_image_name}")
+                    # Set the annotation to empty
+                    image_data = data.get_segmentation()["images"][0]
+                    data.set_segmentation({"images": [image_data], "annotations": []})
+
+        self.dataset.set_category_info(improted_dataset.get_category_info())

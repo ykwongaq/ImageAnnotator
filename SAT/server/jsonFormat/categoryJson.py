@@ -2,7 +2,7 @@ class CategoryJson:
     def __init__(self):
         self.id = None
         self.name = None
-        self.super_category = None
+        self.supercategory = None
 
     def set_id(self, id: int):
         self.id = id
@@ -10,15 +10,15 @@ class CategoryJson:
     def set_name(self, name: str):
         self.name = name
 
-    def set_super_category(self, super_category: str):
-        self.super_category = super_category
+    def set_supercategory(self, supercategory: str):
+        self.supercategory = supercategory
 
     def to_json(self):
         assert self.id is not None, "id is not set"
         assert self.name is not None, "name is not set"
-        assert self.super_category is not None, "super_category is not set"
+        assert self.supercategory is not None, "supercategory is not set"
         return {
             "id": self.id,
             "name": self.name,
-            "supercategory": self.super_category,
+            "supercategory": self.supercategory,
         }

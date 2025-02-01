@@ -136,6 +136,7 @@ class Core {
                             }
                         })
                         .catch((error) => {
+                            loadingPopManager.hide();
                             if (errorCallBack != null) {
                                 errorCallBack(error);
                             } else {
@@ -477,9 +478,8 @@ class Core {
             .catch((error) => {
                 if (callBackError != null) {
                     callBackError(error);
-                } else {
-                    this.popUpError(error);
                 }
+                this.popUpError(error);
             });
     }
 
@@ -498,11 +498,10 @@ class Core {
                     };
                     annotatedDataInfoList.push(annotatedDataInfo);
                 } catch (error) {
-                    if (errorCallBack != null) {
-                        errorCallBack(error);
-                    } else {
-                        this.popUpError(error);
+                    if (callBackError != null) {
+                        callBackError(error);
                     }
+                    this.popUpError(error);
                 }
             }
             eel.export_annotated_images(outputDir, annotatedDataInfoList)()
@@ -512,11 +511,10 @@ class Core {
                     }
                 })
                 .catch((error) => {
-                    if (errorCallBack != null) {
-                        errorCallBack(error);
-                    } else {
-                        this.popUpError(error);
+                    if (callBackError != null) {
+                        callBackError(error);
                     }
+                    this.popUpError(error);
                 });
         });
     }
@@ -529,11 +527,10 @@ class Core {
                 }
             })
             .catch((error) => {
-                if (errorCallBack != null) {
-                    errorCallBack(error);
-                } else {
-                    this.popUpError(error);
+                if (callBackError != null) {
+                    callBackError(error);
                 }
+                this.popUpError(error);
             });
     }
 
@@ -550,11 +547,10 @@ class Core {
                 }
             })
             .catch((error) => {
-                if (errorCallBack != null) {
-                    errorCallBack(error);
-                } else {
-                    this.popUpError(error);
+                if (callBackError != null) {
+                    callBackError(error);
                 }
+                this.popUpError(error);
             });
     }
 
@@ -626,11 +622,50 @@ class Core {
         fileDialogRequest.setTitle("Import JSON File");
         fileDialogRequest.addFileType("JSON File", "*.json");
         this.selectFile(fileDialogRequest, (filePath) => {
+            const loadingPopManager = new LoadingPopManager();
+            loadingPopManager.clear();
+            loadingPopManager.updateLargeText("Importing JSON...");
+            loadingPopManager.updateText("Please wait...");
+            loadingPopManager.show();
+
             eel.import_json(filePath)()
                 .then(() => {
-                    alert("Successfully imported JSON");
+                    eel.get_current_data()()
+                        .then((response) => {
+                            if (response === null) {
+                                alert("Failed to load data");
+                                return;
+                            }
+
+                            // Update the category information
+                            const categoryManager = new CategoryManager();
+                            categoryManager.updateCategoryList(
+                                response["category_info"]
+                            );
+
+                            // Clear all selected masks
+                            const maskSelector = new MaskSelector();
+                            maskSelector.clearSelection();
+
+                            // Clear all prompting masks
+                            const maskCreator = new MaskCreator();
+                            maskCreator.clearPrompts();
+
+                            const data = Data.parseResponse(response);
+                            this.setData(data);
+                            this.dataHistoryManager = new HistoryManager(
+                                Core.DEFAULT_HISTORY_SIZE
+                            );
+                            this.showData();
+                            loadingPopManager.hide();
+                        })
+                        .catch((error) => {
+                            loadingPopManager.hide();
+                            this.popUpError(error);
+                        });
                 })
                 .catch((error) => {
+                    loadingPopManager.hide();
                     this.popUpError(error);
                 });
         });

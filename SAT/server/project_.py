@@ -311,7 +311,7 @@ class ProjectCreator:
             category_json = CategoryJson()
             category_json.set_id(category["id"])
             category_json.set_name(category["name"])
-            category_json.set_super_category(category["super_category"])
+            category_json.set_supercategory(category["supercategory"])
             project_info_json.add_category_info(category_json)
 
         project_info_json.set_last_image_idx(dataset.get_last_saved_id())
@@ -555,7 +555,7 @@ class ProjectExport:
             category_json = CategoryJson()
             category_json.set_id(category["id"])
             category_json.set_name(category["name"])
-            category_json.set_super_category(category["super_category"])
+            category_json.set_supercategory(category["supercategory"])
             coco_json.add_category(category_json)
 
         save_json(coco_json.to_json(), output_coco_file)
