@@ -602,4 +602,37 @@ class Core {
         errorPopManager.show();
         console.error(error);
     }
+
+    importJson() {
+        // Ask user to confirm import JSON
+        const generalPopManager = new GeneralPopManager();
+        generalPopManager.clear();
+        generalPopManager.updateLargeText("Import JSON");
+        generalPopManager.updateText(
+            "Importing JSON will overwrite all the annotation. Are you sure?"
+        );
+        generalPopManager.addButton("cancel-button", "Cancel", () => {
+            generalPopManager.hide();
+        });
+        generalPopManager.addButton("import-button", "Import", () => {
+            generalPopManager.hide();
+            this.importJson_();
+        });
+        generalPopManager.show();
+    }
+
+    importJson_() {
+        const fileDialogRequest = new FileDialogRequest();
+        fileDialogRequest.setTitle("Import JSON File");
+        fileDialogRequest.addFileType("JSON File", "*.json");
+        this.selectFile(fileDialogRequest, (filePath) => {
+            eel.import_json(filePath)()
+                .then(() => {
+                    alert("Successfully imported JSON");
+                })
+                .catch((error) => {
+                    this.popUpError(error);
+                });
+        });
+    }
 }

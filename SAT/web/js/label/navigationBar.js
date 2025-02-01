@@ -12,6 +12,7 @@ class NavigationBar {
 
         this.galleryButton = this.dom.querySelector("#gallery-button");
         this.labelButton = this.dom.querySelector("#label-button");
+        this.importJsonButton = this.dom.querySelector("#import-json-button");
 
         this.exportButton = this.dom.querySelector("#file-button");
         this.exportDropDownMenu = this.dom.querySelector("#file-dropdown-menu");
@@ -39,6 +40,7 @@ class NavigationBar {
         this.initGalleryButton();
         this.initLabelButton();
         this.initExportButton();
+        this.initImportJsonButton();
         this.initSave();
     }
 
@@ -53,6 +55,13 @@ class NavigationBar {
             this.showPage(NavigationBar.ANNOTATION_PAGE);
             const canvas = new Canvas();
             canvas.resetViewpoint();
+        });
+    }
+
+    initImportJsonButton() {
+        this.importJsonButton.addEventListener("click", () => {
+            const core = new Core();
+            core.importJson();
         });
     }
 
@@ -288,6 +297,7 @@ class NavigationBar {
         this.galleryButton.disabled = true;
         this.labelButton.disabled = true;
         this.exportButton.disabled = true;
+        this.importJsonButton.disabled = true;
         this.disableExport();
         this.disableSave();
     }
@@ -296,6 +306,7 @@ class NavigationBar {
         this.galleryButton.disabled = false;
         this.labelButton.disabled = false;
         this.exportButton.disabled = false;
+        this.importJsonButton.disabled = false;
         this.enableExport();
         this.enableSave();
     }

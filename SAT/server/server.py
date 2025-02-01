@@ -8,7 +8,14 @@ from .embedding import EmbeddingGenerator
 # from .maskEiditor import MaskEidtor
 from .maskCreator import MaskCreator, Prompt
 from .util.general import get_resource_path
-from .project import ProjectCreator, ProjectCreateRequest, ProjectLoader, ProjectExport
+
+from .project import (
+    ProjectCreator,
+    ProjectLoader,
+    ProjectExportor,
+    ProjectSaver,
+)
+from .util.requests import ProjectCreateRequest
 from .dataset import Dataset, Data
 from .util.coco import to_coco_annotation, coco_mask_to_rle
 from .util.requests import FileDialogRequest
@@ -338,8 +345,8 @@ class Server:
 
         self.logger.info(f"Saving the dataset to {output_path} ...")
 
-        project_creator = ProjectCreator(self.embeddings_generator)
-        project_creator.save_dataset(self.dataset, self.get_project_path(), output_path)
+        project_saver = ProjectSaver()
+        project_saver.save_dataset(self.dataset, self.get_project_path(), output_path)
 
     def get_project_path(self) -> str:
         return self.project_path
@@ -385,17 +392,23 @@ class Server:
     @time_it
     def export_images(self, output_dir: str):
         self.logger.info(f"Exporting images to {output_dir} ...")
-        project_export = ProjectExport(self.project_path)
+        project_export = ProjectExportor(self.project_path)
         project_export.export_images(output_dir)
 
     @time_it
     def export_annotated_images(self, output_dir: str, data_list: List[Dict]):
         self.logger.info(f"Exporting annotated images to {output_dir} ...")
-        project_export = ProjectExport(self.project_path)
+        project_export = ProjectExportor(self.project_path)
         project_export.export_annotated_images(output_dir, data_list)
 
     @time_it
     def export_coco(self, output_path: str):
         self.logger.info(f"Exporting COCO dataset to {output_path} ...")
-        project_export = ProjectExport(self.project_path)
+        project_export = ProjectExportor(self.project_path)
         project_export.export_coco(output_path, self.get_dataset())
+
+    @time_it
+    def import_json(self, input_path: str):
+        self.logger.info(f"Importing JSON from {input_path} ...")
+
+        pass

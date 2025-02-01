@@ -126,6 +126,12 @@ def export_coco(output_path: str):
     server.export_coco(output_path)
 
 
+@eel.expose
+def import_json(input_path: str):
+    # server.import_json(input_path)
+    pass
+
+
 if __name__ == "__main__":
     setup_logging()
     print("Please wait for the tool to be ready ...")

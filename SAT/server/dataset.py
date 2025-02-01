@@ -57,7 +57,7 @@ class Data:
             "image_name": "image_name",
             "image_path": "image_path",
             "idx": 0,
-            "segmentation": Coral segmentation following the coco format.
+            "segmentation": Coral segmentation following the rle format.
         }
         """
 
