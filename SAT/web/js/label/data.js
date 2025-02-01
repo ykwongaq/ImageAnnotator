@@ -12,7 +12,8 @@ class CategoryManager {
 
     static COLOR_LIST = [
         "#F6C3CB",
-        "#EB361C",
+        // "#EB361C",
+        "#FFA500",
         "#225437",
         "#F7D941",
         "#73FBFE",
@@ -34,6 +35,7 @@ class CategoryManager {
     ];
 
     static TEXT_COLOR = [
+        "#fff",
         "#000",
         "#fff",
         "#fff",
@@ -128,7 +130,7 @@ class CategoryManager {
     toJson() {
         const categoryInfo = [];
         for (const category of Object.values(this.categoryDict)) {
-            categoryInfo.push(category);
+            categoryInfo.push(structuredClone(category));
         }
         return categoryInfo;
     }
@@ -146,6 +148,9 @@ class CategoryManager {
         if (this.containsCategoryName(categoryName)) {
             return false;
         }
+
+        const core = new Core();
+        core.recordData();
 
         let newCategoryId = categoryId;
         if (newCategoryId === null) {
@@ -190,7 +195,9 @@ class CategoryManager {
     }
 
     /**
-     * Remove the category from the category list and the super category list
+     * Remove the category from the category list and the super category list.
+     * If you have a list of category, please use removeCategories instead,
+     * because it may affect the history manager.
      * @param {Category} category
      */
     removeCategory(category) {
@@ -308,6 +315,7 @@ class Mask {
 
     setId(maskId) {
         this.maskId = maskId;
+        this.annotation["id"] = maskId;
     }
 
     getCategory() {
@@ -316,6 +324,7 @@ class Mask {
 
     setCategory(category) {
         this.category = category;
+        this.annotation["category_id"] = category.getCategoryId();
     }
 
     getArea() {
@@ -417,12 +426,17 @@ class Mask {
             id: this.getId(),
             image_id: this.getImageId(),
             category_id: this.category.getCategoryId(),
-            segmentation: this.annotation["segmentation"],
+            segmentation: structuredClone(this.annotation["segmentation"]),
             area: this.getArea(),
             bbox: this.annotation["bbox"],
             iscrowd: this.annotation["iscrowd"],
             predicted_iou: this.annotation["predicted_iou"],
         };
+    }
+
+    deepCopy() {
+        const annotation = JSON.parse(JSON.stringify(this.annotation));
+        return new Mask(annotation);
     }
 }
 
@@ -475,7 +489,7 @@ class Data {
     }
 
     getImagePath() {
-        return this.imagePath;
+        return encodeURIComponent(this.imagePath);
     }
 
     getIdx() {
@@ -579,5 +593,22 @@ class Data {
         }
 
         return maskId;
+    }
+
+    deepCopy() {
+        const data = new Data();
+        data.setImageName(this.imageName);
+        data.setImagePath(this.imagePath);
+        data.setIdx(this.idx);
+        data.setImageWidth(this.imageWidth);
+        data.setImageHeight(this.imageHeight);
+
+        const masks = [];
+        for (const mask of this.masks) {
+            masks.push(mask.deepCopy());
+        }
+        data.setMasks(masks);
+
+        return data;
     }
 }

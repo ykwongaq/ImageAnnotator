@@ -35,6 +35,11 @@ class PreprocessPage {
         const navigationBar = new NavigationBar(navigationBarDom);
         navigationBar.init();
 
+        // Settting Page
+        const settingPage = document.getElementById("settingPage");
+        this.configPage = new ConfigPage(settingPage);
+        this.configPage.init();
+
         this.galleryItems = [];
     }
 
@@ -175,9 +180,14 @@ class PreprocessPage {
             this.disableCreateProjectButton();
             this.disableNavigationButton();
 
+            const fileDialogRequest = new FileDialogRequest();
+            fileDialogRequest.setTitle("Save SAT Project File");
+            fileDialogRequest.addFileType("SAT Project File", "*.sat");
+            fileDialogRequest.setDefaultExt(".sat");
+
             // Ask user to select the project folder
-            eel.select_folder()((projectPath) => {
-                // If user does not select any folder, do nothing
+            const core = new Core();
+            core.selectSaveFile(fileDialogRequest, (projectPath) => {
                 if (projectPath === null) {
                     this.enableCreateProjectButton();
                     this.enableNavigationButton();
@@ -186,12 +196,15 @@ class PreprocessPage {
 
                 // Configure the loading pop up window
                 const loadingPopManager = new LoadingPopManager();
-                loadingPopManager.updateLargeText("Hold Tight!");
+                loadingPopManager.clear();
+                loadingPopManager.updateLargeText(
+                    LoadingPopManager.DEFAULT_TITLE
+                );
+                loadingPopManager.updateText(LoadingPopManager.DEFAULT_CONTENT);
                 loadingPopManager.show();
-                loadingPopManager.updateButtonFn(() => {
-                    console.log("Quit button clicked.");
+                loadingPopManager.addButton("quit-button", "Quit", () => {
                     loadingPopManager.updateLargeText("Terminating...");
-                    eel.terminate_create_project_process()();
+                    core.terminateCreateProjectProcess();
                 });
 
                 /**
@@ -201,7 +214,7 @@ class PreprocessPage {
                  * 2. afterProjectCreation
                  */
                 const createProjectRequest = new CreateProjectRequest();
-                createProjectRequest.setOutputDir(projectPath);
+                createProjectRequest.setOutputPath(projectPath);
                 const selectedImageNames =
                     this.imageSelector.getSelectedImageNames();
                 selectedImageNames.sort((a, b) => a.localeCompare(b));
@@ -214,7 +227,7 @@ class PreprocessPage {
                     createProjectRequest.addInput(image_url, selectedImageName);
                 }
 
-                eel.create_project(createProjectRequest.toDict())();
+                core.createProject(createProjectRequest);
             });
         });
     }
@@ -348,28 +361,6 @@ class PreprocessPage {
     disableNavigationButton() {
         this.backMainPageButton.enabled = false;
     }
-}
-
-/**
- * This function will be called in the server side
- * Update the precentage text shown in the loading pop window
- * @param {number} percentage
- */
-eel.expose(updateProgressPercentage);
-function updateProgressPercentage(percentage) {
-    const loadingPopManager = new LoadingPopManager();
-    loadingPopManager.updatePercentage(percentage);
-}
-
-/**
- * This function will be called in the server side.
- * It will be called after the project creation process is done.
- * @param {Object} status
- */
-eel.expose(afterProjectCreation);
-function afterProjectCreation(status) {
-    const preprocessPage = new PreprocessPage();
-    preprocessPage.afterProjectCreation(status);
 }
 
 function main() {

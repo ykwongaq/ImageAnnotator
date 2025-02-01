@@ -15,7 +15,12 @@ class NavigationBar {
 
         this.exportButton = this.dom.querySelector("#file-button");
         this.exportDropDownMenu = this.dom.querySelector("#file-dropdown-menu");
+        this.exportImageButton = this.dom.querySelector("#export-image-button");
+        this.exportAnnotatedImageButton = this.dom.querySelector(
+            "#export-annotated-image-button"
+        );
         this.exportCOCOButton = this.dom.querySelector("#export-coco-button");
+        this.exportAllButton = this.dom.querySelector("#export-all-button");
 
         this.saveDropdownButton = this.dom.querySelector(
             "#save-drop-down-button"
@@ -46,6 +51,8 @@ class NavigationBar {
     initLabelButton() {
         this.labelButton.addEventListener("click", () => {
             this.showPage(NavigationBar.ANNOTATION_PAGE);
+            const canvas = new Canvas();
+            canvas.resetViewpoint();
         });
     }
 
@@ -57,24 +64,116 @@ class NavigationBar {
                     : "block";
         });
 
-        this.exportCOCOButton.addEventListener("click", () => {
+        this.exportImageButton.addEventListener("click", () => {
             const core = new Core();
             core.save(() => {
-                core.selectFolder((fileFolder) => {
+                this.disable();
+                core.selectFolder(null, (fileFolder) => {
                     if (fileFolder === null) {
+                        console.log("No folder selected");
+                        this.enable();
                         return;
                     }
 
-                    const generalPopManager = new GeneralPopManager();
-                    generalPopManager.clear();
-                    generalPopManager.updateLargeText("Export");
-                    generalPopManager.updateText(
-                        "Exporting the COCO Json file. Please wait."
+                    const loadingPopManager = new LoadingPopManager();
+                    loadingPopManager.clear();
+                    loadingPopManager.updateLargeText("Exporting");
+                    loadingPopManager.updateText(
+                        "Exporting the images. Please wait."
                     );
-                    generalPopManager.show();
+                    loadingPopManager.show();
 
-                    core.exportCOCO(fileFolder, () => {
-                        generalPopManager.hide();
+                    core.exportImages(fileFolder, () => {
+                        loadingPopManager.hide();
+                        this.enable();
+                    });
+                });
+            });
+        });
+
+        this.exportAnnotatedImageButton.addEventListener("click", () => {
+            const core = new Core();
+            core.save(() => {
+                this.disable();
+                core.selectFolder(null, (fileFolder) => {
+                    if (fileFolder === null) {
+                        this.enable();
+                        return;
+                    }
+
+                    const loadingPopManager = new LoadingPopManager();
+                    loadingPopManager.clear();
+                    loadingPopManager.updateLargeText("Exporting");
+                    loadingPopManager.updateText(
+                        "Exporting the annotated images. Please wait."
+                    );
+                    loadingPopManager.show();
+
+                    core.exportAnnotatedImages(fileFolder, () => {
+                        loadingPopManager.hide();
+                        this.enable();
+                    });
+                });
+            });
+        });
+
+        this.exportCOCOButton.addEventListener("click", () => {
+            const core = new Core();
+            core.save(() => {
+                this.disable();
+
+                const request = new FileDialogRequest();
+                request.setTitle("Select the folder to save the coco json");
+                request.addFileType("COCO JSON File", ["*.json"]);
+                request.setDefaultExt(".json");
+
+                core.selectSaveFile(request, (filePath) => {
+                    if (filePath === null) {
+                        this.enable();
+                        return;
+                    }
+
+                    const loadingPopManager = new LoadingPopManager();
+                    loadingPopManager.clear();
+                    loadingPopManager.updateLargeText("Exporting");
+                    loadingPopManager.updateText(
+                        "Exporting the coco json. Please wait."
+                    );
+                    loadingPopManager.show();
+
+                    core.exportCOCO(filePath, () => {
+                        loadingPopManager.hide();
+                        this.enable();
+                    });
+                });
+            });
+        });
+
+        this.exportAllButton.addEventListener("click", () => {
+            const core = new Core();
+            core.save(() => {
+                this.disable();
+                core.selectFolder(null, (fileFolder) => {
+                    if (fileFolder === null) {
+                        this.enable();
+                        return;
+                    }
+
+                    const loadingPopManager = new LoadingPopManager();
+                    loadingPopManager.clear();
+                    loadingPopManager.updateLargeText("Exporting");
+                    loadingPopManager.updateText(
+                        "Exporting all the files. Please wait."
+                    );
+                    loadingPopManager.show();
+
+                    core.exportImages(fileFolder, () => {
+                        core.exportAnnotatedImages(fileFolder, () => {
+                            core.exportCOCO(fileFolder, () => {
+                                loadingPopManager.hide();
+                                this.enable();
+                            });
+                        });
                     });
                 });
             });
@@ -97,19 +196,21 @@ class NavigationBar {
         });
 
         this.saveButton.addEventListener("click", () => {
-            const generalPopManager = new GeneralPopManager();
-            generalPopManager.clear();
-            generalPopManager.updateLargeText("Save");
-            generalPopManager.updateText(
+            this.disable();
+            const loadingPopManager = new LoadingPopManager();
+            loadingPopManager.clear();
+            loadingPopManager.updateLargeText("Save");
+            loadingPopManager.updateText(
                 "Saving the current project. Please wait."
             );
-            generalPopManager.show();
+            loadingPopManager.show();
 
             const core = new Core();
             // Save the current data first and then save the dataset
             core.save(() => {
                 core.saveDataset(null, () => {
-                    generalPopManager.hide();
+                    loadingPopManager.hide();
+                    this.enable();
                 });
             });
         });
@@ -117,21 +218,29 @@ class NavigationBar {
         this.saveToButton.addEventListener("click", () => {
             const core = new Core();
             core.save(() => {
-                core.selectFolder((fileFolder) => {
-                    if (fileFolder === null) {
+                this.disable();
+                const fileDialogRequest = new FileDialogRequest();
+                fileDialogRequest.setTitle("Save SAT Project File");
+                fileDialogRequest.addFileType("SAT Project File", "*.sat");
+                fileDialogRequest.setDefaultExt(".sat");
+
+                core.selectSaveFile(fileDialogRequest, (filePath) => {
+                    if (filePath === null) {
+                        this.enable();
                         return;
                     }
 
-                    const generalPopManager = new GeneralPopManager();
-                    generalPopManager.clear();
-                    generalPopManager.updateLargeText("Save");
-                    generalPopManager.updateText(
+                    const loadingPopManager = new LoadingPopManager();
+                    loadingPopManager.clear();
+                    loadingPopManager.updateLargeText("Save");
+                    loadingPopManager.updateText(
                         "Saving the current project. Please wait."
                     );
-                    generalPopManager.show();
+                    loadingPopManager.show();
 
-                    core.saveDataset(fileFolder, () => {
-                        generalPopManager.hide();
+                    core.saveDataset(filePath, () => {
+                        loadingPopManager.hide();
+                        this.enable();
                     });
                 });
             });
@@ -178,14 +287,40 @@ class NavigationBar {
     disable() {
         this.galleryButton.disabled = true;
         this.labelButton.disabled = true;
-        this.statisticButton.disabled = true;
         this.exportButton.disabled = true;
+        this.disableExport();
+        this.disableSave();
     }
 
     enable() {
         this.galleryButton.disabled = false;
         this.labelButton.disabled = false;
-        this.statisticButton.disabled = false;
         this.exportButton.disabled = false;
+        this.enableExport();
+        this.enableSave();
+    }
+
+    disableExport() {
+        this.exportImageButton.disabled = true;
+        this.exportAnnotatedImageButton.disabled = true;
+        this.exportCOCOButton.disabled = true;
+        this.exportAllButton.disabled = true;
+    }
+
+    enableExport() {
+        this.exportImageButton.disabled = false;
+        this.exportAnnotatedImageButton.disabled = false;
+        this.exportCOCOButton.disabled = false;
+        this.exportAllButton.disabled = false;
+    }
+
+    disableSave() {
+        this.saveButton.disabled = true;
+        this.saveToButton.disabled = true;
+    }
+
+    enableSave() {
+        this.saveButton.disabled = false;
+        this.saveToButton.disabled = false;
     }
 }

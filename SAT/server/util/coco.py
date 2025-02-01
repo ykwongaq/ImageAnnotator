@@ -4,7 +4,7 @@ from typing import Dict, List
 import cv2
 
 
-def coco_rle_to_rle(segmentation: Dict) -> List[int]:
+def coco_mask_to_rle(segmentation: Dict) -> List[int]:
     arr = coco_mask.decode(segmentation)
 
     # Flatten the 2D array to a 1D array

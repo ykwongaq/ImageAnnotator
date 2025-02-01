@@ -2,7 +2,8 @@ import logging
 import eel
 
 from server.server import Server
-from typing import List, Dict
+from typing import List, Dict, Tuple
+from server.util.requests import FileDialogRequest
 
 
 # Initialize logging
@@ -28,13 +29,21 @@ def setup_logging():
 
 
 @eel.expose
-def select_folder():
-    return server.select_folder()
+def select_folder(request: Dict) -> str:
+    file_dialog_request = FileDialogRequest(request)
+    return server.select_folder(file_dialog_request)
 
 
 @eel.expose
-def select_file():
-    return server.select_file()
+def select_file(request: Dict) -> str:
+    file_dialog_request = FileDialogRequest(request)
+    return server.select_file(file_dialog_request)
+
+
+@eel.expose
+def select_save_file(request: Dict) -> str:
+    file_dialog_request = FileDialogRequest(request)
+    return server.select_save_file(file_dialog_request)
 
 
 @eel.expose
@@ -88,8 +97,8 @@ def save_data(data: Dict):
 
 
 @eel.expose
-def save_dataset(output_dir: str):
-    server.save_dataset(output_dir)
+def save_dataset(output_path: str):
+    server.save_dataset(output_path)
 
 
 @eel.expose
@@ -110,12 +119,11 @@ def export_images(output_dir: str):
 @eel.expose
 def export_annotated_images(output_dir: str, data_list: List[Dict]):
     server.export_annotated_images(output_dir, data_list)
-    pass
 
 
 @eel.expose
-def export_coco(output_dir: str):
-    server.export_coco(output_dir)
+def export_coco(output_path: str):
+    server.export_coco(output_path)
 
 
 if __name__ == "__main__":

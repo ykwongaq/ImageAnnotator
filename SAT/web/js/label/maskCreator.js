@@ -78,9 +78,8 @@ class MaskCreator {
         }
 
         const core = new Core();
-        core.createPromptedMask(this.prompts).then((annotation) => {
+        core.createPromptedMask(this.prompts, (annotation) => {
             this.mask = new Mask(annotation);
-
             canvas.showPromptedMask(this.mask, this.prompts);
         });
     }
@@ -90,8 +89,23 @@ class MaskCreator {
      * After that, clear the prompts.
      */
     confirmPrompt() {
-        // Add the mask into the
+        if (this.mask === null) {
+            return;
+        }
+
+        // Check is user select the prompt mask category
+        const actionPanel = new ActionPanel();
+        const promptCategorySelector = actionPanel.getPromptCategorySelector();
+        const selectedCategory = promptCategorySelector.getSelectedCategory();
+        if (selectedCategory) {
+            this.mask.setCategory(selectedCategory);
+        }
+
+        // Record data
         const core = new Core();
+        core.recordData();
+
+        // Add the mask into the data
         const data = core.getData();
         data.addMask(this.mask);
 

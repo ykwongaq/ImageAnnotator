@@ -36,7 +36,6 @@ pip install -r requirements.txt
 
 Create `models` folder
 
-
 ### Download SAM model
 
 Download two models, `vit_h_decoder_quantized.onnx` and `vit_h_encoder_quantized.onnx`, from [OneDrive](https://hkustconnect-my.sharepoint.com/:f:/g/personal/ykwongaq_connect_ust_hk/EhRCvPn3zYRHjaGm43XYOz8ByFFJr6n9l75Gi7KkoEuVVA?e=PXGTcO), and save them into the models folder.
@@ -51,7 +50,9 @@ SAT
 ```
 
 ## 5. Lanuch the tool
+
 Execute the following command to lanuch the tool
+
 ```bash
 python main.py
 ```

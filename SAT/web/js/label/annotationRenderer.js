@@ -5,6 +5,7 @@ class AnnotationRenderer {
 
         this.data = null;
         this.imageCache = new Image();
+        this.borderCache = new Image();
         this.maskCache = new Image();
         this.textCache = new Image();
 
@@ -35,18 +36,20 @@ class AnnotationRenderer {
             }
 
             this.imageCache.src = imagePath;
-            console.log("Loading image", this.data.getImageName());
-            this.imageCache.onload = () => {
-                console.log("Image loaded", this.data.getImageName());
+            this.imageCache.onload = async () => {
                 this.imageWidth = this.data.getImageWidth();
                 this.imageHeight = this.data.getImageHeight();
                 this.canvas.width = this.imageWidth;
                 this.canvas.height = this.imageHeight;
                 this.resetViewpoint();
-                this.updateMasks();
-                this.draw();
 
-                resolve();
+                try {
+                    await this.updateMasks();
+                    this.draw();
+                    resolve();
+                } catch (err) {
+                    reject(err);
+                }
             };
             this.imageCache.onerror = (err) => {
                 reject(`Failed to load image: ${imagePath}`);
@@ -88,17 +91,6 @@ class AnnotationRenderer {
             return;
         }
 
-        // this.ctx.clearRect(
-        //     this.origin.x,
-        //     this.origin.y,
-        //     this.canvas.width / this.scale,
-        //     this.canvas.height / this.scale
-        // );
-        // this.ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset the transform matrix
-        // this.ctx.scale(this.scale, this.scale);
-        // this.ctx.translate(-this.origin.x, -this.origin.y);
-
-        // this.resetImageBoundary();
         this.image_top_left = {
             x: Math.floor(-this.origin.x * this.scale),
             y: Math.floor(-this.origin.y * this.scale),
@@ -115,15 +107,54 @@ class AnnotationRenderer {
         this.ctx.drawImage(this.imageCache, 0, 0);
 
         this.ctx.globalAlpha = this.maskOpacity;
-        console.log("Drawing masks with mask opacity", this.maskOpacity);
         this.ctx.drawImage(this.maskCache, 0, 0);
         this.ctx.globalAlpha = 1.0;
+        this.ctx.drawImage(this.borderCache, 0, 0);
         this.ctx.drawImage(this.textCache, 0, 0);
     };
 
     updateMasks() {
-        this.drawMasks();
-        this.drawTexts();
+        return new Promise((resolve, reject) => {
+            try {
+                const maskDataUrl = this.drawMasks();
+                const borderDataUrl = this.drawsBorder();
+                const textDataUrl = this.drawTexts();
+
+                // We must ensure both images are fully loaded before resolving
+                let imagesLoaded = 0;
+                const handleLoaded = () => {
+                    imagesLoaded++;
+                    // When both maskCache and textCache finish loading, we can resolve
+                    if (imagesLoaded === 3) {
+                        resolve();
+                    }
+                };
+
+                this.maskCache.onload = handleLoaded;
+                this.maskCache.onerror = (e) => {
+                    console.error("Failed to load maskCache", e);
+                    reject(e);
+                };
+
+                this.textCache.onload = handleLoaded;
+                this.textCache.onerror = (e) => {
+                    console.error("Failed to load textCache", e);
+                    reject(e);
+                };
+
+                this.borderCache.onload = handleLoaded;
+                this.borderCache.onerror = (e) => {
+                    console.error("Failed to load borderCache", e);
+                    reject(e);
+                };
+
+                this.maskCache.src = maskDataUrl;
+                this.textCache.src = textDataUrl;
+                this.borderCache.src = borderDataUrl;
+            } catch (error) {
+                reject(error);
+            }
+        });
     }
 
     drawMasks() {
@@ -133,8 +164,6 @@ class AnnotationRenderer {
         maskCanvas.height = this.imageHeight;
 
         const masks = this.data.getMasks();
-        console.log("Updateing masks", this.data.getImageName());
-        console.log("Masks", masks);
         const imageData = maskCtx.getImageData(
             0,
             0,
@@ -165,20 +194,71 @@ class AnnotationRenderer {
                     data_[index + 3] = 255; // Alpha (0.5 transparency -> 128)
                 }
             }
-            console.log("Mask count", count);
         }
 
         // Put the modified image data back to the canvas
         maskCtx.putImageData(imageData, 0, 0);
+        return maskCanvas.toDataURL();
 
-        const radius = Math.min(this.imageWidth, this.imageHeight) * 0.003;
+        // const radius = Math.min(this.imageWidth, this.imageHeight) * 0.003;
+        // // Draw the border
+        // for (const mask of masks) {
+        //     if (!mask.shouldDisplay()) {
+        //         continue;
+        //     }
+
+        //     if (!mask.getCategory().isBleached()) {
+        //         continue;
+        //     }
+
+        //     const maskData = mask.getDecodedMask();
+
+        //     for (let i = 0; i < maskData.length; i++) {
+        //         if (maskData[i] === 1) {
+        //             const x = i % this.imageWidth;
+        //             const y = Math.floor(i / this.imageWidth);
+
+        //             // Check if this pixel is on the border by checking its neighbors
+        //             const isBorder = [
+        //                 maskData[i - 1], // Left
+        //                 maskData[i + 1], // Right
+        //                 maskData[i - this.imageWidth], // Top
+        //                 maskData[i + this.imageWidth], // Bottom
+        //             ].some(
+        //                 (neighbor) => neighbor === 0 || neighbor === undefined
+        //             );
+
+        //             if (isBorder) {
+        //                 maskCtx.beginPath();
+        //                 maskCtx.arc(x, y, radius, 0, 2 * Math.PI); // 2.5 radius for 5px diameter
+        //                 maskCtx.fillStyle = mask.getCategory().getBorderColor();
+        //                 maskCtx.fill();
+        //             }
+        //         }
+        //     }
+        // }
+
+        // return maskCanvas.toDataURL();
+    }
+
+    drawsBorder() {
+        const borderCanvas = document.createElement("canvas");
+        const borderCtx = borderCanvas.getContext("2d");
+        borderCanvas.width = this.imageWidth;
+        borderCanvas.height = this.imageHeight;
+
+        const masks = this.data.getMasks();
+        const imageData = borderCtx.getImageData(
+            0,
+            0,
+            this.imageWidth,
+            this.imageHeight
+        );
+
+        const radius = Math.min(this.imageWidth, this.imageHeight) * 0.0015;
         // Draw the border
         for (const mask of masks) {
             if (!mask.shouldDisplay()) {
-                continue;
-            }
-
-            if (!mask.getCategory().isBleached()) {
                 continue;
             }
 
@@ -200,16 +280,18 @@ class AnnotationRenderer {
                     );
 
                     if (isBorder) {
-                        maskCtx.beginPath();
-                        maskCtx.arc(x, y, radius, 0, 2 * Math.PI); // 2.5 radius for 5px diameter
-                        maskCtx.fillStyle = mask.getCategory().getBorderColor();
-                        maskCtx.fill();
+                        borderCtx.beginPath();
+                        borderCtx.arc(x, y, radius, 0, 2 * Math.PI); // 2.5 radius for 5px diameter
+                        borderCtx.fillStyle = mask
+                            .getCategory()
+                            .getBorderColor();
+                        borderCtx.fill();
                     }
                 }
             }
         }
-        this.maskCache = new Image();
-        this.maskCache.src = maskCanvas.toDataURL();
+
+        return borderCanvas.toDataURL();
     }
 
     drawTexts() {
@@ -266,8 +348,10 @@ class AnnotationRenderer {
             }
         }
 
-        this.textCache = new Image();
-        this.textCache.src = textCanvas.toDataURL();
+        // this.textCache = new Image();
+        // this.textCache.src = textCanvas.toDataURL();
+
+        return textCanvas.toDataURL();
     }
 
     resetImageBoundary() {

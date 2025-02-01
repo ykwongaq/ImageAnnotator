@@ -36,5 +36,30 @@ class ViewPanel {
             const canvas = new Canvas();
             canvas.resetViewpoint();
         });
+
+        // Register the shortcut for the label toggle button.
+        // We need ActionManager to handle the shortcut because
+        // different state will have different short cut operation.
+        const actionManager = new ActionManager();
+        actionManager.registerShortCut(ActionManager.DEFAULT_STATE, "s", () => {
+            this.resetViewPointButton.click();
+        });
+        actionManager.registerShortCut(
+            ActionManager.STATE_CREATE_MASK,
+            "s",
+            () => {
+                this.resetViewPointButton.click();
+            }
+        );
+        document.addEventListener("keydown", (event) => {
+            if (actionManager.haveRegisteredDocumentEvent(event)) {
+                return;
+            }
+            const key = event.key.toLowerCase();
+            if (key === "s") {
+                actionManager.handleShortCut(key, event);
+                actionManager.addRegisteredDocumentEvent(event);
+            }
+        });
     }
 }

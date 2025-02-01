@@ -83,16 +83,21 @@ function main() {
             generalPopManager.updateText("Loading Project...");
             generalPopManager.show();
             const core = new Core();
-            core.loadProjectFromPath(projectPath, () => {
+            core.loadProject(projectPath, () => {
                 generalPopManager.hide();
             });
         }
     }
 
     window.onbeforeunload = function (event) {
+        // const message = "Are you sure you want to leave?";
+        // event.returnValue = message;
+        // return message;
+
         const core = new Core();
+        console.log(core.getData());
         return core.isDataModified();
     };
 }
 
-main();
+document.addEventListener("DOMContentLoaded", main);

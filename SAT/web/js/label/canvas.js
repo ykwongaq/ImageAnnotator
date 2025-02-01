@@ -14,6 +14,7 @@ class Canvas {
         this.imageCache = new Image();
         this.maskCache = new Image();
         this.textCache = new Image();
+        this.borderCache = new Image();
         this.promptingMaskCache = new Image();
 
         // View control
@@ -28,7 +29,7 @@ class Canvas {
 
         // Mask Display
         this.showMask = true;
-        this.maskOpacity = 0.6;
+        this.maskOpacity = 0.4;
 
         // Image
         this.imageWidth = 0;
@@ -123,6 +124,18 @@ class Canvas {
                 canvasY
             );
 
+            const imageHeight = this.data.getImageHeight();
+            const imageWidth = this.data.getImageWidth();
+
+            if (
+                imageX < 0 ||
+                imageX >= imageWidth ||
+                imageY < 0 ||
+                imageY >= imageHeight
+            ) {
+                return;
+            }
+
             const actionManager = new ActionManager();
             actionManager.leftClickPixel(imageX, imageY);
         });
@@ -138,6 +151,18 @@ class Canvas {
                 canvasX,
                 canvasY
             );
+
+            const imageHeight = this.data.getImageHeight();
+            const imageWidth = this.data.getImageWidth();
+
+            if (
+                imageX < 0 ||
+                imageX >= imageWidth ||
+                imageY < 0 ||
+                imageY >= imageHeight
+            ) {
+                return;
+            }
 
             const actionManager = new ActionManager();
             actionManager.rightClickPixel(imageX, imageY);
@@ -203,6 +228,7 @@ class Canvas {
             this.ctx.globalAlpha = this.maskOpacity;
             this.ctx.drawImage(this.maskCache, 0, 0);
             this.ctx.globalAlpha = 1.0;
+            this.ctx.drawImage(this.borderCache, 0, 0);
             this.ctx.drawImage(this.textCache, 0, 0);
         }
 
@@ -217,6 +243,7 @@ class Canvas {
 
     updateMasks() {
         this.drawMasks();
+        this.drawBorderes();
         this.drawTexts();
     }
 
@@ -261,6 +288,60 @@ class Canvas {
         maskCtx.putImageData(imageData, 0, 0);
         this.maskCache = new Image();
         this.maskCache.src = maskCanvas.toDataURL();
+    }
+
+    drawBorderes() {
+        const borderCanvas = document.createElement("canvas");
+        const borderCtx = borderCanvas.getContext("2d");
+        borderCanvas.width = this.imageWidth;
+        borderCanvas.height = this.imageHeight;
+
+        const masks = this.data.getMasks();
+        const imageData = borderCtx.getImageData(
+            0,
+            0,
+            this.imageWidth,
+            this.imageHeight
+        );
+        const data = imageData.data; // This is a flat array of [r, g, b, a, r, g, b, a, ...]
+
+        const radius = Math.min(this.imageWidth, this.imageHeight) * 0.0015;
+        // Draw the border
+        for (const mask of masks) {
+            if (!mask.shouldDisplay()) {
+                continue;
+            }
+
+            const maskData = mask.getDecodedMask();
+
+            for (let i = 0; i < maskData.length; i++) {
+                if (maskData[i] === 1) {
+                    const x = i % this.imageWidth;
+                    const y = Math.floor(i / this.imageWidth);
+
+                    // Check if this pixel is on the border by checking its neighbors
+                    const isBorder = [
+                        maskData[i - 1], // Left
+                        maskData[i + 1], // Right
+                        maskData[i - this.imageWidth], // Top
+                        maskData[i + this.imageWidth], // Bottom
+                    ].some(
+                        (neighbor) => neighbor === 0 || neighbor === undefined
+                    );
+
+                    if (isBorder) {
+                        borderCtx.beginPath();
+                        borderCtx.arc(x, y, radius, 0, 2 * Math.PI); // 2.5 radius for 5px diameter
+                        borderCtx.fillStyle = mask
+                            .getCategory()
+                            .getBorderColor();
+                        borderCtx.fill();
+                    }
+                }
+            }
+        }
+        this.borderCache = new Image();
+        this.borderCache.src = borderCanvas.toDataURL();
     }
 
     drawTexts() {

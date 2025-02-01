@@ -2,90 +2,233 @@
  * Core of the frontend. It is used to communicate with the backend.
  */
 class Core {
+    static DEFAULT_HISTORY_SIZE = 10;
+    static ISSUE_URL = "https://github.com/ykwongaq/ImageAnnotator/issues";
+
     constructor() {
         if (Core.instance) {
             return Core.instance;
         }
         Core.instance = this;
         this.data = null;
+        this.dataHistoryManager = null;
 
         this.dataModified = false;
 
         return this;
     }
 
-    selectFile(callBack = null) {
-        eel.select_file()((filePath) => {
-            if (filePath === null) {
-                return;
-            }
-            callBack(filePath);
-        });
-    }
+    /**
+     * Select a path to the file
+     * @param {FileDialogRequest} request
+     * @param {function} callBack
+     */
+    selectFile(request, callBack = null, errorCallBack = null) {
+        if (request === null) {
+            request = new FileDialogRequest();
+            request.setTitle("Select File");
+        }
 
-    selectFolder(callBack = null) {
-        eel.select_folder()((folderPath) => {
-            if (folderPath === null) {
-                return;
-            }
-            callBack(folderPath);
-        });
-    }
-
-    loadProject() {
-        this.selectFile((filePath) => {
-            if (filePath === null) {
-                return;
-            }
-
-            eel.load_project(filePath)((galleryDataList) => {
-                eel.get_current_data()((response) => {
-                    // Update the category information
-                    const categoryManager = new CategoryManager();
-                    categoryManager.updateCategoryList(
-                        response["category_info"]
-                    );
-
-                    const galleryPage = new GalleryPage();
-                    galleryPage.updateGallery(galleryDataList);
-
-                    const data = Data.parseResponse(response);
-                    this.setData(data);
-                    this.showData();
-
-                    const navigationBar = new NavigationBar();
-                    navigationBar.showPage(NavigationBar.ANNOTATION_PAGE);
-                });
-            });
-        });
-    }
-
-    loadProjectFromPath(filePath, callBack = null) {
-        eel.load_project(filePath)((galleryDataList) => {
-            eel.get_current_data()((response) => {
-                // Update the category information
-                const categoryManager = new CategoryManager();
-                categoryManager.updateCategoryList(response["category_info"]);
-
-                const galleryPage = new GalleryPage();
-                galleryPage.updateGallery(galleryDataList);
-
-                const data = Data.parseResponse(response);
-                this.setData(data);
-                this.showData();
-
-                const navigationBar = new NavigationBar();
-                navigationBar.showPage(NavigationBar.ANNOTATION_PAGE);
-
-                if (callBack != null) {
-                    callBack();
+        eel.select_file(request.toJson())()
+            .then((filePath) => {
+                if (callBack) {
+                    callBack(filePath);
+                }
+            })
+            .catch((error) => {
+                if (errorCallBack) {
+                    errorCallBack(error);
+                } else {
+                    this.popUpError(error);
                 }
             });
-        });
+    }
+
+    /**
+     * Select a path to the folder
+     * @param {FileDialogRequest} request
+     * @param {function} callBack
+     */
+    selectFolder(request, callBack = null, errorCallBack = null) {
+        if (request === null) {
+            request = new FileDialogRequest();
+            request.setTitle("Select Folder");
+        }
+
+        eel.select_folder(request.toJson())()
+            .then((folderPath) => {
+                if (callBack) {
+                    callBack(folderPath);
+                }
+            })
+            .catch((error) => {
+                if (errorCallBack) {
+                    errorCallBack(error);
+                } else {
+                    this.popUpError(error);
+                }
+            });
+    }
+
+    /**
+     * Select a file path to save a file
+     * @param {FileDialogRequest} request
+     * @param {function} callBack
+     */
+    selectSaveFile(request, callBack = null, errorCallBack = null) {
+        eel.select_save_file(request.toJson())()
+            .then((filePath) => {
+                if (callBack) {
+                    callBack(filePath);
+                }
+            })
+            .catch((error) => {
+                if (errorCallBack) {
+                    errorCallBack(error);
+                } else {
+                    this.popUpError(error);
+                }
+            });
+    }
+
+    loadProject(filePath = null, callBack = null, errorCallBack = null) {
+        const navigationBar = new NavigationBar();
+        navigationBar.disable();
+
+        const loadProject_ = (filePath_, callBack_) => {
+            const loadingPopManager = new LoadingPopManager();
+            loadingPopManager.clear();
+            loadingPopManager.updateLargeText("Loading project...");
+            loadingPopManager.updateText("Please wait...");
+            loadingPopManager.show();
+
+            eel.load_project(filePath_)()
+                .then((galleryDataList) => {
+                    eel.get_current_data()()
+                        .then((response) => {
+                            loadingPopManager.hide();
+
+                            // Update the category information
+                            const categoryManager = new CategoryManager();
+                            categoryManager.updateCategoryList(
+                                response["category_info"]
+                            );
+
+                            const galleryPage = new GalleryPage();
+                            galleryPage.updateGallery(galleryDataList);
+
+                            const data = Data.parseResponse(response);
+                            this.setData(data);
+
+                            this.dataHistoryManager = new HistoryManager(
+                                Core.DEFAULT_HISTORY_SIZE
+                            );
+                            this.showData();
+
+                            navigationBar.showPage(
+                                NavigationBar.ANNOTATION_PAGE
+                            );
+
+                            navigationBar.enable();
+
+                            if (callBack_ != null) {
+                                callBack_();
+                            }
+                        })
+                        .catch((error) => {
+                            if (errorCallBack != null) {
+                                errorCallBack(error);
+                            } else {
+                                this.popUpError(error);
+                            }
+                        });
+                })
+                .catch((error) => {
+                    loadingPopManager.hide();
+                    if (errorCallBack != null) {
+                        errorCallBack(error);
+                    } else {
+                        this.popUpError(error);
+                    }
+                });
+        };
+
+        if (filePath === null) {
+            const fileDialogRequest = new FileDialogRequest();
+            fileDialogRequest.setTitle("Save SAT Project File");
+            fileDialogRequest.addFileType("SAT Project File", "*.sat");
+            this.selectFile(
+                fileDialogRequest,
+                (filePath_) => {
+                    if (filePath_ === null) {
+                        navigationBar.enable();
+                        navigateTo("main_page.html");
+                        return;
+                    }
+                    loadProject_(filePath_, callBack);
+                },
+                (error) => {
+                    if (errorCallBack != null) {
+                        errorCallBack(error);
+                    } else {
+                        const errorPopManager = new ErrorPopManager();
+                        errorPopManager.clear();
+                        errorPopManager.updateLargeText("Error");
+                        errorPopManager.updateText(
+                            `Please re-launch the application. Or report the issue to the developer via <a href="${Core.ISSUE_URL}" target="_blank">Github</a>`
+                        );
+                        errorPopManager.addButton("OK", "OK", () => {
+                            errorPopManager.hide();
+                            navigateTo("main_page.html");
+                        });
+
+                        let errorMsg =
+                            "Error Message:\n\n" +
+                            error.errorText +
+                            "\n\n" +
+                            error.errorTraceback;
+                        errorPopManager.updateTextBox(errorMsg);
+                        errorPopManager.show();
+                    }
+                }
+            );
+        } else {
+            loadProject_(filePath, callBack);
+        }
     }
 
     setData(data) {
         this.data = data;
+    }
+
+    /**
+     * Record current data into the history
+     */
+    recordData() {
+        const categoryManager = new CategoryManager();
+        const categoryInfo = structuredClone(categoryManager.toJson());
+        const data = this.getData();
+        const record = new Record(data.deepCopy(), categoryInfo);
+        this.dataHistoryManager.record(record);
+    }
+
+    loadRecord(record) {
+        // Clear all selected masks
+        const maskSelector = new MaskSelector();
+        maskSelector.clearSelection();
+
+        // Clear all prompting masks
+        const maskCreator = new MaskCreator();
+        maskCreator.clearPrompts();
+
+        const data = record.getData();
+        const categoryInfo = record.getCategoryInfo();
+
+        const categoryManager = new CategoryManager();
+        categoryManager.updateCategoryList(categoryInfo);
+
+        this.setData(data);
+        this.showData();
     }
 
     getData() {
@@ -101,7 +244,7 @@ class Core {
      * }
      * @param {function} callBack
      */
-    save(callBack = null) {
+    save(callBack = null, errorCallBack = null) {
         const data = this.data.toJson();
 
         const categoryManager = new CategoryManager();
@@ -109,65 +252,130 @@ class Core {
 
         data["category_info"] = categoryInfo;
 
-        eel.save_data(data)(() => {
-            this.setDataModified(false);
-            if (callBack != null) {
-                callBack();
-            }
-        });
-    }
-
-    nextData(callBack = null) {
-        this.save(() => {
-            eel.get_next_data()((response) => {
-                if (response === null) {
-                    alert("Failed to load next data");
-                    return;
-                }
-
-                this.setData(Data.parseResponse(response));
-                this.showData();
-
+        eel.save_data(data)()
+            .then(() => {
                 if (callBack != null) {
                     callBack();
                 }
+            })
+            .catch((error) => {
+                if (errorCallBack != null) {
+                    errorCallBack(error);
+                } else {
+                    this.popUpError(error);
+                }
             });
+    }
+
+    nextData(callBack = null, errorCallBack = null) {
+        this.save(() => {
+            eel.get_next_data()()
+                .then((response) => {
+                    if (response === null) {
+                        alert("Failed to load next data");
+                        return;
+                    }
+
+                    // Clear all selected masks
+                    const maskSelector = new MaskSelector();
+                    maskSelector.clearSelection();
+
+                    // Clear all prompting masks
+                    const maskCreator = new MaskCreator();
+                    maskCreator.clearPrompts();
+
+                    this.setData(Data.parseResponse(response));
+
+                    this.dataHistoryManager = new HistoryManager(
+                        Core.DEFAULT_HISTORY_SIZE
+                    );
+                    this.showData();
+
+                    if (callBack != null) {
+                        callBack();
+                    }
+                })
+                .catch((error) => {
+                    if (errorCallBack != null) {
+                        errorCallBack(error);
+                    } else {
+                        this.popUpError(error);
+                    }
+                });
         });
     }
 
-    prevData(callBack = null) {
+    prevData(callBack = null, errorCallBack = null) {
         this.save(() => {
-            eel.get_prev_data()((response) => {
-                if (response === null) {
-                    alert("Failed to load previous data");
-                    return;
-                }
+            eel.get_prev_data()()
+                .then((response) => {
+                    if (response === null) {
+                        alert("Failed to load previous data");
+                        return;
+                    }
 
-                this.setData(Data.parseResponse(response));
-                this.showData();
+                    // Clear all selected masks
+                    const maskSelector = new MaskSelector();
+                    maskSelector.clearSelection();
 
-                if (callBack != null) {
-                    callBack();
-                }
-            });
+                    // Clear all prompting masks
+                    const maskCreator = new MaskCreator();
+                    maskCreator.clearPrompts();
+
+                    this.setData(Data.parseResponse(response));
+                    this.dataHistoryManager = new HistoryManager(
+                        Core.DEFAULT_HISTORY_SIZE
+                    );
+                    this.showData();
+
+                    if (callBack != null) {
+                        callBack();
+                    }
+                })
+                .catch((error) => {
+                    if (errorCallBack != null) {
+                        errorCallBack(error);
+                    } else {
+                        this.popUpError(error);
+                    }
+                });
         });
     }
 
-    jumpData(idx, callBack = null) {
+    jumpData(idx, callBack = null, errorCallBack = null) {
         this.save(() => {
-            eel.get_data_by_idx(idx)((response) => {
-                if (response === null) {
-                    alert("Failed to load data");
-                    return;
-                }
+            eel.get_data_by_idx(idx)()
+                .then((response) => {
+                    if (response === null) {
+                        alert("Failed to load data");
+                        return;
+                    }
 
-                this.setData(Data.parseResponse(response));
-                this.showData();
+                    // Clear all selected masks
+                    const maskSelector = new MaskSelector();
+                    maskSelector.clearSelection();
 
-                if (callBack != null) {
-                    callBack();
-                }
-            });
+                    // Clear all prompting masks
+                    const maskCreator = new MaskCreator();
+                    maskCreator.clearPrompts();
+
+                    this.setData(Data.parseResponse(response));
+                    this.dataHistoryManager = new HistoryManager(
+                        Core.DEFAULT_HISTORY_SIZE
+                    );
+                    this.showData();
+
+                    if (callBack != null) {
+                        callBack();
+                    }
+                })
+                .catch((error) => {
+                    if (errorCallBack != null) {
+                        errorCallBack(error);
+                    } else {
+                        this.popUpError(error);
+                    }
+                });
         });
     }
 
@@ -185,16 +393,36 @@ class Core {
         topPanel.update();
     }
 
-    saveDataset(output_dir, callBack = null) {
-        eel.save_dataset(output_dir)(() => {
-            if (callBack != null) {
-                callBack();
-            }
-        });
+    saveDataset(filePath, callBack = null, errorCallBack = null) {
+        eel.save_dataset(filePath)()
+            .then(() => {
+                if (callBack != null) {
+                    callBack();
+                }
+            })
+            .catch((error) => {
+                if (errorCallBack != null) {
+                    errorCallBack(error);
+                } else {
+                    this.popUpError(error);
+                }
+            });
     }
 
-    createPromptedMask(prompts) {
-        return eel.create_mask(prompts)();
+    createPromptedMask(prompts, callBack = null, errorCallBack = null) {
+        eel.create_mask(prompts)()
+            .then((annotation) => {
+                if (callBack != null) {
+                    callBack(annotation);
+                }
+            })
+            .catch((error) => {
+                if (errorCallBack != null) {
+                    errorCallBack(error);
+                } else {
+                    this.popUpError(error);
+                }
+            });
     }
 
     setDataModified(modified) {
@@ -223,9 +451,11 @@ class Core {
             }
         }
 
-        const otherIds = await eel.get_data_ids_by_category_id(
-            category.getCategoryId()
-        )();
+        const otherIds = await eel
+            .get_data_ids_by_category_id(category.getCategoryId())()
+            .catch((error) => {
+                this.popUpError(error);
+            });
         for (const id of otherIds) {
             // Ignore the current data, since the data is not saved
             if (id === data.getIdx()) {
@@ -237,30 +467,27 @@ class Core {
         return imageIds;
     }
 
-    exportImages(outputDir, callBack = null) {
-        eel.export_images(outputDir)(() => {
-            if (callBack != null) {
-                callBack();
-            }
-        });
+    exportImages(outputDir, callBack = null, callBackError = null) {
+        eel.export_images(outputDir)()
+            .then(() => {
+                if (callBack != null) {
+                    callBack();
+                }
+            })
+            .catch((error) => {
+                if (callBackError != null) {
+                    callBackError(error);
+                } else {
+                    this.popUpError(error);
+                }
+            });
     }
 
-    exportCOCO(outputDir, callBack = null) {
-        eel.export_coco(outputDir)(() => {
-            if (callBack != null) {
-                callBack();
-            }
-        });
-    }
-
-    exportAnnotatedImages(outputDir, callBack = null) {
-        console.log("Exporting annotated images");
-        this.getDataList(dataList, async () => {
-            console.log("Data list", dataList);
+    exportAnnotatedImages(outputDir, callBack = null, errorCallBack = null) {
+        this.getDataList(async (dataList) => {
             const annotatedDataInfoList = [];
             for (const data of dataList) {
                 try {
-                    console.log("Exporting", data.getImageName());
                     const annotationRenderer = new AnnotationRenderer();
                     await annotationRenderer.render(data);
                     const encodedImage = annotationRenderer.getEncodedImage();
@@ -271,33 +498,108 @@ class Core {
                     };
                     annotatedDataInfoList.push(annotatedDataInfo);
                 } catch (error) {
-                    console.error("Failed to export", data.getImageName());
-                    console.error(error);
+                    if (errorCallBack != null) {
+                        errorCallBack(error);
+                    } else {
+                        this.popUpError(error);
+                    }
                 }
             }
-
-            console.log(annotatedDataInfoList);
-            eel.export_annotated_images(
-                outputDir,
-                annotatedDataInfoList
-            )(() => {
-                if (callBack != null) {
-                    callBack();
-                }
-            });
+            eel.export_annotated_images(outputDir, annotatedDataInfoList)()
+                .then(() => {
+                    if (callBack != null) {
+                        callBack();
+                    }
+                })
+                .catch((error) => {
+                    if (errorCallBack != null) {
+                        errorCallBack(error);
+                    } else {
+                        this.popUpError(error);
+                    }
+                });
         });
     }
 
-    getDataList(callBack = null) {
-        eel.get_data_list()((dataInfoList) => {
-            const dataList = [];
-            for (const dataInfo of dataInfoList) {
-                dataList.push(Data.parseResponse(dataInfo));
-            }
+    exportCOCO(outputPath, callBack = null, errorCallBack = null) {
+        eel.export_coco(outputPath)()
+            .then(() => {
+                if (callBack != null) {
+                    callBack();
+                }
+            })
+            .catch((error) => {
+                if (errorCallBack != null) {
+                    errorCallBack(error);
+                } else {
+                    this.popUpError(error);
+                }
+            });
+    }
 
-            if (callBack != null) {
-                callBack(dataList);
-            }
+    getDataList(callBack = null, errorCallBack = null) {
+        eel.get_data_list()()
+            .then((dataInfoList) => {
+                const dataList = [];
+                for (const dataInfo of dataInfoList) {
+                    dataList.push(Data.parseResponse(dataInfo));
+                }
+
+                if (callBack != null) {
+                    callBack(dataList);
+                }
+            })
+            .catch((error) => {
+                if (errorCallBack != null) {
+                    errorCallBack(error);
+                } else {
+                    this.popUpError(error);
+                }
+            });
+    }
+
+    undo() {
+        const data = this.getData();
+
+        const categoryManager = new CategoryManager();
+        const categoryInfo = structuredClone(categoryManager.toJson());
+        const record = new Record(data.deepCopy(), categoryInfo);
+
+        const prevRecord = this.dataHistoryManager.undo(record);
+        if (prevRecord === null) {
+            return;
+        }
+        this.loadRecord(prevRecord);
+    }
+
+    redo() {
+        const nextRecord = this.dataHistoryManager.redo();
+        if (nextRecord === null) {
+            return;
+        }
+        this.loadRecord(nextRecord);
+    }
+
+    popUpError(error, shownMessage = null) {
+        const errorPopManager = new ErrorPopManager();
+        errorPopManager.clear();
+        errorPopManager.updateLargeText("Error");
+        errorPopManager.updateText(
+            shownMessage
+                ? shownMessage
+                : `Please re-launch the application. Or report the issue to the developer via <a href="${Core.ISSUE_URL}" target="_blank">Github</a>`
+        );
+        errorPopManager.addButton("OK", "OK", () => {
+            errorPopManager.hide();
         });
+
+        let errorMsg =
+            "Error Message:\n\n" +
+            error.errorText +
+            "\n\n" +
+            error.errorTraceback;
+        errorPopManager.updateTextBox(errorMsg);
+        errorPopManager.show();
+        console.error(error);
     }
 }

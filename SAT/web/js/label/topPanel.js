@@ -23,14 +23,6 @@ class TopPanel {
 
     initNextImageButton() {
         this.nextImageButton.addEventListener("click", () => {
-            // Clear all selected masks
-            const maskSelector = new MaskSelector();
-            maskSelector.clearSelection();
-
-            // Clear all prompting masks
-            const maskCreator = new MaskCreator();
-            maskCreator.clearPrompts();
-
             this.disableButtons();
             const core = new Core();
             core.nextData(() => {
@@ -46,29 +38,30 @@ class TopPanel {
             ActionManager.DEFAULT_STATE,
             "d",
             (event) => {
-                const labelPanel = new LabelPanel();
-                // Check if the input is not in the search input or add category input
+                this.nextImageButton.click();
+            }
+        );
+        actionManager.registerShortCut(
+            ActionManager.STATE_CREATE_MASK,
+            "d",
+            (event) => {
                 this.nextImageButton.click();
             }
         );
         document.addEventListener("keydown", (event) => {
+            if (actionManager.haveRegisteredDocumentEvent(event)) {
+                return;
+            }
             const key = event.key.toLowerCase();
             if (key === "d") {
                 actionManager.handleShortCut(key, event);
+                actionManager.addRegisteredDocumentEvent(event);
             }
         });
     }
 
     initPrevImageButton() {
         this.prevImageButton.addEventListener("click", () => {
-            // Clear all selected masks
-            const maskSelector = new MaskSelector();
-            maskSelector.clearSelection();
-
-            // Clear all prompting masks
-            const maskCreator = new MaskCreator();
-            maskCreator.clearPrompts();
-
             this.disableButtons();
             const core = new Core();
             core.prevData(() => {
@@ -84,15 +77,24 @@ class TopPanel {
             ActionManager.DEFAULT_STATE,
             "a",
             (event) => {
-                const labelPanel = new LabelPanel();
-                // Check if the input is not in the search input or add category input
+                this.prevImageButton.click();
+            }
+        );
+        actionManager.registerShortCut(
+            ActionManager.STATE_CREATE_MASK,
+            "a",
+            (event) => {
                 this.prevImageButton.click();
             }
         );
         document.addEventListener("keydown", (event) => {
+            if (actionManager.haveRegisteredDocumentEvent(event)) {
+                return;
+            }
             const key = event.key.toLowerCase();
             if (key === "a") {
                 actionManager.handleShortCut(key, event);
+                actionManager.addRegisteredDocumentEvent(event);
             }
         });
     }
@@ -119,6 +121,7 @@ class TopPanel {
         const data = core.getData();
 
         const imageName = data.getImageName();
-        this.imageNameText.textContent = imageName;
+        const imageIdx = data.getIdx();
+        this.imageNameText.textContent = `${imageIdx + 1}. ${imageName}`;
     }
 }

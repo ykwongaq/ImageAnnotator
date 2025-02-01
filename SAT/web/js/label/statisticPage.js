@@ -38,18 +38,26 @@ class StatisticPage {
 
         this.ignoreUndefinedCoral_ = true;
 
+        this.chartUrls = {};
+
         return this;
     }
 
-    init() {
-        // this.loadGoogleLib().then(() => {
-        //     // Do nothing
-        // });
-        google.charts.load("current", { packages: ["corechart"] });
-        // Set a callback function to run when the library is loaded
-        google.charts.setOnLoadCallback(() => {});
+    async init() {
+        try {
+            // Attempt to load the Google Charts library
+            const libraryLoaded = await this.loadGoogleLib();
+            if (!libraryLoaded) {
+                console.error("Google Charts library failed to load.");
+                this.displayErrorMessage(); // Optionally display an error message
+                return;
+            }
 
-        this.initIgnoreUndefinedCoralButton();
+            // Proceed with graph initialization
+            this.initIgnoreUndefinedCoralButton();
+        } catch (error) {
+            console.error("Error initializing Google Charts library:", error);
+        }
     }
 
     initIgnoreUndefinedCoralButton() {
@@ -60,22 +68,61 @@ class StatisticPage {
     }
 
     loadGoogleLib() {
-        // If the library hasn't been loaded, create a promise to load it
-        this.loadingPromise = new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
             try {
+                // Set a timeout in case the library fails to load
+                const timeout = setTimeout(() => {
+                    console.error("Google Charts library loading timed out.");
+                    resolve(false); // Resolve with `false` if timeout occurs
+                }, 5000); // Timeout after 5 seconds
+
                 google.charts.load("current", { packages: ["corechart"] });
                 google.charts.setOnLoadCallback(() => {
-                    resolve(true); // Resolve when the library is loaded
+                    clearTimeout(timeout); // Clear the timeout on success
+                    resolve(true); // Resolve with `true` if the library loads successfully
                 });
             } catch (error) {
-                reject(error); // Reject if there's an error
+                reject(error); // Reject the promise if an exception occurs
             }
         });
-
-        return this.loadingPromise; // Return the promise (either resolved or in progress)
     }
 
-    update() {
+    async update() {
+        // Ensure Google Charts is available before attempting to draw graphs
+        if (typeof google === "undefined" || !google.visualization) {
+            try {
+                const libraryLoaded = await this.loadGoogleLib();
+                console.log(libraryLoaded);
+                if (!libraryLoaded) {
+                    console.error("Google Charts library failed to load.");
+                    const generalPopUpManager = new GeneralPopManager();
+                    generalPopUpManager.clear();
+                    generalPopUpManager.updateLargeText("Error");
+                    generalPopUpManager.updateText(
+                        "Failed to load Google Charts library. Please try again after connecting to the internet."
+                    );
+                    generalPopUpManager.addButton("ok", "OK", () => {
+                        generalPopUpManager.hide();
+                    });
+                    generalPopUpManager.show();
+
+                    return;
+                }
+            } catch (error) {
+                console.error(error);
+                const generalPopUpManager = new GeneralPopManager();
+                generalPopUpManager.clear();
+                generalPopUpManager.updateLargeText("Error");
+                generalPopUpManager.updateText(
+                    "Failed to load Google Charts library. Please try again after connecting to the internet."
+                );
+                generalPopUpManager.addButton("ok", "OK", () => {
+                    generalPopUpManager.hide();
+                });
+                generalPopUpManager.show();
+            }
+        }
+
         const core = new Core();
         const data = core.getData();
 
@@ -202,7 +249,8 @@ class StatisticPage {
             });
         }
 
-        nameText.textContent = "Coral Coverage";
+        const name = "Coral Coverage";
+        nameText.textContent = name;
 
         downloadButton.addEventListener("click", () => {
             const [filename, ext] = this.splitFilename(data.getImageName());
@@ -210,6 +258,7 @@ class StatisticPage {
             this.download(chart, outputFilename);
         });
         this.currentImageGrid.appendChild(chartItem);
+        this.chartUrls[name] = chart.getImageURI();
     }
 
     genCoralColonyDistribution(data) {
@@ -232,6 +281,11 @@ class StatisticPage {
         if (this.ignoreUndefinedCoral()) {
             const undefinedCategory = new Category(Category.PREDICTED_CORAL_ID);
             delete dataDistribution[undefinedCategory.getCategorySuperName()];
+        }
+
+        // Skip if there are no coral colonies
+        if (Object.keys(dataDistribution).length === 0) {
+            return;
         }
 
         const dataTable = [];
@@ -263,7 +317,8 @@ class StatisticPage {
             legendsContainer.appendChild(legend);
         });
 
-        nameText.textContent = "Coral Colony Distribution";
+        const name = "Coral Colony Distribution";
+        nameText.textContent = name;
 
         downloadButton.addEventListener("click", () => {
             const [filename, ext] = this.splitFilename(data.getImageName());
@@ -272,6 +327,7 @@ class StatisticPage {
         });
 
         this.currentImageGrid.appendChild(chartItem);
+        this.chartUrls[name] = chart.getImageURI();
     }
 
     genSpeciesCoverage(data) {
@@ -341,7 +397,8 @@ class StatisticPage {
             legendsContainer.appendChild(legend);
         });
 
-        nameText.textContent = "Species Coverage";
+        const name = "Species Coverage";
+        nameText.textContent = name;
 
         downloadButton.addEventListener("click", () => {
             const [filename, ext] = this.splitFilename(data.getImageName());
@@ -350,6 +407,7 @@ class StatisticPage {
         });
 
         this.currentImageGrid.appendChild(chartItem);
+        this.chartUrls[name] = chart.getImageURI();
     }
 
     genOverallCondition(data) {
@@ -375,13 +433,12 @@ class StatisticPage {
             speciesData[statusName][1] += area;
         }
 
-        if (this.ignoreUndefinedCoral()) {
-            const undefinedCategory = new Category(Category.PREDICTED_CORAL_ID);
-            const undefinedStatusName = categoryManager.getStatusName(
-                undefinedCategory.getStatus()
-            );
-            delete speciesData[undefinedStatusName];
-        }
+        // Always ignore undefined coral
+        const undefinedCategory = new Category(Category.PREDICTED_CORAL_ID);
+        const undefinedStatusName = categoryManager.getStatusName(
+            undefinedCategory.getStatus()
+        );
+        delete speciesData[undefinedStatusName];
 
         const imageHeight = data.getImageHeight();
         const imageWidth = data.getImageWidth();
@@ -440,7 +497,8 @@ class StatisticPage {
             legendsContainer.appendChild(legend);
         });
 
-        nameText.textContent = "Health Status Distribution";
+        const name = "Health Status Distribution";
+        nameText.textContent = name;
 
         downloadButton.addEventListener("click", () => {
             const [filename, ext] = this.splitFilename(data.getImageName());
@@ -449,6 +507,7 @@ class StatisticPage {
         });
 
         this.currentImageGrid.appendChild(chartItem);
+        this.chartUrls[name] = chart.getImageURI();
     }
 
     genSpeciesCondition(data, category) {
@@ -466,18 +525,19 @@ class StatisticPage {
         let bleachedArea = 0;
 
         for (const mask of data.getMasks()) {
-            const category = mask.getCategory();
+            const maskCategory = mask.getCategory();
             if (
-                category.getSuperCategoryId() != category.getSuperCategoryId()
+                maskCategory.getSuperCategoryId() !=
+                category.getSuperCategoryId()
             ) {
                 continue;
             }
 
             const area = mask.getArea();
-            if (category.getStatus() === CategoryManager.STATUS_HEALTHY) {
+            if (maskCategory.getStatus() === CategoryManager.STATUS_HEALTHY) {
                 healthyArea += area;
             } else if (
-                category.getStatus() === CategoryManager.STATUS_BLEACHED
+                maskCategory.getStatus() === CategoryManager.STATUS_BLEACHED
             ) {
                 bleachedArea += area;
             }
@@ -512,7 +572,8 @@ class StatisticPage {
         });
 
         const superCategoryName = category.getCategorySuperName();
-        nameText.textContent = `${superCategoryName}`;
+        const name = `Condition - ${superCategoryName}`;
+        nameText.textContent = name;
 
         downloadButton.addEventListener("click", () => {
             const [filename, ext] = this.splitFilename(data.getImageName());
@@ -521,10 +582,12 @@ class StatisticPage {
         });
 
         this.currentImageGrid.appendChild(chartItem);
+        this.chartUrls[name] = chart.getImageURI();
     }
 
     clearCharts() {
         this.currentImageGrid.innerHTML = "";
+        this.chartUrls = {};
     }
 
     setIgnoreUndefinedCoral(value) {
@@ -572,5 +635,118 @@ class StatisticPage {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+    }
+
+    /**
+     * Export the image of each chart item and return the URLs as a dictionary.
+     * @returns {Promise<Object<string, string>>}
+     */
+    async getExportImageUrls() {
+        const chartItems =
+            this.currentImageGrid.querySelectorAll(".chart-item");
+        const exportUrls = {};
+        for (const chartItem of chartItems) {
+            const nameText = chartItem.querySelector(".chart-item__name");
+            const name = nameText.textContent;
+            const url = await this.exportChartImage(chartItem);
+
+            exportUrls[name] = url;
+        }
+        return exportUrls;
+    }
+
+    /**
+     * Given the chart item, combine the chart and the legends into a single image
+     * and export the image as a data URL.
+     * @param {HTMLElement} chartItem
+     * @returns {Promise<string>}
+     */
+    async exportChartImage(chartItem) {
+        return new Promise((resolve, reject) => {
+            const nameText = chartItem.querySelector(".chart-item__name");
+            const legendsContainer = chartItem.querySelector(".legends");
+            const name = nameText.textContent;
+            const chartUrl = this.chartUrls[name];
+
+            const exportImage = new Image();
+            exportImage.crossOrigin = "anonymous";
+            exportImage.onload = () => {
+                const exportImageWidth = exportImage.width;
+                const exportImageHeight = exportImage.height;
+
+                const legendItems =
+                    legendsContainer.querySelectorAll(".legend-item");
+                const legendItemHeight = 20;
+                const legendGap = 8;
+                const legendTopGap = 20; // space between the chart and the first legend line
+
+                const totalLegendsHeight =
+                    legendItems.length * (legendItemHeight + legendGap);
+                const canvasHeight =
+                    exportImageHeight + totalLegendsHeight + legendTopGap;
+
+                const canvas = document.createElement("canvas");
+                canvas.width = exportImageWidth;
+                canvas.height = canvasHeight;
+                const ctx = canvas.getContext("2d");
+
+                ctx.fillStyle = "#f4f6ff";
+                ctx.fillRect(0, 0, exportImageWidth, canvasHeight);
+
+                ctx.drawImage(exportImage, 0, 0);
+
+                // Draw each legend item
+                let yOffset = exportImageHeight + legendTopGap;
+                for (const legendItem of legendItems) {
+                    const color =
+                        legendItem.style.getPropertyValue("--color") || "#000";
+                    const labelText = legendItem.textContent.trim();
+
+                    // Color box
+                    const boxSize = 16;
+                    ctx.fillStyle = color;
+                    ctx.fillRect(0, yOffset, boxSize, boxSize);
+
+                    // Label
+                    ctx.font = "16px Arial";
+                    ctx.fill;
+                    ctx.fillText(
+                        labelText,
+                        20 + boxSize + 8,
+                        yOffset + boxSize - 2
+                    );
+
+                    yOffset += legendItemHeight + legendGap;
+                }
+
+                // Convert combined canvas to PNG data URL
+                const finalDataUrl = canvas.toDataURL("image/png");
+                resolve(finalDataUrl);
+            };
+            exportImage.src = chartUrl;
+        });
+    }
+    getChartsInfo() {
+        this.update();
+
+        const chartItems =
+            this.currentImageGrid.querySelectorAll(".chart-item");
+
+        const chartsInfo = [];
+        for (const chartItem of chartItems) {
+            const nameText = chartItem.querySelector(".chart-item__name");
+            const name = nameText.textContent;
+
+            const chartUrl = this.chartUrls[name];
+
+            const info = {
+                name: name,
+                chartUrl: chartUrl,
+                chartItem: chartItem,
+            };
+            chartsInfo.push(info);
+        }
+
+        return chartsInfo;
     }
 }

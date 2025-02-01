@@ -135,9 +135,27 @@
                                 >
                                     <button
                                         class="normal-dropdown__link"
+                                        id="export-image-button"
+                                    >
+                                        Export Image
+                                    </button>
+                                    <button
+                                        class="normal-dropdown__link"
+                                        id="export-annotated-image-button"
+                                    >
+                                        Export Annotated Images
+                                    </button>
+                                    <button
+                                        class="normal-dropdown__link"
                                         id="export-coco-button"
                                     >
                                         Export COCO
+                                    </button>
+                                    <button
+                                        class="normal-dropdown__link"
+                                        id="export-all-button"
+                                    >
+                                        Export All
                                     </button>
                                 </div>
                             </li>
@@ -152,7 +170,7 @@
                                         id="mask-opacity-silder"
                                         min="0"
                                         max="100"
-                                        value="60"
+                                        value="40"
                                         type="range"
                                         data-suffix="%"
                                     />
@@ -160,13 +178,15 @@
                                 <input
                                     id="mask-opacity-input"
                                     type="text"
-                                    value="60%"
+                                    value="40%"
                                 />
                             </div>
                         </div>
                         <div class="side-bar__blk">
                             <div class="toggle-blk">
-                                <p class="toggle-blk__title">Show Coral</p>
+                                <p class="toggle-blk__title">
+                                    Show Masks (Tab)
+                                </p>
                                 <label class="switch">
                                     <input
                                         type="checkbox"
@@ -312,31 +332,35 @@
                     <div class="float-bar" id="action-panel">
                         <div class="float-bar__inner">
                             <div class="float-bar__item">
-                                <div class="toggle-color-plate-popup toggle-fn">
+                                <div
+                                    class="toggle-color-plate-popup toggle-fn"
+                                    id="category-selector"
+                                >
                                     <div
                                         class="toggle-color-plate-popup__pop toggle-fn__hide"
                                     >
                                         <p
                                             class="toggle-color-plate-popup__label"
                                         >
-                                            Colour
+                                            Label
                                         </p>
                                         <div
                                             class="color-plate-list toggle-color-plate-popup__list"
-                                            id="color-selection-container"
                                         ></div>
                                     </div>
                                     <button
-                                        id="assign-label-toggle-button"
-                                        class="toggle-fn__btn toggle-color-plate-popup__button float-bar__button"
+                                        id="assign-category-toggle-button"
+                                        class="toggle-fn__btn toggle-color-plate-popup__button float-bar__button toggle-button"
                                     >
                                         <span
-                                            id="selected-label-color"
-                                            class="color-blk"
-                                        ></span>
-                                        <span id="selectedLabelColorText"
-                                            >Assign Label (C)</span
+                                            class="color-blk selected-category-box"
+                                            style="display: none"
                                         >
+                                            <span
+                                                class="label-sm-blk__text selected-category-text"
+                                            ></span>
+                                        </span>
+                                        <span>Assign Label (C)</span>
                                     </button>
                                 </div>
                             </div>
@@ -369,8 +393,27 @@
                                         value="1"
                                     />
                                     <span class="ico-shape icon"></span>
-                                    Add Mask
+                                    Add Mask (W)
                                 </label>
+                            </div>
+                            <div class="float-bar__item">
+                                <div
+                                    id="actionContainer"
+                                    class="float-bar__item actionButton"
+                                >
+                                    <button
+                                        id="undo-button"
+                                        class="float-bar__button"
+                                    >
+                                        <span class="ico-undo icon"></span>
+                                    </button>
+                                    <button
+                                        id="redo-button"
+                                        class="float-bar__button"
+                                    >
+                                        <span class="ico-redo icon"></span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         <template id="label-small-btn-template">
@@ -390,6 +433,34 @@
 
                     <div id="actionContainer-bar" class="float-bar">
                         <div class="float-bar__inner">
+                            <div
+                                class="toggle-color-plate-popup toggle-fn"
+                                id="category-selector-prompt"
+                            >
+                                <div
+                                    class="toggle-color-plate-popup__pop toggle-fn__hide"
+                                >
+                                    <p class="toggle-color-plate-popup__label">
+                                        Label
+                                    </p>
+                                    <div
+                                        class="color-plate-list toggle-color-plate-popup__list"
+                                    ></div>
+                                </div>
+                                <button
+                                    id="assign-category-toggle-button"
+                                    class="toggle-fn__btn toggle-color-plate-popup__button float-bar__button toggle-button"
+                                >
+                                    <span
+                                        class="color-blk selected-category-box"
+                                    >
+                                        <span
+                                            class="label-sm-blk__text selected-category-text"
+                                        ></span>
+                                    </span>
+                                    <span>Assign Label (C)</span>
+                                </button>
+                            </div>
                             <div class="float-bar__item">
                                 <div
                                     id="actionContainer"
@@ -618,28 +689,43 @@
                     class="loading-pop__number modal-pop__number"
                 ></p>
                 <p
-                    id="loading-pop-text"
+                    id="loading-pop-title"
                     class="loading-pop__lg-text modal-pop__lg-text"
                 >
                     Hold Tight!
                 </p>
-                <p class="loading-pop__text modal-pop__text">
+                <p
+                    class="loading-pop__text modal-pop__text"
+                    id="loading-pop-content"
+                >
                     We're brewing up something amazing. It might take a few
                     minutes, so sit back and relax. Better not to leave this
                     page. Thanks for your patience! 😊
                 </p>
-                <div class="loading-pop__row modal-pop__row">
-                    <button id="loading-pop-quit" class="button">Quit</button>
-                </div>
+                <div
+                    class="modal-pop__row"
+                    id="loading-pop-button-container"
+                ></div>
             </div>
         </div>
+
         <div id="general-pop" class="modal-pop">
             <div class="modal-pop__inner">
                 <p id="general-pop-large-text" class="modal-pop__lg-text"></p>
                 <p id="general-pop-text" class="modal-pop__text"></p>
-                <div id="button-container" class="modal-pop__row">
-                    <!-- <button id="general-pop-button" class="button">OK</button> -->
-                </div>
+                <div id="button-container" class="modal-pop__row"></div>
+            </div>
+        </div>
+        <div id="error-pop" class="modal-pop">
+            <div class="modal-pop__inner">
+                <p id="error-pop-large-text" class="modal-pop__lg-text"></p>
+                <p id="error-pop-text" class="modal-pop__text"></p>
+                <textarea
+                    id="error-pop-textarea"
+                    class="model-pop__textarea"
+                    readonly
+                ></textarea>
+                <div id="button-container" class="modal-pop__row"></div>
             </div>
         </div>
         <div id="loading-pop-backdrop" class="modal-pop-backdrop"></div>
@@ -653,8 +739,11 @@
         <script src="./js/slider.js"></script>
         <script src="./js/toggle-input.js"></script>
         <script src="js/navigate.js"></script>
+        <script src="js/request.js"></script>
+        <script src="js/label/historyManager.js"></script>
         <script src="js/generalPopManager.js"></script>
         <script src="js/loadingPopManager.js"></script>
+        <script src="js/errorPopManager.js"></script>
         <script src="js/label/data.js"></script>
         <script src="js/label/maskCreator.js"></script>
         <script src="js/label/maskSelector.js"></script>
@@ -666,29 +755,10 @@
         <script src="js/label/core.js"></script>
         <script src="js/label/viewPanel.js"></script>
         <script src="js/label/topPanel.js"></script>
+        <script src="js/label/categorySelector.js"></script>
         <script src="js/label/actionPanel.js"></script>
         <script src="js/label/statisticPage.js"></script>
         <script src="js/label/galleryPage.js"></script>
         <script src="js/label/labelPage.js"></script>
-        <!-- <script src="js/label/chart.js"></script>
-        <script src="js/genernalPopManager.js"></script>
-        <script src="js/loadingIconManager-new.js"></script>
-        <script src="./eel.js"></script>
-        <script src="js/navigate.js"></script>
-        <script src="js/label/canvas.js"></script>
-        <script src="js/label/config.js"></script>
-        <script src="js/label/dataset.js"></script>
-        <script src="js/label/Label-new.js"></script>
-        <script src="js/label/LabelView-new.js"></script>
-        <script src="js/label/modeView.js"></script>
-        <script src="js/label/topNavigationBar.js"></script>
-        <script src="js/label/opacityView.js"></script>
-        <script src="js/label/progressInfoView.js"></script>
-        <script src="js/label/bottomNavigationBar.js"></script>
-        <script src="js/label/core.js"></script>
-        <script src="js/label/galleryPage.js"></script>
-        <script src="js/label/settingPage.js"></script>
-        <script src="js/label/labelPage.js"></script>
-        <script src="js/label/statisticPage.js"></script> -->
     </body>
 </html>
