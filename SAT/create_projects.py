@@ -3,7 +3,8 @@ import os
 import logging
 
 from PIL import Image
-from server.project import ProjectCreateRequest, ProjectCreator
+from server.project import ProjectCreator
+from server.util.requests import ProjectCreateRequest
 from server.embedding import EmbeddingGenerator
 from typing import Dict, List, Generator
 
@@ -78,7 +79,7 @@ def main(args):
     print(f"Embedding model: {embedding_model_path}")
 
     project_requests = []
-    for image_batch in batch_iterator(image_files, batch_size):
+    for idx, image_batch in enumerate(batch_iterator(image_files, batch_size)):
         request = {}
 
         inputs = []
@@ -97,7 +98,7 @@ def main(args):
 
         request["inputs"] = inputs
         request["config"] = config
-        request["output_dir"] = output_dir
+        request["output_file"] = os.path.join(output_dir, f"project_{idx + 1}.sat")
 
         project_request = ProjectCreateRequest(request)
         project_requests.append(project_request)
