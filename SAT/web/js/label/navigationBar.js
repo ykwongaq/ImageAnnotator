@@ -92,10 +92,18 @@ class NavigationBar {
                     );
                     loadingPopManager.show();
 
-                    core.exportImages(fileFolder, () => {
-                        loadingPopManager.hide();
-                        this.enable();
-                    });
+                    core.exportImages(
+                        fileFolder,
+                        () => {
+                            loadingPopManager.hide();
+                            this.enable();
+                        },
+                        (error) => {
+                            console.error(error);
+                            loadingPopManager.hide();
+                            this.enable();
+                        }
+                    );
                 });
             });
         });
@@ -118,10 +126,18 @@ class NavigationBar {
                     );
                     loadingPopManager.show();
 
-                    core.exportAnnotatedImages(fileFolder, () => {
-                        loadingPopManager.hide();
-                        this.enable();
-                    });
+                    core.exportAnnotatedImages(
+                        fileFolder,
+                        () => {
+                            loadingPopManager.hide();
+                            this.enable();
+                        },
+                        (error) => {
+                            console.error(error);
+                            loadingPopManager.hide();
+                            this.enable();
+                        }
+                    );
                 });
             });
         });
@@ -150,10 +166,18 @@ class NavigationBar {
                     );
                     loadingPopManager.show();
 
-                    core.exportCOCO(filePath, () => {
-                        loadingPopManager.hide();
-                        this.enable();
-                    });
+                    core.exportCOCO(
+                        filePath,
+                        () => {
+                            loadingPopManager.hide();
+                            this.enable();
+                        },
+                        (error) => {
+                            console.error(error);
+                            loadingPopManager.hide();
+                            this.enable();
+                        }
+                    );
                 });
             });
         });
@@ -176,14 +200,38 @@ class NavigationBar {
                     );
                     loadingPopManager.show();
 
-                    core.exportImages(fileFolder, () => {
-                        core.exportAnnotatedImages(fileFolder, () => {
-                            core.exportCOCO(fileFolder, () => {
-                                loadingPopManager.hide();
-                                this.enable();
-                            });
-                        });
-                    });
+                    core.exportImages(
+                        fileFolder,
+                        () => {
+                            core.exportAnnotatedImages(
+                                fileFolder,
+                                () => {
+                                    core.exportCOCO(
+                                        fileFolder,
+                                        () => {
+                                            loadingPopManager.hide();
+                                            this.enable();
+                                        },
+                                        (error) => {
+                                            console.error(error);
+                                            loadingPopManager.hide();
+                                            this.enable();
+                                        }
+                                    );
+                                },
+                                (error) => {
+                                    console.error(error);
+                                    loadingPopManager.hide();
+                                    this.enable();
+                                }
+                            );
+                        },
+                        (error) => {
+                            console.error(error);
+                            loadingPopManager.hide();
+                            this.enable();
+                        }
+                    );
                 });
             });
         });
@@ -216,12 +264,27 @@ class NavigationBar {
 
             const core = new Core();
             // Save the current data first and then save the dataset
-            core.save(() => {
-                core.saveDataset(null, () => {
+            core.save(
+                () => {
+                    core.saveDataset(
+                        null,
+                        () => {
+                            loadingPopManager.hide();
+                            this.enable();
+                        },
+                        (error) => {
+                            console.error(error);
+                            loadingPopManager.hide();
+                            this.enable();
+                        }
+                    );
+                },
+                (error) => {
+                    console.error(error);
                     loadingPopManager.hide();
                     this.enable();
-                });
-            });
+                }
+            );
         });
 
         this.saveToButton.addEventListener("click", () => {
@@ -247,10 +310,18 @@ class NavigationBar {
                     );
                     loadingPopManager.show();
 
-                    core.saveDataset(filePath, () => {
-                        loadingPopManager.hide();
-                        this.enable();
-                    });
+                    core.saveDataset(
+                        filePath,
+                        () => {
+                            loadingPopManager.hide();
+                            this.enable();
+                        },
+                        (error) => {
+                            console.error(error);
+                            loadingPopManager.hide();
+                            this.enable();
+                        }
+                    );
                 });
             });
         });

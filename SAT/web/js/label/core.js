@@ -483,7 +483,7 @@ class Core {
             });
     }
 
-    exportAnnotatedImages(outputDir, callBack = null, errorCallBack = null) {
+    exportAnnotatedImages(outputDir, callBack = null, callBackError = null) {
         this.getDataList(async (dataList) => {
             const annotatedDataInfoList = [];
             for (const data of dataList) {
@@ -519,7 +519,7 @@ class Core {
         });
     }
 
-    exportCOCO(outputPath, callBack = null, errorCallBack = null) {
+    exportCOCO(outputPath, callBack = null, callBackError = null) {
         eel.export_coco(outputPath)()
             .then(() => {
                 if (callBack != null) {
@@ -534,7 +534,7 @@ class Core {
             });
     }
 
-    getDataList(callBack = null, errorCallBack = null) {
+    getDataList(callBack = null, callBackError = null) {
         eel.get_data_list()()
             .then((dataInfoList) => {
                 const dataList = [];
