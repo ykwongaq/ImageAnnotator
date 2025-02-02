@@ -415,28 +415,32 @@ class Server:
         json_importor = JsonImportor()
         improted_dataset = json_importor.import_json(input_path)
 
+        imported_data_dict: Dict[str, Data] = {}
+        for imported_data in improted_dataset.get_data_list():
+            imported_data_dict[imported_data.get_image_name()] = imported_data
+
+        matched_count = 0
         for data in self.dataset.get_data_list():
-            # Find the matched data
-            current_image_name = data.get_image_name()
-            for imported_data in improted_dataset.get_data_list():
-                imported_image_name = imported_data.get_image_name()
-                if current_image_name == imported_image_name:
-                    # Update the segmentation json information
-                    self.logger.info(f"Matching data found for {current_image_name}")
-                    data_idx = data.get_idx()
-                    segmentation = imported_data.get_segmentation()
-                    segmentation["images"][0]["id"] = data_idx
+            data_name = data.get_image_name()
+            if data_name in imported_data_dict:
+                self.logger.info(f"Matching data found for {data_name}")
+                matched_count += 1
 
-                    for annotation in segmentation["annotations"]:
-                        annotation["image_id"] = data_idx
+                # Update the segmentation json information
+                imported_data = imported_data_dict[data_name]
+                data_idx = data.get_idx()
 
-                    data.set_segmentation(segmentation)
-                    break
-                else:
-                    # No matching data found
-                    self.logger.info(f"No matching data found for {current_image_name}")
-                    # Set the annotation to empty
-                    image_data = data.get_segmentation()["images"][0]
-                    data.set_segmentation({"images": [image_data], "annotations": []})
+                segmentation = imported_data.get_segmentation()
+                segmentation["images"][0]["id"] = data_idx
 
+                for annotation in segmentation["annotations"]:
+                    annotation["image_id"] = data_idx
+                data.set_segmentation(imported_data.get_segmentation())
+            else:
+                # If not matching found, then set the annotation to empty
+                self.logger.error(f"Data not found for {data_name}")
+                image_data = data.get_segmentation()["images"][0]
+                data.set_segmentation({"images": [image_data], "annotations": []})
+
+        self.logger.info(f"Matched {matched_count} data")
         self.dataset.set_category_info(improted_dataset.get_category_info())
