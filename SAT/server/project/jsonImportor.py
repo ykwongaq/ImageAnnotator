@@ -50,11 +50,11 @@ class JsonImportor:
                 # Ensure that annotation have area
                 rle = annotation["segmentation"]
                 area = coco_mask.area(rle)
-                annotation["area"] = area
+                annotation["area"] = int(area)
 
                 # Ensure that annotation have bbox
                 bbox = coco_mask.toBbox(rle)
-                annotation["bbox"] = bbox
+                annotation["bbox"] = bbox.tolist()
 
             segmentation = {"images": [image_data], "annotations": annotations}
             data.set_segmentation(segmentation)

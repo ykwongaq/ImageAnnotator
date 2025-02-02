@@ -262,9 +262,8 @@ class Core {
             .catch((error) => {
                 if (errorCallBack != null) {
                     errorCallBack(error);
-                } else {
-                    this.popUpError(error);
                 }
+                this.popUpError(error);
             });
     }
 
@@ -299,9 +298,8 @@ class Core {
                 .catch((error) => {
                     if (errorCallBack != null) {
                         errorCallBack(error);
-                    } else {
-                        this.popUpError(error);
                     }
+                    this.popUpError(error);
                 });
         });
     }
@@ -336,9 +334,8 @@ class Core {
                 .catch((error) => {
                     if (errorCallBack != null) {
                         errorCallBack(error);
-                    } else {
-                        this.popUpError(error);
                     }
+                    this.popUpError(error);
                 });
         });
     }
@@ -373,9 +370,8 @@ class Core {
                 .catch((error) => {
                     if (errorCallBack != null) {
                         errorCallBack(error);
-                    } else {
-                        this.popUpError(error);
                     }
+                    this.popUpError(error);
                 });
         });
     }
@@ -404,9 +400,8 @@ class Core {
             .catch((error) => {
                 if (errorCallBack != null) {
                     errorCallBack(error);
-                } else {
-                    this.popUpError(error);
                 }
+                this.popUpError(error);
             });
     }
 
@@ -420,9 +415,8 @@ class Core {
             .catch((error) => {
                 if (errorCallBack != null) {
                     errorCallBack(error);
-                } else {
-                    this.popUpError(error);
                 }
+                this.popUpError(error);
             });
     }
 

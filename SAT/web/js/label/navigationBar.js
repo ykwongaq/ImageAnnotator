@@ -280,8 +280,8 @@ class NavigationBar {
                     );
                 },
                 (error) => {
-                    console.error(error);
                     loadingPopManager.hide();
+                    console.error(error);
                     this.enable();
                 }
             );

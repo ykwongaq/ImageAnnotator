@@ -1,5 +1,6 @@
 import os
 import zipfile
+import logging
 import shutil
 
 from ..util.json import save_json
@@ -21,7 +22,7 @@ TEMP_CREATE_NAME_2 = "__coralscop_lat_temp_2"
 
 class ProjectSaver:
     def __init__(self):
-        pass
+        self.logger = logging.getLogger(self.__class__.__name__)
 
     def save_dataset(
         self, dataset: Dataset, project_path_origin: str, project_path_new: str
