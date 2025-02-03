@@ -83,9 +83,15 @@ function main() {
             generalPopManager.updateText("Loading Project...");
             generalPopManager.show();
             const core = new Core();
-            core.loadProject(projectPath, () => {
-                generalPopManager.hide();
-            });
+            core.loadProject(
+                projectPath,
+                () => {
+                    generalPopManager.hide();
+                },
+                (error) => {
+                    generalPopManager.hide();
+                }
+            );
         }
     }
 
