@@ -130,6 +130,7 @@ class NavigationBar {
                             "Terminating the process. Please wait."
                         );
                         loadingPopManager.addProperty("terminate", true);
+                        this.enable();
                     });
                     loadingPopManager.show();
 
