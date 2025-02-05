@@ -105,7 +105,7 @@ class ProjectLoader:
         asset_folder = os.path.join(
             ProjectLoader.WEB_FOLDER_NAME, ProjectLoader.ASSET_FOLDER
         )
-        os.makedirs(asset_folder, exist_ok=True)
+        os.makedirs(get_resource_path(asset_folder), exist_ok=True)
 
         assset_image_paths = []
         for image_path in image_paths:
