@@ -1,16 +1,16 @@
 import logging
 import os
-import time
-import numpy as np
-import zipfile
 import shutil
+import time
+import zipfile
+from typing import Dict, List, Tuple, Union
 
-from ..util.json import load_json
-from ..dataset import Dataset, Data
+import numpy as np
 from PIL import Image
 
-
-from typing import Dict, Tuple, List, Union
+from ..dataset import Data, Dataset
+from ..util.general import get_resource_path
+from ..util.json import load_json
 
 TEMP_CREATE_NAME = "__coralscop_lat_temp"
 TEMP_CREATE_NAME_2 = "__coralscop_lat_temp_2"
@@ -110,7 +110,10 @@ class ProjectLoader:
         assset_image_paths = []
         for image_path in image_paths:
             image = Image.open(image_path)
-            image.save(os.path.join(asset_folder, os.path.basename(image_path)))
+
+            save_path = os.path.join(asset_folder, os.path.basename(image_path))
+            save_path = get_resource_path(save_path)
+            image.save(save_path)
 
             asset_image_path = os.path.join(
                 ProjectLoader.ASSET_FOLDER, os.path.basename(image_path)
@@ -130,4 +133,5 @@ class ProjectLoader:
             # Delete all the files in the folder
             for filename in os.listdir(asset_folder):
                 file_path = os.path.join(asset_folder, filename)
+                file_path = get_resource_path(file_path)
                 os.remove(file_path)
